@@ -2,6 +2,7 @@ const dilekceTuruSel = document.getElementById('dilekceTuru');
 const groupSorusturma = document.getElementById('groupSorusturma');
 const groupYetkiBelgesi = document.getElementById('groupYetkiBelgesi');
 const groupCmk = document.getElementById('groupCmk');
+const groupIcraItiraz = document.getElementById('groupIcraItiraz');
 
 const rolSel = document.getElementById('rol');
 const isimLabel = document.getElementById('isimLabel');
@@ -12,11 +13,14 @@ function toggleFormGroups(){
   groupSorusturma.style.display = 'none';
   groupYetkiBelgesi.style.display = 'none';
   groupCmk.style.display = 'none';
+  groupIcraItiraz.style.display = 'none';
 
   if(val === 'yetki_belgesi'){
     groupYetkiBelgesi.style.display = 'block';
   } else if(val === 'cmk_kayit'){
     groupCmk.style.display = 'block';
+  } else if(val === 'icra_itiraz'){
+    groupIcraItiraz.style.display = 'block';
   } else {
     groupSorusturma.style.display = 'block';
   }
@@ -25,6 +29,7 @@ dilekceTuruSel.addEventListener('change', toggleFormGroups);
 toggleFormGroups();
 
 function syncLabels(){
+  if(!rolSel) return;
   if(rolSel.value === 'supheli'){
     isimLabel.textContent = 'Şüphelinin Adı Soyadı';
     avukatLabel.textContent = 'Müdafiin Adı Soyadı';
@@ -33,8 +38,10 @@ function syncLabels(){
     avukatLabel.textContent = 'Vekilinin Adı Soyadı';
   }
 }
-rolSel.addEventListener('change', syncLabels);
-syncLabels();
+if(rolSel){
+  rolSel.addEventListener('change', syncLabels);
+  syncLabels();
+}
 
 function attrsToStr(a){
   let s = '';
@@ -166,7 +173,6 @@ function buildContentXml(data){
     ]);
 
   } else if(data.dilekceTuru === 'cmk_kayit'){
-    // === CMK ZORUNLU MÜDAFİ / VEKİL KAYDI DİLEKÇESİ ===
     const isMudaﬁ = data.cmkRol === 'supheli';
     const tarafTitle = isMudaﬁ ? 'ŞÜPHELİ' : 'MÜŞTEKİ';
     const avTitle = isMudaﬁ ? 'MÜDAFİ' : 'VEKİLİ';
@@ -199,19 +205,16 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    // 1. Paragraf (Dinamik Görevlendirme Paragrafı)
     const p1 = data.cmkBaro + " tarafından yukarıda numarası belirtilen soruşturma dosyası kapsamında " + (isMudaﬁ ? "şüpheli" : "müşteki/mağdur") + " " + data.cmkTarafIsim + " için CMK hükümleri uyarınca " + gorevUnvani + " olarak görevlendirilmiş bulunmaktayım. Görevlendirme yazısı dilekçemiz ekinde sunulmuştur.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: p1, attrs:{resolver:"hvl-default"}}
     ]);
 
-    // 2. Paragraf (Mevzuat Paragrafı)
     const p2 = "5271 sayılı Ceza Muhakemesi Kanunu’nun 150 ve devamı maddeleri ile Ceza Muhakemesi Kanunu Gereğince Müdafi ve Vekillerin Görevlendirilmeleri ile Yapılacak Ödemelerin Usul ve Esaslarına İlişkin Yönetmelik hükümleri uyarınca, tarafıma ait vekâlet/müdafilik görevinin dosya kayıtlarına işlenmesi ve UYAP sistemine vekil kaydımın yapılması gerekmektedir.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: p2, attrs:{resolver:"hvl-default"}}
     ]);
 
-    // 3. Paragraf (Talep Paragrafı)
     const p3 = "Bu kapsamda, CMK kapsamında yürütülen görevlendirmeye ilişkin ücret ve sair yasal haklarımın talep edilebilmesi bakımından dosyaya vekil kaydımın yapılmasını vekâleten talep ederim.\n\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: p3, attrs:{resolver:"hvl-default"}}
@@ -226,8 +229,55 @@ function buildContentXml(data){
       {text:"e-imzalıdır\n", attrs:{}}
     ]);
 
+  } else if(data.dilekceTuru === 'icra_itiraz'){
+    // === İCRA BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ ===
+    addPara({Alignment:"1", LineSpacing:"0.5"}, [
+      {text:"T.C.\n", attrs:{bold:"true"}}
+    ]);
+    addPara({Alignment:"1", LineSpacing:"0.5"}, [
+      {text: data.icraMudurlugu + " İCRA MÜDÜRLÜĞÜNE\n\n", attrs:{bold:"true"}}
+    ]);
+
+    addPara({Alignment:"3", LineSpacing:"0.5"}, [
+      {text:"ESAS NO\t\t: ", attrs:{bold:"true"}},
+      {text: data.icraEsasNo + "\n", attrs:{}}
+    ]);
+    addPara({Alignment:"3", LineSpacing:"0.5"}, [
+      {text:"BORÇLU\t\t: ", attrs:{bold:"true"}},
+      {text: data.borcluAdi + "\n", attrs:{}}
+    ]);
+    addPara({Alignment:"3", LineSpacing:"0.5"}, [
+      {text:"VEKİLİ\t\t: ", attrs:{bold:"true"}},
+      {text: "Av. " + data.icraAvukat + "\n", attrs:{}}
+    ]);
+    addPara({Alignment:"3", LineSpacing:"0.5"}, [
+      {text:"KONU\t\t: ", attrs:{bold:"true"}},
+      {text: "BORCA, FAİZE VE TÜM FERİLERE İTİRAZ HK.\n", attrs:{}}
+    ]);
+    addPara({Alignment:"3", LineSpacing:"0.5"}, [
+      {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
+    ]);
+
+    const icraP1 = "Yukarıda esas numarası belirtilen icra dosyası kapsamında tarafımıza yöneltilen takip konusu asıl alacağın tamamına, işlemiş ve işleyecek faizin tamamına, faiz oranına, faiz başlangıç tarihine, icra takip giderlerine, vekâlet ücretine ve sair tüm asli ve fer’î alacaklara ayrı ayrı ve açıkça itiraz ediyoruz.\n";
+    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
+      {text: icraP1, attrs:{resolver:"hvl-default"}}
+    ]);
+
+    const icraP2 = "İtirazlarımız doğrultusunda icra takibinin durdurulmasına karar verilmesini vekâleten talep ederim.\n\n";
+    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
+      {text: icraP2, attrs:{resolver:"hvl-default"}}
+    ]);
+
+    addEmptyLine("2");
+
+    addPara({Alignment:"2", LineSpacing:"0.5"}, [
+      {text:"Av. " + data.icraAvukat + "\n", attrs:{}}
+    ]);
+    addPara({Alignment:"2", LineSpacing:"0.5"}, [
+      {text:"e-imzalıdır\n", attrs:{}}
+    ]);
+
   } else {
-    // === SORUŞTURMA İNCELEME TALEBİ ŞABLONU ===
     const roleLabel = data.rol === 'supheli' ? 'ŞÜPHELİ' : 'MÜŞTEKİ';
     const repLabel  = data.rol === 'supheli' ? 'MÜDAFİ' : 'VEKİLİ';
 
@@ -255,7 +305,7 @@ function buildContentXml(data){
       {text:" Avukatın Soruşturma Dosyasını İnceleme Talebi (Portal)\n", attrs:{resolver:"hvl-default"}}
     ]);
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"AÇIKLAMALAR\t:\n", attrs:{resolver:"hvl-default", bold:"true"}}
+      {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text:"Başsavcılığınızın yukarıda numarası belirtilen soruşturma dosyasının, müdafii olarak UYAP Avukat Portal üzerinden tarafımızca incelenebilmesi ve dosya kapsamında bulunan belgelere erişim sağlanabilmesi için gerekli yetkilendirmenin yapılmasını vekâleten talep ederim.\n", attrs:{resolver:"hvl-default"}}
@@ -383,7 +433,7 @@ async function createZipBlob(filename, uncompressedData) {
   view.setUint16(cdOffset + 34, 0, true);
   view.setUint16(cdOffset + 36, 0, true);
   view.setUint32(cdOffset + 38, 0, true);
-  view.setUint32(cdOffset + 42, 0, true);
+  view.setUint32(cdOffset + 42, cdOffset, true);
   zipBuffer.set(fileNameBytes, cdOffset + 46);
 
   const eocdOffset = cdOffset + cdHeaderLen;
@@ -452,6 +502,23 @@ document.getElementById('go').addEventListener('click', async () => {
 
     fileName = `CMK_Kayit_${cleanSavcilik}_${cleanSorusturma}_${cleanAv}.udf`;
 
+  } else if(dilekceTuru === 'icra_itiraz'){
+    payload.icraMudurlugu = document.getElementById('icraMudurlugu').value.trim().toLocaleUpperCase('tr');
+    payload.icraEsasNo = document.getElementById('icraEsasNo').value.trim();
+    payload.borcluAdi = document.getElementById('borcluAdi').value.trim();
+    payload.icraAvukat = document.getElementById('icraAvukat').value.trim();
+
+    if(!payload.icraMudurlugu || !payload.icraEsasNo || !payload.borcluAdi || !payload.icraAvukat){
+      showMsg('Lütfen tüm alanları doldurun.', 'err');
+      return;
+    }
+
+    const cleanMudurluk = cleanPartForFilename(payload.icraMudurlugu);
+    const cleanEsas = cleanPartForFilename(payload.icraEsasNo);
+    const cleanBorclu = cleanPartForFilename(payload.borcluAdi);
+
+    fileName = `IcraItiraz_${cleanMudurluk}_${cleanEsas}_${cleanBorclu}.udf`;
+
   } else {
     payload.bassavcilik = document.getElementById('bassavcilik').value.trim().toLocaleUpperCase('tr');
     payload.sorusturmaNo = document.getElementById('sorusturma').value.trim();
@@ -467,6 +534,10 @@ document.getElementById('go').addEventListener('click', async () => {
     fileName = 'sorusturma_' + safeName + '.udf';
   }
 
+  if (!fileName || !fileName.endsWith('.udf')) {
+    fileName = 'dilekce.udf';
+  }
+
   const btn = document.getElementById('go');
   btn.disabled = true;
   btn.textContent = 'Hazırlanıyor...';
@@ -475,26 +546,20 @@ document.getElementById('go').addEventListener('click', async () => {
     const xml = buildContentXml(payload);
     const zipBuffer = await createZipBlob('content.xml', xml);
 
-    let binary = '';
-    const bytes = new Uint8Array(zipBuffer);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const dataUrl = 'data:application/octet-stream;base64,' + btoa(binary);
+    const blob = new Blob([zipBuffer], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
 
-    chrome.runtime.sendMessage({
-      type: 'DOWNLOAD_UDF',
-      url: dataUrl,
-      filename: fileName
-    }, (response) => {
-      if (response && response.success) {
-        showMsg('UDF dosyası indirildi.', 'ok');
-      } else {
-        showMsg('İndirme hatası oluştu.', 'err');
-      }
-      btn.disabled = false;
-      btn.textContent = 'UDF Dosyasını İndir';
-    });
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showMsg('UDF dosyası başarıyla indirildi.', 'ok');
+    btn.disabled = false;
+    btn.textContent = 'UDF Dosyasını İndir';
 
   } catch(err){
     showMsg('Beklenmeyen bir hata oluştu: ' + (err && err.message ? err.message : err), 'err');

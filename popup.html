@@ -88,6 +88,7 @@
       <option value="inceleme">Soruşturma Dosyası İnceleme Talebi</option>
       <option value="yetki_belgesi">Yetki Belgesi</option>
       <option value="cmk_kayit">CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi</option>
+      <option value="icra_itiraz">İcra Borca ve Ferilerine İtiraz Dilekçesi</option>
     </select>
 
     <label for="yaziTipi">Yazı Tipi Seçimi</label>
@@ -184,6 +185,22 @@
 
       <label for="cmkAvukat">Görevlendirilen Avukat</label>
       <input type="text" id="cmkAvukat" placeholder="Av. Adı Soyadı">
+    </div>
+
+    <!-- İCRA İTİRAZ FORMU -->
+    <div id="groupIcraItiraz" style="display:none;">
+      <label for="icraMudurlugu">İcra Müdürlüğü Adı</label>
+      <input type="text" id="icraMudurlugu" placeholder="Örn: İSTANBUL 1. İCRA MÜDÜRLÜĞÜ">
+      <div class="hint">Tam müdürlük adını yazınız — "İCRA MÜDÜRLÜĞÜNE" otomatik eklenir.</div>
+
+      <label for="icraEsasNo">İcra Esas No</label>
+      <input type="text" id="icraEsasNo" placeholder="2026/12345 Esas">
+
+      <label for="borcluAdi">Borçlunun Adı Soyadı / Unvanı</label>
+      <input type="text" id="borcluAdi" placeholder="Borçlu Adı Soyadı">
+
+      <label for="icraAvukat">Vekilin Adı Soyadı</label>
+      <input type="text" id="icraAvukat" placeholder="Av. Adı Soyadı">
     </div>
 
     <button id="go">UDF Dosyasını İndir</button>
