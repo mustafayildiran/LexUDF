@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>LexUDF — UYAP Dilekçe Asistanı</title>
+<style>
+  :root{
+    --navy:#173a63; --navy-dark:#0f2846; --accent:#1e4d85;
+    --bg:#eef1f5; --card:#ffffff; --border:#dbe1e8; --text:#1c2733; --muted:#6b7480;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; width:100%; background:var(--card); color:var(--text);
+    font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+  }
+  .titlebar{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px; border-bottom:1px solid var(--border); background: #fafbfc;
+  }
+  .titlebar .logo{
+    width:24px; height:24px; border-radius:6px; background:#0f2846;
+    color:#d4af37; font-weight:800; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex:none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .titlebar .title{font-size:13px; font-weight:700; color:var(--navy-dark);}
+  .body{padding:16px 16px 18px;}
+  h1{font-size:14.5px; margin:0 0 4px; font-weight:700;}
+  .rule{height:2px; background:var(--accent); width:64px; border:none; margin:0 0 14px; border-radius:2px;}
+  .section-title{font-size:12px; font-weight:700; color:var(--navy); margin:14px 0 6px; padding-bottom:3px; border-bottom:1px dashed var(--border);}
+  label{display:block; font-size:12px; font-weight:600; margin:10px 0 4px;}
+  label:first-of-type{margin-top:0;}
+  input[type=text], select{
+    width:100%; padding:8px 9px; font-size:13px;
+    border:1px solid var(--border); border-radius:5px;
+    background:var(--bg); color:var(--text); font-family:inherit;
+  }
+  input[type=text]:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+  .hint{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.4;}
+  button#go{
+    width:100%; margin-top:16px; padding:10px; border:none; border-radius:6px;
+    background:var(--navy); color:#fff; font-size:13.5px; font-weight:600; cursor:pointer;
+  }
+  button#go:hover{background:var(--navy-dark);}
+  button#go:disabled{opacity:.6; cursor:default;}
+  .msg{margin-top:10px; font-size:12px; padding:8px 9px; border-radius:5px; display:none; line-height:1.4;}
+  .msg.show{display:block;}
+  .msg.ok{background:#e6f4ea; color:#1e6b34; border:1px solid #b8e0c4;}
+  .msg.err{background:#fbe9e9; color:#a02c2c; border:1px solid #f0c2c2;}
+
+  .footer-note {
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .footer-title {
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 3px;
+    font-size: 11.5px;
+  }
+  .footer-note p { margin: 0 0 4px; }
+  .footer-note a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    word-break: break-all;
+  }
+  .footer-note a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="logo">L</div>
+    <div class="title">LexUDF — Dilekçe Asistanı</div>
+  </div>
+  <div class="body">
+    <h1>UDF Dilekçe Hazırlama</h1>
+    <hr class="rule">
+
+    <label for="dilekceTuru">Dilekçe / Belge Şablonu</label>
+    <select id="dilekceTuru">
+      <option value="inceleme">Soruşturma Dosyası İnceleme Talebi</option>
+      <option value="yetki_belgesi">Yetki Belgesi</option>
+      <option value="cmk_kayit">CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi</option>
+    </select>
+
+    <label for="yaziTipi">Yazı Tipi Seçimi</label>
+    <select id="yaziTipi">
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="Cambria">Cambria</option>
+    </select>
+
+    <!-- SORUŞTURMA İNCELEME TALEBİ FORMU -->
+    <div id="groupSorusturma">
+      <label for="bassavcilik">Cumhuriyet Başsavcılığı</label>
+      <input type="text" id="bassavcilik" placeholder="İl / İlçe Adı">
+      <div class="hint">Sadece il/ilçe adı — "CUMHURİYET BAŞSAVCILIĞINA" otomatik eklenir.</div>
+
+      <label for="sorusturma">Soruşturma No</label>
+      <input type="text" id="sorusturma" placeholder="2026/20233">
+
+      <label for="rol">Taraf Türü Seçimi</label>
+      <select id="rol">
+        <option value="supheli">Şüpheli / Müdafi</option>
+        <option value="musteki">Müşteki / Vekili</option>
+      </select>
+
+      <label id="isimLabel" for="isim">Şüphelinin Adı Soyadı</label>
+      <input type="text" id="isim" placeholder="Adı Soyadı">
+
+      <label id="avukatLabel" for="avukat">Müdafiin Adı Soyadı</label>
+      <input type="text" id="avukat" placeholder="Av. Adı Soyadı">
+    </div>
+
+    <!-- YETKİ BELGESİ FORMU -->
+    <div id="groupYetkiBelgesi" style="display:none;">
+      <div class="section-title">YETKİ VEREN AVUKAT</div>
+      <label for="yvAvukat">Adı Soyadı</label>
+      <input type="text" id="yvAvukat" placeholder="Adı Soyadı">
+
+      <label for="yvBaro">Baro ve Sicil No</label>
+      <input type="text" id="yvBaro" placeholder="Baro ve Sicil No">
+
+      <label for="yvVergi">Vergi Dairesi ve Sicil No</label>
+      <input type="text" id="yvVergi" placeholder="Vergi Dairesi ve Sicil No">
+
+      <label for="yvAdres">Adresi</label>
+      <input type="text" id="yvAdres" placeholder="Adres">
+
+      <div class="section-title">YETKİLİ KILINAN AVUKAT</div>
+      <label for="ykAvukat">Adı Soyadı</label>
+      <input type="text" id="ykAvukat" placeholder="Adı Soyadı">
+
+      <label for="ykBaro">Baro ve Sicil No</label>
+      <input type="text" id="ykBaro" placeholder="Baro ve Sicil No">
+
+      <label for="ykVergi">Vergi Dairesi ve Sicil No</label>
+      <input type="text" id="ykVergi" placeholder="Vergi Dairesi ve Sicil No">
+
+      <label for="ykAdres">Adresi</label>
+      <input type="text" id="ykAdres" placeholder="Adres">
+
+      <div class="section-title">VEKÂLETNAME BİLGİLERİ</div>
+      <label for="vekilEden">Vekil Eden (Müvekkil)</label>
+      <input type="text" id="vekilEden" placeholder="Müvekkil Adı Soyadı">
+
+      <label for="vekaletNoter">Dayanak Belge</label>
+      <input type="text" id="vekaletNoter" placeholder="Vekaletname yevmiye no ve tarihi">
+
+      <div class="section-title">DOSYA / KAPSAM BİLGİLERİ</div>
+      <label for="mahkemeAdi">Mahkeme Adı</label>
+      <input type="text" id="mahkemeAdi" placeholder="Mahkeme Adı">
+
+      <label for="mahkemeEsas">Mahkeme Esas No</label>
+      <input type="text" id="mahkemeEsas" placeholder="Esas No">
+    </div>
+
+    <!-- CMK KAYIT FORMU -->
+    <div id="groupCmk" style="display:none;">
+      <label for="cmkBassavcilik">Cumhuriyet Başsavcılığı</label>
+      <input type="text" id="cmkBassavcilik" placeholder="İl / İlçe Adı">
+      <div class="hint">Sadece il/ilçe adı — "CUMHURİYET BAŞSAVCILIĞINA" otomatik eklenir.</div>
+
+      <label for="cmkSorusturmaNo">Soruşturma No</label>
+      <input type="text" id="cmkSorusturmaNo" placeholder="Örn: 2026/123">
+
+      <label for="cmkRol">Görevin Niteliği</label>
+      <select id="cmkRol">
+        <option value="supheli">Şüpheli Müdafii</option>
+        <option value="musteki">Müşteki / Mağdur Vekili</option>
+      </select>
+
+      <label for="cmkTarafIsim">Taraf Adı Soyadı</label>
+      <input type="text" id="cmkTarafIsim" placeholder="Şüpheli / Müşteki Adı Soyadı">
+
+      <label for="cmkBaro">Görevlendiren Baro</label>
+      <input type="text" id="cmkBaro" placeholder="Örn: Yalova Barosu">
+
+      <label for="cmkAvukat">Görevlendirilen Avukat</label>
+      <input type="text" id="cmkAvukat" placeholder="Av. Adı Soyadı">
+    </div>
+
+    <button id="go">UDF Dosyasını İndir</button>
+    <div class="msg" id="msg"></div>
+
+    <div class="footer-note">
+      <div class="footer-title">💡 LexUDF Maktu Dilekçe Asistanı</div>
+      <p>Amacımız rutin evrak işlerinde zaman kaybetmenizi önlemek. Eklentiye eklenmesini istediğiniz maktu şablonlar için:</p>
+      <a href="mailto:av.mustafayildiran@gmail.com">av.mustafayildiran@gmail.com</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

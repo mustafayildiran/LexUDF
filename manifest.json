@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "LexUDF — Pratik UYAP Dilekçe Asistanı",
+  "short_name": "LexUDF",
+  "version": "1.0.0",
+  "description": "UYAP uyumlu Yetki Belgesi, CMK Kayıt ve Soruşturma İnceleme dilekçelerini saniyeler içinde hatasız .udf formatında oluşturun ve indirin.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_title": "LexUDF Yan Paneli Aç"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "downloads",
+    "sidePanel"
+  ]
+}
