@@ -230,7 +230,7 @@ function buildContentXml(data){
     ]);
 
   } else if(data.dilekceTuru === 'icra_itiraz'){
-    // === İCRA BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ ===
+    // === BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ ===
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
       {text:"T.C.\n", attrs:{bold:"true"}}
     ]);
@@ -258,7 +258,7 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    const icraP1 = "Yukarıda esas numarası belirtilen icra dosyası kapsamında tarafımıza yöneltilen takip konusu asıl alacağın tamamına, işlemiş ve işleyecek faizin tamamına, faiz oranına, faiz başlangıç tarihine, icra takip giderlerine, vekâlet ücretine ve sair tüm asli ve fer’î alacaklara ayrı ayrı ve açıkça itiraz ediyoruz.\n";
+    const icraP1 = "Yukarıda esas numarası belirtilen icra dosyası kapsamında tarafımıza yöneltilen takip konusu borcun tamamına; asıl alacağın tamamına, işlemiş ve işleyecek faize, faiz oranına, faiz başlangıç tarihine, icra takip giderlerine, vekâlet ücretine ve sair tüm asli ve fer’î alacak kalemlerine ayrı ayrı, açıkça ve tamamen İTİRAZ EDİYORUZ.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: icraP1, attrs:{resolver:"hvl-default"}}
     ]);
