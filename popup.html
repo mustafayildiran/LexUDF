@@ -33,6 +33,15 @@
     background:var(--bg); color:var(--text); font-family:inherit;
   }
   input[type=text]:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+  .checkbox-group {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  }
+  .checkbox-group input[type=checkbox] {
+    width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;
+  }
+  .checkbox-group label {
+    margin: 0; font-weight: 500; cursor: pointer;
+  }
   .hint{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.4;}
   button#go{
     width:100%; margin-top:16px; padding:10px; border:none; border-radius:6px;
@@ -86,6 +95,8 @@
       <option value="yetki_belgesi">Yetki Belgesi</option>
       <option value="cmk_kayit">CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi</option>
       <option value="icra_itiraz">Borca ve Ferilerine İtiraz Dilekçesi</option>
+      <option value="gerekceli_karar">Gerekçeli Karar ve Gider Avansı Talebi</option>
+      <option value="kesinlesme_talebi">Dosyanın Kesinleştirilmesi Talebi</option>
     </select>
 
     <label for="yaziTipi">Yazı Tipi Seçimi</label>
@@ -198,6 +209,61 @@
 
       <label for="icraAvukat">Vekilin Adı Soyadı</label>
       <input type="text" id="icraAvukat" placeholder="Av. Adı Soyadı">
+    </div>
+
+    <!-- GEREKÇELİ KARAR VE GİDER AVANSI TALEBİ FORMU -->
+    <div id="groupGerekceliKarar" style="display:none;">
+      <label for="gkMahkemeAdi">Mahkeme Adı</label>
+      <input type="text" id="gkMahkemeAdi" placeholder="Örn: İSTANBUL 1. ASLİYE TİCARET">
+      <div class="hint">Tam mahkeme adını yazınız — "MAHKEMESİNE" otomatik eklenir.</div>
+
+      <label for="gkEsasNo">Esas No</label>
+      <input type="text" id="gkEsasNo" placeholder="2025/123">
+
+      <label for="gkKararNo">Karar No</label>
+      <input type="text" id="gkKararNo" placeholder="2026/456">
+
+      <label for="gkTarafRolu">Taraf Sıfatı</label>
+      <select id="gkTarafRolu">
+        <option value="davaci">DAVACI</option>
+        <option value="davali">DAVALI</option>
+      </select>
+
+      <label for="gkTarafAdi">Müvekkil Adı Soyadı / Unvanı</label>
+      <input type="text" id="gkTarafAdi" placeholder="Müvekkil Adı Soyadı">
+
+      <label for="gkAvukatAdi">Vekil Avukat Adı Soyadı</label>
+      <input type="text" id="gkAvukatAdi" placeholder="Av. Adı Soyadı">
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="artanAvansIadesi" checked>
+        <label for="artanAvansIadesi">Artan gider avansının iadesi talep edilsin</label>
+      </div>
+    </div>
+
+    <!-- DOSYANIN KESİNLEŞTİRİLMESİ TALEBİ FORMU -->
+    <div id="groupKesinlesme" style="display:none;">
+      <label for="kesMahkemeAdi">Mahkeme Adı</label>
+      <input type="text" id="kesMahkemeAdi" placeholder="Örn: İSTANBUL 1. ASLİYE TİCARET">
+      <div class="hint">Tam mahkeme adını yazınız — "MAHKEMESİNE" otomatik eklenir.</div>
+
+      <label for="kesEsasNo">Esas No</label>
+      <input type="text" id="kesEsasNo" placeholder="2025/123">
+
+      <label for="kesKararNo">Karar No</label>
+      <input type="text" id="kesKararNo" placeholder="2026/456">
+
+      <label for="kesTarafRolu">Taraf Sıfatı</label>
+      <select id="kesTarafRolu">
+        <option value="davaci">DAVACI</option>
+        <option value="davali">DAVALI</option>
+      </select>
+
+      <label for="kesTarafAdi">Müvekkil Adı Soyadı / Unvanı</label>
+      <input type="text" id="kesTarafAdi" placeholder="Müvekkil Adı Soyadı">
+
+      <label for="kesAvukatAdi">Vekil Avukat Adı Soyadı</label>
+      <input type="text" id="kesAvukatAdi" placeholder="Av. Adı Soyadı">
     </div>
 
     <button id="go">UDF Dosyasını İndir</button>
