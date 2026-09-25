@@ -3,8 +3,6 @@ const groupSorusturma = document.getElementById('groupSorusturma');
 const groupYetkiBelgesi = document.getElementById('groupYetkiBelgesi');
 const groupCmk = document.getElementById('groupCmk');
 const groupIcraItiraz = document.getElementById('groupIcraItiraz');
-const groupGerekceliKarar = document.getElementById('groupGerekceliKarar');
-const groupKesinlesme = document.getElementById('groupKesinlesme');
 
 const rolSel = document.getElementById('rol');
 const isimLabel = document.getElementById('isimLabel');
@@ -16,8 +14,6 @@ function toggleFormGroups(){
   groupYetkiBelgesi.style.display = 'none';
   groupCmk.style.display = 'none';
   groupIcraItiraz.style.display = 'none';
-  groupGerekceliKarar.style.display = 'none';
-  groupKesinlesme.style.display = 'none';
 
   if(val === 'yetki_belgesi'){
     groupYetkiBelgesi.style.display = 'block';
@@ -25,10 +21,6 @@ function toggleFormGroups(){
     groupCmk.style.display = 'block';
   } else if(val === 'icra_itiraz'){
     groupIcraItiraz.style.display = 'block';
-  } else if(val === 'gerekceli_karar'){
-    groupGerekceliKarar.style.display = 'block';
-  } else if(val === 'kesinlesme_talebi'){
-    groupKesinlesme.style.display = 'block';
   } else {
     groupSorusturma.style.display = 'block';
   }
@@ -238,7 +230,7 @@ function buildContentXml(data){
     ]);
 
   } else if(data.dilekceTuru === 'icra_itiraz'){
-    // === BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ ===
+    // === İCRA BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ ===
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
       {text:"T.C.\n", attrs:{bold:"true"}}
     ]);
@@ -266,7 +258,7 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    const icraP1 = "Yukarıda esas numarası belirtilen icra dosyası kapsamında tarafımıza yöneltilen takip konusu borcun tamamına; asıl alacağın tamamına, işlemiş ve işleyecek faize, faiz oranına, faiz başlangıç tarihine, icra takip giderlerine, vekâlet ücretine ve sair tüm asli ve fer’î alacak kalemlerine ayrı ayrı, açıkça ve tamamen İTİRAZ EDİYORUZ.\n";
+    const icraP1 = "Yukarıda esas numarası belirtilen icra dosyası kapsamında tarafımıza yöneltilen takip konusu asıl alacağın tamamına, işlemiş ve işleyecek faizin tamamına, faiz oranına, faiz başlangıç tarihine, icra takip giderlerine, vekâlet ücretine ve sair tüm asli ve fer’î alacaklara ayrı ayrı ve açıkça itiraz ediyoruz.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: icraP1, attrs:{resolver:"hvl-default"}}
     ]);
@@ -280,110 +272,6 @@ function buildContentXml(data){
 
     addPara({Alignment:"2", LineSpacing:"0.5"}, [
       {text:"Av. " + data.icraAvukat + "\n", attrs:{}}
-    ]);
-    addPara({Alignment:"2", LineSpacing:"0.5"}, [
-      {text:"e-imzalıdır\n", attrs:{}}
-    ]);
-
-  } else if(data.dilekceTuru === 'gerekceli_karar'){
-    // === GEREKÇELİ KARAR VE GİDER AVANSI TALEBİ ===
-    addPara({Alignment:"1", LineSpacing:"0.5"}, [
-      {text:"T.C.\n", attrs:{bold:"true"}}
-    ]);
-    addPara({Alignment:"1", LineSpacing:"0.5"}, [
-      {text: data.gkMahkemeAdi + " MAHKEMESİNE\n\n", attrs:{bold:"true"}}
-    ]);
-
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"DOSYA NO\t\t: ", attrs:{bold:"true"}},
-      {text: data.gkEsasNo + " E., " + data.gkKararNo + " K.\n", attrs:{}}
-    ]);
-
-    const tarafBaslik = data.gkTarafRolu === 'davaci' ? 'DAVACI' : 'DAVALI';
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text: tarafBaslik + "\t\t: ", attrs:{bold:"true"}},
-      {text: data.gkTarafAdi + "\n", attrs:{}}
-    ]);
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"VEKİLİ\t\t: ", attrs:{bold:"true"}},
-      {text: "Av. " + data.gkAvukatAdi + "\n", attrs:{}}
-    ]);
-
-    let konuMetni = "Gerekçeli kararın tebliğe çıkarılması";
-    if(data.artanAvansIadesi){
-      konuMetni += " ve artan gider avansının kararın kesinleşmesine müteakip tarafımıza iadesi";
-    }
-    konuMetni += " talebidir.\n";
-
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"KONU\t\t: ", attrs:{bold:"true"}},
-      {text: konuMetni, attrs:{}}
-    ]);
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
-    ]);
-
-    let aciklamaMetni = "Mahkemenizin yukarıda esas numarası belirtilen dosyasında verilen gerekçeli kararın taraflara tebliğ edilmesini";
-    if(data.artanAvansIadesi){
-      aciklamaMetni += " ve dosyada mevcut olması hâlinde kullanılmayan ve artan gider avansının tarafımıza iadesini";
-    }
-    aciklamaMetni += " vekâleten talep ederiz.\n\n";
-
-    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: aciklamaMetni, attrs:{resolver:"hvl-default"}}
-    ]);
-
-    addEmptyLine("2");
-
-    addPara({Alignment:"2", LineSpacing:"0.5"}, [
-      {text:"Av. " + data.gkAvukatAdi + "\n", attrs:{}}
-    ]);
-    addPara({Alignment:"2", LineSpacing:"0.5"}, [
-      {text:"e-imzalıdır\n", attrs:{}}
-    ]);
-
-  } else if(data.dilekceTuru === 'kesinlesme_talebi'){
-    // === DOSYANIN KESİNLEŞTİRİLMESİ TALEBİ ===
-    addPara({Alignment:"1", LineSpacing:"0.5"}, [
-      {text:"T.C.\n", attrs:{bold:"true"}}
-    ]);
-    addPara({Alignment:"1", LineSpacing:"0.5"}, [
-      {text: data.kesMahkemeAdi + " MAHKEMESİNE\n\n", attrs:{bold:"true"}}
-    ]);
-
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"DOSYA NO\t\t: ", attrs:{bold:"true"}},
-      {text: data.kesEsasNo + " E., " + data.kesKararNo + " K.\n", attrs:{}}
-    ]);
-
-    const tarafBaslikKes = data.kesTarafRolu === 'davaci' ? 'DAVACI' : 'DAVALI';
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text: tarafBaslikKes + "\t\t: ", attrs:{bold:"true"}},
-      {text: data.kesTarafAdi + "\n", attrs:{}}
-    ]);
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"VEKİLİ\t\t: ", attrs:{bold:"true"}},
-      {text: "Av. " + data.kesAvukatAdi + "\n", attrs:{}}
-    ]);
-
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"KONU\t\t: ", attrs:{bold:"true"}},
-      {text: "Kararın kesinleştirilmesi ve kesinleşme şerhinin dosyaya eklenmesi talebidir.\n", attrs:{}}
-    ]);
-    addPara({Alignment:"3", LineSpacing:"0.5"}, [
-      {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
-    ]);
-
-    const kesAciklamaMetni = "Mahkemenizce verilen kararın taraflara usulüne uygun şekilde tebliğ edilmiş olması ve yasal süresi içerisinde kanun yoluna başvurulmamış bulunması nedeniyle, kararın kesinleştirilerek kesinleşme şerhinin düzenlenip dosyaya eklenmesini vekâleten talep ederiz.\n\n";
-
-    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: kesAciklamaMetni, attrs:{resolver:"hvl-default"}}
-    ]);
-
-    addEmptyLine("2");
-
-    addPara({Alignment:"2", LineSpacing:"0.5"}, [
-      {text:"Av. " + data.kesAvukatAdi + "\n", attrs:{}}
     ]);
     addPara({Alignment:"2", LineSpacing:"0.5"}, [
       {text:"e-imzalıdır\n", attrs:{}}
@@ -545,7 +433,10 @@ async function createZipBlob(filename, uncompressedData) {
   view.setUint16(cdOffset + 34, 0, true);
   view.setUint16(cdOffset + 36, 0, true);
   view.setUint32(cdOffset + 38, 0, true);
-  view.setUint32(cdOffset + 42, cdOffset, true);
+  
+  // KRİTİK DÜZELTME: Tek dosyalık arşiv yapısında offset 0 olmalıdır.
+  view.setUint32(cdOffset + 42, 0, true); 
+  
   zipBuffer.set(fileNameBytes, cdOffset + 46);
 
   const eocdOffset = cdOffset + cdHeaderLen;
@@ -630,45 +521,6 @@ document.getElementById('go').addEventListener('click', async () => {
     const cleanBorclu = cleanPartForFilename(payload.borcluAdi);
 
     fileName = `IcraItiraz_${cleanMudurluk}_${cleanEsas}_${cleanBorclu}.udf`;
-
-  } else if(dilekceTuru === 'gerekceli_karar'){
-    payload.gkMahkemeAdi = document.getElementById('gkMahkemeAdi').value.trim().toLocaleUpperCase('tr');
-    payload.gkEsasNo = document.getElementById('gkEsasNo').value.trim();
-    payload.gkKararNo = document.getElementById('gkKararNo').value.trim();
-    payload.gkTarafRolu = document.getElementById('gkTarafRolu').value;
-    payload.gkTarafAdi = document.getElementById('gkTarafAdi').value.trim();
-    payload.gkAvukatAdi = document.getElementById('gkAvukatAdi').value.trim();
-    payload.artanAvansIadesi = document.getElementById('artanAvansIadesi').checked;
-
-    if(!payload.gkMahkemeAdi || !payload.gkEsasNo || !payload.gkKararNo || !payload.gkTarafAdi || !payload.gkAvukatAdi){
-      showMsg('Lütfen tüm alanları doldurun.', 'err');
-      return;
-    }
-
-    const cleanMahkeme = cleanPartForFilename(payload.gkMahkemeAdi);
-    const cleanEsas = cleanPartForFilename(payload.gkEsasNo);
-    const cleanKarar = cleanPartForFilename(payload.gkKararNo);
-
-    fileName = `GerekceliKararTalebi_${cleanMahkeme}_${cleanEsas}_${cleanKarar}.udf`;
-
-  } else if(dilekceTuru === 'kesinlesme_talebi'){
-    payload.kesMahkemeAdi = document.getElementById('kesMahkemeAdi').value.trim().toLocaleUpperCase('tr');
-    payload.kesEsasNo = document.getElementById('kesEsasNo').value.trim();
-    payload.kesKararNo = document.getElementById('kesKararNo').value.trim();
-    payload.kesTarafRolu = document.getElementById('kesTarafRolu').value;
-    payload.kesTarafAdi = document.getElementById('kesTarafAdi').value.trim();
-    payload.kesAvukatAdi = document.getElementById('kesAvukatAdi').value.trim();
-
-    if(!payload.kesMahkemeAdi || !payload.kesEsasNo || !payload.kesKararNo || !payload.kesTarafAdi || !payload.kesAvukatAdi){
-      showMsg('Lütfen tüm alanları doldurun.', 'err');
-      return;
-    }
-
-    const cleanMahkeme = cleanPartForFilename(payload.kesMahkemeAdi);
-    const cleanEsas = cleanPartForFilename(payload.kesEsasNo);
-    const cleanKarar = cleanPartForFilename(payload.kesKararNo);
-
-    fileName = `KesinlesmeTalebi_${cleanMahkeme}_${cleanEsas}_${cleanKarar}.udf`;
 
   } else {
     payload.bassavcilik = document.getElementById('bassavcilik').value.trim().toLocaleUpperCase('tr');
