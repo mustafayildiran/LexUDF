@@ -173,10 +173,12 @@ function buildContentXml(data){
     ]);
 
   } else if(data.dilekceTuru === 'cmk_kayit'){
+    // === CMK ZORUNLU MÜDAFİ / VEKİL KAYDI DİLEKÇESİ ===
     const isMudaﬁ = data.cmkRol === 'supheli';
     const tarafTitle = isMudaﬁ ? 'ŞÜPHELİ' : 'MÜŞTEKİ';
     const avTitle = isMudaﬁ ? 'MÜDAFİ' : 'VEKİLİ';
-    const gorevUnvani = isMudaﬁ ? 'zorunlu müdafi' : 'zorunlu vekil';
+    const tarafIbare = isMudaﬁ ? 'şüpheli' : 'müşteki/mağdur';
+    const sifatIbare = isMudaﬁ ? 'müdafi' : 'vekili';
 
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
       {text:"T.C.\n", attrs:{bold:"true"}}
@@ -199,23 +201,23 @@ function buildContentXml(data){
     ]);
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
       {text:"KONU\t\t: ", attrs:{bold:"true"}},
-      {text: "CMK uyarınca " + gorevUnvani + " kaydımızın yapılması ve dosya erişim yetkisi verilmesi talebidir.\n", attrs:{}}
+      {text: "CMK uyarınca zorunlu " + (isMudaﬁ ? "müdafi" : "vekil") + " kaydımızın yapılması ve dosya erişim yetkisi verilmesi talebidir.\n", attrs:{}}
     ]);
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    const p1 = data.cmkBaro + " tarafından yukarıda numarası belirtilen soruşturma dosyası kapsamında " + (isMudaﬁ ? "şüpheli" : "müşteki/mağdur") + " " + data.cmkTarafIsim + " için CMK hükümleri uyarınca " + gorevUnvani + " olarak görevlendirilmiş bulunmaktayım. Görevlendirme yazısı dilekçemiz ekinde sunulmuştur.\n";
+    const p1 = "Başsavcılığınızın yukarıda soruşturma numarası belirtilen dosyasında, Ceza Muhakemesi Kanunu kapsamında (" + tarafIbare + ") (" + data.cmkTarafIsim + ") (" + sifatIbare + ") olarak görevlendirilmiş bulunmaktayım.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: p1, attrs:{resolver:"hvl-default"}}
     ]);
 
-    const p2 = "5271 sayılı Ceza Muhakemesi Kanunu’nun 150 ve devamı maddeleri ile Ceza Muhakemesi Kanunu Gereğince Müdafi ve Vekillerin Görevlendirilmeleri ile Yapılacak Ödemelerin Usul ve Esaslarına İlişkin Yönetmelik hükümleri uyarınca, tarafıma ait vekâlet/müdafilik görevinin dosya kayıtlarına işlenmesi ve UYAP sistemine vekil kaydımın yapılması gerekmektedir.\n";
+    const p2 = "Ceza Muhakemesi Kanunu Gereğince Müdafi ve Vekillerin Görevlendirilmeleri ile Yapılacak Ödemelerin Usul ve Esaslarına İlişkin Yönetmelik hükümleri uyarınca, görevlendirmeye ilişkin ödemelerin yapılabilmesi amacıyla dosyada vekil kaydımın bulunması gerekmektedir.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: p2, attrs:{resolver:"hvl-default"}}
     ]);
 
-    const p3 = "Bu kapsamda, CMK kapsamında yürütülen görevlendirmeye ilişkin ücret ve sair yasal haklarımın talep edilebilmesi bakımından dosyaya vekil kaydımın yapılmasını vekâleten talep ederim.\n\n";
+    const p3 = "Bu nedenle, anılan soruşturma dosyasına CMK kapsamında görevli vekil olarak kaydımın yapılmasını vekâleten talep ederim.\n\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: p3, attrs:{resolver:"hvl-default"}}
     ]);
@@ -230,12 +232,14 @@ function buildContentXml(data){
     ]);
 
   } else if(data.dilekceTuru === 'icra_itiraz'){
-    // === İCRA BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ ===
+    // === İCRA BORCA VE FERİLERİNE İTİRAZ DİLEKÇESİ (TEKRAR ÖNLEME DÜZELTMELİ) ===
+    let temizIcraMudurlugu = data.icraMudurlugu.replace(/\bİCRA\s*MÜDÜRLÜĞÜ\b/gi, '').trim();
+
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
       {text:"T.C.\n", attrs:{bold:"true"}}
     ]);
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
-      {text: data.icraMudurlugu + " İCRA MÜDÜRLÜĞÜNE\n\n", attrs:{bold:"true"}}
+      {text: temizIcraMudurlugu + " İCRA MÜDÜRLÜĞÜNE\n\n", attrs:{bold:"true"}}
     ]);
 
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
@@ -438,7 +442,7 @@ async function createZipBlob(filename, uncompressedData) {
   view.setUint16(cdOffset + 34, 0, true);
   view.setUint16(cdOffset + 36, 0, true);
   view.setUint32(cdOffset + 38, 0, true);
-  view.setUint32(cdOffset + 42, 0, true); // ZIP standardına uygun offset
+  view.setUint32(cdOffset + 42, 0, true);
   zipBuffer.set(fileNameBytes, cdOffset + 46);
 
   const eocdOffset = cdOffset + cdHeaderLen;
