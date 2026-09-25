@@ -18,7 +18,10 @@
     padding:12px 14px; border-bottom:1px solid var(--border); background: #fafbfc;
   }
   .titlebar .logo{
-    width:24px; height:24px; border-radius:6px; object-fit:contain; flex:none;
+    width:24px; height:24px; border-radius:6px; background:#0f2846;
+    color:#d4af37; font-weight:800; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex:none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
   .titlebar .title{font-size:13px; font-weight:700; color:var(--navy-dark);}
   .body{padding:16px 16px 18px;}
@@ -33,15 +36,6 @@
     background:var(--bg); color:var(--text); font-family:inherit;
   }
   input[type=text]:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
-  .checkbox-group {
-    display: flex; align-items: center; gap: 8px; margin-top: 12px;
-  }
-  .checkbox-group input[type=checkbox] {
-    width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;
-  }
-  .checkbox-group label {
-    margin: 0; font-weight: 500; cursor: pointer;
-  }
   .hint{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.4;}
   button#go{
     width:100%; margin-top:16px; padding:10px; border:none; border-radius:6px;
@@ -82,7 +76,7 @@
 </head>
 <body>
   <div class="titlebar">
-    <img src="icon16.png" alt="LexUDF Logo" class="logo">
+    <div class="logo">L</div>
     <div class="title">LexUDF — Dilekçe Asistanı</div>
   </div>
   <div class="body">
@@ -91,12 +85,10 @@
 
     <label for="dilekceTuru">Dilekçe / Belge Şablonu</label>
     <select id="dilekceTuru">
-      <option value="inceleme">Soruşturma Dosyası İnceleme Talebi</option>
+      <option value="inceleme">Soruşturma Dosyasını İnceleme Talebi (Portal)</option>
       <option value="yetki_belgesi">Yetki Belgesi</option>
       <option value="cmk_kayit">CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi</option>
-      <option value="icra_itiraz">Borca ve Ferilerine İtiraz Dilekçesi</option>
-      <option value="gerekceli_karar">Gerekçeli Karar ve Gider Avansı Talebi</option>
-      <option value="kesinlesme_talebi">Dosyanın Kesinleştirilmesi Talebi</option>
+      <option value="icra_itiraz">İcra Borca ve Ferilerine İtiraz Dilekçesi</option>
     </select>
 
     <label for="yaziTipi">Yazı Tipi Seçimi</label>
@@ -198,8 +190,8 @@
     <!-- İCRA İTİRAZ FORMU -->
     <div id="groupIcraItiraz" style="display:none;">
       <label for="icraMudurlugu">İcra Müdürlüğü Adı</label>
-      <input type="text" id="icraMudurlugu" placeholder="Örn: İSTANBUL 1. İCRA MÜDÜRLÜĞÜ">
-      <div class="hint">Tam müdürlük adını yazınız — "İCRA MÜDÜRLÜĞÜNE" otomatik eklenir.</div>
+      <input type="text" id="icraMudurlugu" placeholder="Örn: İSTANBUL 1. İCRA">
+      <div class="hint">Tam müdürlük adını yazınız — " İCRA MÜDÜRLÜĞÜNE" otomatik eklenir.</div>
 
       <label for="icraEsasNo">İcra Esas No</label>
       <input type="text" id="icraEsasNo" placeholder="2026/12345 Esas">
@@ -211,66 +203,11 @@
       <input type="text" id="icraAvukat" placeholder="Av. Adı Soyadı">
     </div>
 
-    <!-- GEREKÇELİ KARAR VE GİDER AVANSI TALEBİ FORMU -->
-    <div id="groupGerekceliKarar" style="display:none;">
-      <label for="gkMahkemeAdi">Mahkeme Adı</label>
-      <input type="text" id="gkMahkemeAdi" placeholder="Örn: İSTANBUL 1. ASLİYE TİCARET">
-      <div class="hint">Tam mahkeme adını yazınız — "MAHKEMESİNE" otomatik eklenir.</div>
-
-      <label for="gkEsasNo">Esas No</label>
-      <input type="text" id="gkEsasNo" placeholder="2025/123">
-
-      <label for="gkKararNo">Karar No</label>
-      <input type="text" id="gkKararNo" placeholder="2026/456">
-
-      <label for="gkTarafRolu">Taraf Sıfatı</label>
-      <select id="gkTarafRolu">
-        <option value="davaci">DAVACI</option>
-        <option value="davali">DAVALI</option>
-      </select>
-
-      <label for="gkTarafAdi">Müvekkil Adı Soyadı / Unvanı</label>
-      <input type="text" id="gkTarafAdi" placeholder="Müvekkil Adı Soyadı">
-
-      <label for="gkAvukatAdi">Vekil Avukat Adı Soyadı</label>
-      <input type="text" id="gkAvukatAdi" placeholder="Av. Adı Soyadı">
-
-      <div class="checkbox-group">
-        <input type="checkbox" id="artanAvansIadesi" checked>
-        <label for="artanAvansIadesi">Artan gider avansının iadesi talep edilsin</label>
-      </div>
-    </div>
-
-    <!-- DOSYANIN KESİNLEŞTİRİLMESİ TALEBİ FORMU -->
-    <div id="groupKesinlesme" style="display:none;">
-      <label for="kesMahkemeAdi">Mahkeme Adı</label>
-      <input type="text" id="kesMahkemeAdi" placeholder="Örn: İSTANBUL 1. ASLİYE TİCARET">
-      <div class="hint">Tam mahkeme adını yazınız — "MAHKEMESİNE" otomatik eklenir.</div>
-
-      <label for="kesEsasNo">Esas No</label>
-      <input type="text" id="kesEsasNo" placeholder="2025/123">
-
-      <label for="kesKararNo">Karar No</label>
-      <input type="text" id="kesKararNo" placeholder="2026/456">
-
-      <label for="kesTarafRolu">Taraf Sıfatı</label>
-      <select id="kesTarafRolu">
-        <option value="davaci">DAVACI</option>
-        <option value="davali">DAVALI</option>
-      </select>
-
-      <label for="kesTarafAdi">Müvekkil Adı Soyadı / Unvanı</label>
-      <input type="text" id="kesTarafAdi" placeholder="Müvekkil Adı Soyadı">
-
-      <label for="kesAvukatAdi">Vekil Avukat Adı Soyadı</label>
-      <input type="text" id="kesAvukatAdi" placeholder="Av. Adı Soyadı">
-    </div>
-
     <button id="go">UDF Dosyasını İndir</button>
     <div class="msg" id="msg"></div>
 
     <div class="footer-note">
-      <div class="footer-title">💡LexUDF Dilekçe Asistanı</div>
+      <div class="footer-title">💡 LexUDF Maktu Dilekçe Asistanı</div>
       <p>Amacımız rutin evrak işlerinde zaman kaybetmenizi önlemek. Eklentiye eklenmesini istediğiniz maktu şablonlar için:</p>
       <a href="mailto:av.mustafayildiran@gmail.com">av.mustafayildiran@gmail.com</a>
     </div>
