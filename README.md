@@ -9,10 +9,15 @@
   Desteklenen Yazı Tipleri: Times New Roman, Cambria (Dinamik seçimli).
   Dosya Yönetimi: Türkçe karakter dönüşümü ve özel sembol temizleme fonksiyonu ile uyumlu otomatik dinamik dosya isimlendirme altyapısı.
 
+---
+
 🎯 2. Projenin Vizyonu
   Hukuk pratiğinde en çok zaman çalan unsurlardan biri, formatı ve içeriği standart olan matbu dilekçeleri her defasında sıfırdan düzenlemektir. **LexUDF**; rutin evrak hamallığını saniyelere indirerek avukatların değerli zamanlarını asıl hukuki analize ve dosyalarına ayırmasını sağlar.
 
+---
+
 📄 3. Mevcut Şablon Listesi
+
   3.1. Soruşturma Dosyası İnceleme Talebi
   Özellikler: Şüpheli/Müdafi ve Müşteki/Vekili dinamik modlu başsavcılık hitaplı başvuru formu.
 
