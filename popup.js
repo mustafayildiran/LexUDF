@@ -278,8 +278,10 @@ function buildContentXml(data){
     ]);
 
   } else {
+    // === SORUŞTURMA DOSYASINI İNCELEME TALEBİ (PORTAL) ===
     const roleLabel = data.rol === 'supheli' ? 'ŞÜPHELİ' : 'MÜŞTEKİ';
     const repLabel  = data.rol === 'supheli' ? 'MÜDAFİ' : 'VEKİLİ';
+    const sifatUnvani = data.rol === 'supheli' ? 'müdafi olarak' : 'vekil olarak';
 
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
       {text:"T.C.\n", attrs:{bold:"true"}}
@@ -307,9 +309,12 @@ function buildContentXml(data){
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
+    
+    const aciklamaMetni = "Başsavcılığınızın yukarıda numarası belirtilen soruşturma dosyasının, " + sifatUnvani + " UYAP Avukat Portal üzerinden tarafımızca incelenebilmesi ve dosya kapsamında bulunan belgelere erişim sağlanabilmesi için gerekli yetkilendirmenin yapılmasını vekâleten talep ederim.\n";
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text:"Başsavcılığınızın yukarıda numarası belirtilen soruşturma dosyasının, müdafii olarak UYAP Avukat Portal üzerinden tarafımızca incelenebilmesi ve dosya kapsamında bulunan belgelere erişim sağlanabilmesi için gerekli yetkilendirmenin yapılmasını vekâleten talep ederim.\n", attrs:{resolver:"hvl-default"}}
+      {text: aciklamaMetni, attrs:{resolver:"hvl-default"}}
     ]);
+
     addPara({Alignment:"2", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text:"Av. ", attrs:{resolver:"hvl-default"}},
       {text: data.avukat + "\n", attrs:{}}
@@ -433,10 +438,7 @@ async function createZipBlob(filename, uncompressedData) {
   view.setUint16(cdOffset + 34, 0, true);
   view.setUint16(cdOffset + 36, 0, true);
   view.setUint32(cdOffset + 38, 0, true);
-  
-  // KRİTİK DÜZELTME: Tek dosyalık arşiv yapısında offset 0 olmalıdır.
-  view.setUint32(cdOffset + 42, 0, true); 
-  
+  view.setUint32(cdOffset + 42, 0, true); // ZIP standardına uygun offset
   zipBuffer.set(fileNameBytes, cdOffset + 46);
 
   const eocdOffset = cdOffset + cdHeaderLen;
