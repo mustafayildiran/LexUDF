@@ -1,22 +1,35 @@
-# ⚖️ LexUDF — Pratik UYAP Dilekçe Asistanı
+# ⚖️ LexUDF — Dilekçe Asistanı
 
-> Avukatlar ve hukuk büroları için özel olarak tasarlanan, UYAP Doküman Editörü ile %100 uyumlu `.udf` formatında matbu dilekçe ve belge üretici Chrome eklentisi.
-
----
-
-## 🎯 Projenin Vizyonu
-Hukuk pratiğinde en çok zaman çalan unsurlardan biri, formatı ve içeriği standart olan matbu dilekçeleri her defasında sıfırdan düzenlemektir. **LexUDF**; rutin evrak hamallığını saniyelere indirerek avukatların değerli zamanlarını asıl hukuki analize ve dosyalarına ayırmasını sağlar.
+  LexUDF, avukatların UYAP sisteminde matbu evrak hazırlarken yaşadığı zaman kaybını saniyelere indiren, doğrudan tarayıcı üzerinden çalışan bir Chrome Extension (Google Chrome Eklentisi) motorudur.
 
 ---
 
-## 🚀 Öne Çıkan Özellikler
+🚀 1. Temel Mimari & Çalışma Şekli
+  Mimari: Chrome Extension (Side Panel UI, Background Script, W3C CompressionStream deflate-raw tabanlı doğrudan tıkla-indir .zip/.udf motoru).
+  Desteklenen Yazı Tipleri: Times New Roman, Cambria (Dinamik seçimli).
+  Dosya Yönetimi: Türkçe karakter dönüşümü ve özel sembol temizleme fonksiyonu ile uyumlu otomatik dinamik dosya isimlendirme altyapısı.
 
-* **Yetki Belgesi:** Avukatlık Kanunu'nun 36. ve 56. maddelerine tam uyumlu, hizalamaları ve paragraf girintileri hassas ayarlanmış yetki belgesi üretimi.
-* **CMK Zorunlu Müdafi / Vekil Kaydı:** Baro görevlendirmelerine istinaden 5271 sayılı CMK 150. madde ve ilgili yönetmelik hükümleri çerçevesinde hızlı savcılık talep dilekçesi.
-* **Soruşturma İnceleme Talebi:** Şüpheli/Müdafi ve Müşteki/Vekili dinamik modlarıyla hızlı portal erişim talebi.
-* **Yazı Tipi Esnekliği:** Belgeleri *Times New Roman* veya *Cambria* font seçenekleriyle hazırlayabilme imkanı.
-* **Akıllı Dosya İsimlendirme:** İndirilen `.udf` dosyaları; mahkeme/savcılık adı, esas/soruştruma numarası ve ilgili taraf bilgisine göre otomatik ve temiz bir şekilde isimlendirilir.
-* **%100 Yerel Veri Güvenliği:** Hiçbir kişisel veri, müvekkil bilgisi veya dosya içeriği sunucuya gönderilmez. Tüm UDF paketleme ve sıkıştırma işlemleri tarayıcınızın içinde (yerel olarak) gerçekleşir.
+🎯 2. Projenin Vizyonu
+  Hukuk pratiğinde en çok zaman çalan unsurlardan biri, formatı ve içeriği standart olan matbu dilekçeleri her defasında sıfırdan düzenlemektir. **LexUDF**; rutin evrak hamallığını saniyelere indirerek avukatların değerli zamanlarını asıl hukuki analize ve dosyalarına ayırmasını sağlar.
+
+📄 3. Mevcut Şablon Listesi
+  3.1. Soruşturma Dosyası İnceleme Talebi
+  Özellikler: Şüpheli/Müdafi ve Müşteki/Vekili dinamik modlu başsavcılık hitaplı başvuru formu.
+
+  3.2. Yetki Belgesi
+  Özellikler: 1136 sayılı Av.K. m.56 ve 4667 sayılı Kanun esaslı, tam özelleştirilmiş biçimlendirme ve kapsam metni blokları.
+
+  3.3. CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi
+  Özellikler: Baro görevlendirmeli, CMK 150. madde ve yönetmelik esaslı standart yasal gerekçe yapısı.
+
+ 3.4. Borca ve Ferilerine İtiraz Dilekçesi (İcra)
+  Özellikler: İcra müdürlükleri için borca, faize ve ferilere açık ve tam itiraz metni.
+
+ 3.5. Gerekçeli Karar ve Gider Avansı Talebi (Yeni)
+  Özellikler: Davacı/Davalı taraf seçimi, esas/karar numarası entegrasyonu ve isteğe bağlı açılıp kapatılabilen "Artan Gider Avansının İadesi" dinamik onay kutusu (checkbox) desteği.
+
+ 3.6. Dosyanın Kesinleştirilmesi Talebi (Yeni)
+  Özellikler: Mahkeme kararlarının kesinleşme şerhinin düzenlenerek dosyaya eklenmesi için hazırlanan, sadeleştirilmiş ve taraflara tebliğ/yasal süre koşullarına dayalı özel matbu şablon.
 
 ---
 
