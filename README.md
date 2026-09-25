@@ -1,6 +1,6 @@
 # ⚖️ LexUDF — Pratik UYAP Dilekçe Asistanı
 
-> Avukatlar ve hukuk büroları için özel olarak tasarlanan, UYAP Doküman Editörü ile %100 uyumlu `.udf` formatında maktu dilekçe ve belge üretici Chrome eklentisi.
+> Avukatlar ve hukuk büroları için özel olarak tasarlanan, UYAP Doküman Editörü ile %100 uyumlu `.udf` formatında matbu dilekçe ve belge üretici Chrome eklentisi.
 
 ---
 
