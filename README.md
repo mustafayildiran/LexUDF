@@ -5,7 +5,7 @@
 ---
 
 ## 🎯 Projenin Vizyonu
-Hukuk pratiğinde en çok zaman çalan unsurlardan biri, formatı ve içeriği standart olan maktu dilekçeleri her defasında sıfırdan düzenlemektir. **LexUDF**; rutin evrak hamallığını saniyelere indirerek avukatların değerli zamanlarını asıl hukuki analize ve dosyalarına ayırmasını sağlar.
+Hukuk pratiğinde en çok zaman çalan unsurlardan biri, formatı ve içeriği standart olan matbu dilekçeleri her defasında sıfırdan düzenlemektir. **LexUDF**; rutin evrak hamallığını saniyelere indirerek avukatların değerli zamanlarını asıl hukuki analize ve dosyalarına ayırmasını sağlar.
 
 ---
 
@@ -34,7 +34,7 @@ Depoyu yerel makinenizde test etmek veya Chrome'a manuel olarak kurmak için:
 
 ## 💡 İletişim ve Yeni Şablon İstekleri
 
-Eklentinin kapsamını sürekli büyütüyor; meslektaşlarımızın günlük ihtiyaçlarına yönelik yeni maktu şablonlar ekliyoruz. Eklenmesini istediğiniz dilekçe türleri veya geri bildirimleriniz için ulaşabilirsiniz:
+Eklentinin kapsamını sürekli büyütüyor; meslektaşlarımızın günlük ihtiyaçlarına yönelik yeni matbu şablonlar ekliyoruz. Eklenmesini istediğiniz dilekçe türleri veya geri bildirimleriniz için ulaşabilirsiniz:
 
 * **Geliştirici:** Av. Mustafa Yıldıran
 * **E-posta:** [av.mustafayildiran@gmail.com](mailto:av.mustafayildiran@gmail.com)
