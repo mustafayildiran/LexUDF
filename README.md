@@ -27,5 +27,4 @@ LexUDF, avukatların UYAP sistemi için `.udf` uzantılı matbu dilekçe ve belg
 ## 🔒 Gizlilik ve Güvenlik Taahhüdü
 
 * **Sıfır Sunucu İletişimi:** LexUDF, tamamen tarayıcınızın içinde çalışır. Girdiğiniz hiçbir hukuki veri, dosya numarası veya avukat profili harici bir sunucuya iletilmez.
-* **Yerel Şifreleme:** Kaydedilen avukat profilleri yerel cihazınızda AES algoritması ile şifrelenerek korunur.
 * **En Düşük Yetki İlkesi:** Yalnızca gerekli Chrome izinleri (`downloads`, `sidePanel`, `storage`) talep edilir.
