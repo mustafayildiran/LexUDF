@@ -1,61 +1,32 @@
-# ⚖️ LexUDF — Dilekçe Asistanı
+# LexUDF — UYAP UDF Dilekçe Asistanı (v1.2.0)
 
-  LexUDF, avukatların UYAP sisteminde matbu evrak hazırlarken yaşadığı zaman kaybını saniyelere indiren, doğrudan tarayıcı üzerinden çalışan bir Chrome Extension (Google Chrome Eklentisi) motorudur.
-
----
-
-🚀 1. Temel Mimari & Çalışma Şekli
-  Mimari: Chrome Extension (Side Panel UI, Background Script, W3C CompressionStream deflate-raw tabanlı doğrudan tıkla-indir .zip/.udf motoru).
-  Desteklenen Yazı Tipleri: Times New Roman, Cambria (Dinamik seçimli).
-  Dosya Yönetimi: Türkçe karakter dönüşümü ve özel sembol temizleme fonksiyonu ile uyumlu otomatik dinamik dosya isimlendirme altyapısı.
+LexUDF, avukatların UYAP sistemi için `.udf` uzantılı matbu dilekçe ve belgeleri tarayıcı üzerinde, harici hiçbir sunucuya ihtiyaç duymadan (tamamen client-side) hızlı ve hatasız biçimde üretmesini sağlayan bir Chrome Extension (Uzantı) aracıdır.
 
 ---
 
-🎯 2. Projenin Vizyonu
-  Hukuk pratiğinde en çok zaman çalan unsurlardan biri, formatı ve içeriği standart olan matbu dilekçeleri her defasında sıfırdan düzenlemektir. **LexUDF**; rutin evrak hamallığını saniyelere indirerek avukatların değerli zamanlarını asıl hukuki analize ve dosyalarına ayırmasını sağlar.
+## 🚀 v1.2.0 Güncelleme Notları & Yenilikler
+
+* **Matbu Açıklama Özelleştirme:** Kullanıcılar, her şablon için varsayılan olarak gelen "Açıklamalar" metnini dilerlerse tek tıkla açıp özelleştirebilecekleri dinamik bir düzenleme alanına kavuşturuldu.
+* **Gelişmiş Dosya Adlandırma Standardı:** Soruşturma İnceleme Talepleri dahil tüm şablonlar; mahkeme/başsavcılık, esas/soruşturma numarası ve taraf bilgileriyle tam uyumlu, düzenli ve okunabilir dosya adlandırma formatına (`SorusturmaInceleme_...udf`, `YetkiBelgesi_...udf` vb.) geçirildi.
+* **AES-GCM Güvenli Profil Saklama:** Avukat adı, baro sicil ve vergi bilgileri gibi hassas veriler artık tarayıcıda düz metin olarak değil; tarayıcının yerel **Web Crypto API (AES-GCM)** altyapısıyla şifrelenerek (`encrypted payload`) güvenle saklanmaktadır.
+* **XML & CDATA Güvenliği:** Kullanıcı girdilerinde yer alabilecek özel karakterler (`&`, `<`, `>`, `"`, `'`) ve CDATA kırılma riskine karşı (`]]>`) güvenli escape mekanizmaları entegre edildi.
+* **Terminoloji Standardı:** Proje genelindeki tüm "maktu" ifadeleri hukuki literatüre tam uygun olacak şekilde "matbu" olarak güncellendi.
 
 ---
 
-📄 3. Mevcut Şablon Listesi
+## 🛠️ Desteklenen Dilekçe ve Belge Şablonları
 
-  3.1. Soruşturma Dosyası İnceleme Talebi
-  Özellikler: Şüpheli/Müdafi ve Müşteki/Vekili dinamik modlu başsavcılık hitaplı başvuru formu.
-
-  3.2. Yetki Belgesi
-  Özellikler: 1136 sayılı Av.K. m.56 ve 4667 sayılı Kanun esaslı, tam özelleştirilmiş biçimlendirme ve kapsam metni blokları.
-
-  3.3. CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi
-  Özellikler: Baro görevlendirmeli, CMK 150. madde ve yönetmelik esaslı standart yasal gerekçe yapısı.
-
- 3.4. Borca ve Ferilerine İtiraz Dilekçesi (İcra)
-  Özellikler: İcra müdürlükleri için borca, faize ve ferilere açık ve tam itiraz metni.
-
- 3.5. Gerekçeli Karar ve Gider Avansı Talebi (Yeni)
-  Özellikler: Davacı/Davalı taraf seçimi, esas/karar numarası entegrasyonu ve isteğe bağlı açılıp kapatılabilen "Artan Gider Avansının İadesi" dinamik onay kutusu (checkbox) desteği.
-
- 3.6. Dosyanın Kesinleştirilmesi Talebi (Yeni)
-  Özellikler: Mahkeme kararlarının kesinleşme şerhinin düzenlenerek dosyaya eklenmesi için hazırlanan, sadeleştirilmiş ve taraflara tebliğ/yasal süre koşullarına dayalı özel matbu şablon.
+1. Soruşturma Dosyasını İnceleme Talebi (Portal)
+2. Yetki Belgesi
+3. CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi
+4. İcra Borca ve Ferilerine İtiraz Dilekçesi
+5. Gerekceli Karar ve Gider Avansı İadesi Talebi
+6. Dosyanın Kesinleştirilmesi Talebi
 
 ---
 
-## 🛠️ Kurulum ve Kullanım (Geliştirici Modu)
+## 🔒 Gizlilik ve Güvenlik Taahhüdü
 
-Depoyu yerel makinenizde test etmek veya Chrome'a manuel olarak kurmak için:
-
-1. Bu depoyu ZIP olarak indirin veya bilgisayarınıza klonlayın.
-2. Google Chrome tarayıcınızı açın ve adres çubuğuna **`chrome://extensions/`** yazın.
-3. Sağ üst köşedeki **Geliştirici modu (Developer mode)** seçeneğini aktif hale getirin.
-4. Sol üstteki **Paketlenmemiş öge yükle (Load unpacked)** butonuna tıklayın.
-5. Proje klasörünü seçin. Eklentiniz tarayıcınızın yan panelinde (Side Panel) kullanıma hazır!
-
----
-
-## 💡 İletişim ve Yeni Şablon İstekleri
-
-Eklentinin kapsamını sürekli büyütüyor; meslektaşlarımızın günlük ihtiyaçlarına yönelik yeni matbu şablonlar ekliyoruz. Eklenmesini istediğiniz dilekçe türleri veya geri bildirimleriniz için ulaşabilirsiniz:
-
-* **Geliştirici:** Av. Mustafa Yıldıran
-* **E-posta:** [av.mustafayildiran@gmail.com](mailto:av.mustafayildiran@gmail.com)
-
----
-<p align="center"><i>LexUDF — Zamanınızı hukuka saklayın.</i></p>
+* **Sıfır Sunucu İletişimi:** LexUDF, tamamen tarayıcınızın içinde çalışır. Girdiğiniz hiçbir hukuki veri, dosya numarası veya avukat profili harici bir sunucuya iletilmez.
+* **Yerel Şifreleme:** Kaydedilen avukat profilleri yerel cihazınızda AES algoritması ile şifrelenerek korunur.
+* **En Düşük Yetki İlkesi:** Yalnızca gerekli Chrome izinleri (`downloads`, `sidePanel`, `storage`) talep edilir.
