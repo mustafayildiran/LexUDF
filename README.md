@@ -10,7 +10,6 @@ LexUDF, avukatların UYAP sistemi için `.udf` uzantılı matbu dilekçe ve belg
 * **Gelişmiş Dosya Adlandırma Standardı:** Soruşturma İnceleme Talepleri dahil tüm şablonlar; mahkeme/başsavcılık, esas/soruşturma numarası ve taraf bilgileriyle tam uyumlu, düzenli ve okunabilir dosya adlandırma formatına (`SorusturmaInceleme_...udf`, `YetkiBelgesi_...udf` vb.) geçirildi.
 * **AES-GCM Güvenli Profil Saklama:** Avukat adı, baro sicil ve vergi bilgileri gibi hassas veriler artık tarayıcıda düz metin olarak değil; tarayıcının yerel **Web Crypto API (AES-GCM)** altyapısıyla şifrelenerek (`encrypted payload`) güvenle saklanmaktadır.
 * **XML & CDATA Güvenliği:** Kullanıcı girdilerinde yer alabilecek özel karakterler (`&`, `<`, `>`, `"`, `'`) ve CDATA kırılma riskine karşı (`]]>`) güvenli escape mekanizmaları entegre edildi.
-* **Terminoloji Standardı:** Proje genelindeki tüm "maktu" ifadeleri hukuki literatüre tam uygun olacak şekilde "matbu" olarak güncellendi.
 
 ---
 
