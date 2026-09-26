@@ -7,15 +7,20 @@
   :root{
     --navy:#173a63; --navy-dark:#0f2846; --accent:#1e4d85;
     --bg:#eef1f5; --card:#ffffff; --border:#dbe1e8; --text:#1c2733; --muted:#6b7480;
+    --danger:#c0392b; --security-bg:#f0fdf4; --security-border:#bbf7d0; --security-text:#166534;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; width:100%; background:var(--card); color:var(--text);
+    margin:0; 
+    width:100%; 
+    background:var(--card); 
+    color:var(--text);
     font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+    overflow-x: hidden; /* Yatay taşmaları engelle */
   }
   .titlebar{
     display:flex; align-items:center; gap:10px;
-    padding:12px 14px; border-bottom:1px solid var(--border); background: #fafbfc;
+    padding:12px 16px; border-bottom:1px solid var(--border); background: #fafbfc;
   }
   .titlebar .logo{
     width:24px; height:24px; border-radius:6px; background:#0f2846;
@@ -24,10 +29,24 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
   .titlebar .title{font-size:13px; font-weight:700; color:var(--navy-dark);}
-  .body{padding:16px 16px 18px;}
+  
+  /* İçerik alanına güvenli kenar boşluğu (İki yana yaslanmayı önler) */
+  .body{padding:16px;}
+  
   h1{font-size:14.5px; margin:0 0 4px; font-weight:700;}
   .rule{height:2px; background:var(--accent); width:64px; border:none; margin:0 0 14px; border-radius:2px;}
   .section-title{font-size:12px; font-weight:700; color:var(--navy); margin:14px 0 6px; padding-bottom:3px; border-bottom:1px dashed var(--border);}
+  
+  /* Profil Kutusu Stili */
+  .profile-box {
+    background: #f4f7fb; border: 1px solid #cce0ff; border-radius: 6px;
+    padding: 10px; margin-bottom: 14px;
+  }
+  .profile-box summary {
+    font-size: 12px; font-weight: 700; color: var(--navy); cursor: pointer; outline: none;
+  }
+  .profile-content { margin-top: 8px; }
+
   label{display:block; font-size:12px; font-weight:600; margin:10px 0 4px;}
   label:first-of-type{margin-top:0;}
   input[type=text], select{
@@ -36,6 +55,28 @@
     background:var(--bg); color:var(--text); font-family:inherit;
   }
   input[type=text]:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+  
+  .btn-row { display: flex; gap: 6px; margin-top: 8px; }
+  .btn-save {
+    background: #34495e; color: #fff; border: none; padding: 7px 10px;
+    font-size: 11px; font-weight: 600; border-radius: 4px; cursor: pointer; flex: 1;
+  }
+  .btn-save:hover { background: #2c3e50; }
+  .btn-delete {
+    background: var(--danger); color: #fff; border: none; padding: 7px 10px;
+    font-size: 11px; font-weight: 600; border-radius: 4px; cursor: pointer;
+  }
+  .btn-delete:hover { background: #a93226; }
+
+  .checkbox-group {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  }
+  .checkbox-group input[type=checkbox] {
+    width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;
+  }
+  .checkbox-group label {
+    margin: 0; font-weight: 500; cursor: pointer; font-size: 12px;
+  }
   .hint{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.4;}
   button#go{
     width:100%; margin-top:16px; padding:10px; border:none; border-radius:6px;
@@ -48,8 +89,41 @@
   .msg.ok{background:#e6f4ea; color:#1e6b34; border:1px solid #b8e0c4;}
   .msg.err{background:#fbe9e9; color:#a02c2c; border:1px solid #f0c2c2;}
 
+  /* Şık Gizlilik / Güvenlik Rozeti (Accordion) */
+  .privacy-badge {
+    margin-top: 14px;
+    background: var(--security-bg);
+    border: 1px solid var(--security-border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .privacy-badge summary {
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--security-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    outline: none;
+    user-select: none;
+  }
+  .privacy-badge summary:hover {
+    background: #e2f8ec;
+  }
+  .privacy-content {
+    padding: 0 10px 8px 10px;
+    font-size: 10.5px;
+    color: #14532d;
+    line-height: 1.4;
+    border-top: 1px dashed var(--security-border);
+    margin-top: 2px;
+    padding-top: 6px;
+  }
+
   .footer-note {
-    margin-top: 16px;
+    margin-top: 12px;
     padding: 10px 12px;
     background: #f8fafc;
     border: 1px solid var(--border);
@@ -83,12 +157,42 @@
     <h1>UDF Dilekçe Hazırlama</h1>
     <hr class="rule">
 
+    <!-- AVUKAT PROFİLLERİ KUTUSU -->
+    <details class="profile-box">
+      <summary>👥 Avukat Profilleri</summary>
+      <div class="profile-content">
+        <label for="profilSecim">Kayıtlı Avukat Seç / Yeni Ekle</label>
+        <select id="profilSecim">
+          <option value="yeni">➕ Yeni Avukat Ekle...</option>
+        </select>
+
+        <label for="profAdSoyad">Ad Soyad</label>
+        <input type="text" id="profAdSoyad" placeholder="Mustafa Yıldıran">
+
+        <label for="profBaro">Baro ve Sicil No</label>
+        <input type="text" id="profBaro" placeholder="Yalova Barosu - 1234">
+
+        <label for="profVergi">Vergi Dairesi ve No</label>
+        <input type="text" id="profVergi" placeholder="Yalova V.D. - 1234567890">
+
+        <label for="profAdres">Ofis Adresi</label>
+        <input type="text" id="profAdres" placeholder="Merkez / Yalova">
+
+        <div class="btn-row">
+          <button type="button" class="btn-save" id="btnSaveProfile">Profili Kaydet</button>
+          <button type="button" class="btn-delete" id="btnDeleteProfile">Profili Sil</button>
+        </div>
+      </div>
+    </details>
+
     <label for="dilekceTuru">Dilekçe / Belge Şablonu</label>
     <select id="dilekceTuru">
       <option value="inceleme">Soruşturma Dosyasını İnceleme Talebi (Portal)</option>
       <option value="yetki_belgesi">Yetki Belgesi</option>
       <option value="cmk_kayit">CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi</option>
       <option value="icra_itiraz">İcra Borca ve Ferilerine İtiraz Dilekçesi</option>
+      <option value="gerekceli_karar">Gerekçeli Karar ve Gider Avansı Talebi</option>
+      <option value="kesinlesme_talebi">Dosyanın Kesinleştirilmesi Talebi</option>
     </select>
 
     <label for="yaziTipi">Yazı Tipi Seçimi</label>
@@ -203,12 +307,86 @@
       <input type="text" id="icraAvukat" placeholder="Av. Adı Soyadı">
     </div>
 
+    <!-- GEREKÇELİ KARAR VE GİDER AVANSI TALEBİ FORMU -->
+    <div id="groupGerekceliKarar" style="display:none;">
+      <label for="gkMahkemeAdi">Mahkeme Adı</label>
+      <input type="text" id="gkMahkemeAdi" placeholder="Örn: İSTANBUL 1. ASLİYE TİCARET">
+      <div class="hint">Tam mahkeme adını yazınız — "MAHKEMESİNE" otomatik eklenir.</div>
+
+      <label for="gkEsasNo">Esas No</label>
+      <input type="text" id="gkEsasNo" placeholder="2025/123">
+
+      <label for="gkKararNo">Karar No</label>
+      <input type="text" id="gkKararNo" placeholder="2026/456">
+
+      <label for="gkTarafRolu">Taraf Sıfatı</label>
+      <select id="gkTarafRolu">
+        <option value="davaci">DAVACI</option>
+        <option value="davali">DAVALI</option>
+      </select>
+
+      <label for="gkTarafAdi">Müvekkil Adı Soyadı / Unvanı</label>
+      <input type="text" id="gkTarafAdi" placeholder="Müvekkil Adı Soyadı">
+
+      <label for="gkAvukatAdi">Vekil Avukat Adı Soyadı</label>
+      <input type="text" id="gkAvukatAdi" placeholder="Av. Adı Soyadı">
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="artanAvansIadesi" checked>
+        <label for="artanAvansIadesi">Artan gider avansının iadesi talep edilsin</label>
+      </div>
+    </div>
+
+    <!-- DOSYANIN KESİNLEŞTİRİLMESİ TALEBİ FORMU -->
+    <div id="groupKesinlesme" style="display:none;">
+      <label for="kesMahkemeAdi">Mahkeme Adı</label>
+      <input type="text" id="kesMahkemeAdi" placeholder="Örn: İSTANBUL 1. ASLİYE TİCARET">
+      <div class="hint">Tam mahkeme adını yazınız — "MAHKEMESİNE" otomatik eklenir.</div>
+
+      <label for="kesEsasNo">Esas No</label>
+      <input type="text" id="kesEsasNo" placeholder="2025/123">
+
+      <label for="kesKararNo">Karar No</label>
+      <input type="text" id="kesKararNo" placeholder="2026/456">
+
+      <label for="kesTarafRolu">Taraf Sıfatı</label>
+      <select id="kesTarafRolu">
+        <option value="davaci">DAVACI</option>
+        <option value="davali">DAVALI</option>
+      </select>
+
+      <label for="kesTarafAdi">Müvekkil Adı Soyadı / Unvanı</label>
+      <input type="text" id="kesTarafAdi" placeholder="Müvekkil Adı Soyadı">
+
+      <label for="kesAvukatAdi">Vekil Avukat Adı Soyadı</label>
+      <input type="text" id="kesAvukatAdi" placeholder="Av. Adı Soyadı">
+    </div>
+
+    <!-- MATBU METNİ ÖZELLEŞTİR SEÇENEĞİ -->
+    <div class="checkbox-group" style="margin-top: 14px;">
+      <input type="checkbox" id="ozelAciklamaToggle">
+      <label for="ozelAciklamaToggle">Matbu Açıklama Metnini Özelleştir / Düzenle</label>
+    </div>
+
+    <div id="ozelAciklamaContainer" style="display: none; margin-top: 8px;">
+      <label for="ozelAciklamaMetni">Açıklamalar İçeriği (Düzenlenebilir)</label>
+      <textarea id="ozelAciklamaMetni" rows="4" style="width: 100%; padding: 8px; font-size: 11.5px; font-family: inherit; border: 1px solid var(--border); border-radius: 5px; background: var(--bg); color: var(--text); resize: vertical;"></textarea>
+    </div>
+
     <button id="go">UDF Dosyasını İndir</button>
     <div class="msg" id="msg"></div>
 
+    <!-- GİZLİLİK & GÜVENLİK ROZETİ (Tıklayınca Açılır) -->
+    <details class="privacy-badge">
+      <summary>🔒 Gizlilik ve Güvenlik Bilgisi (Verileriniz Nerede Saklanıyor?)</summary>
+      <div class="privacy-content">
+        LexUDF tamamen tarayıcınızın içinde (<strong>client-side</strong>) çalışır. Girdiğiniz avukat profilleri, müvekkil bilgileri ve dosya numaraları hiçbir harici sunucuya gönderilmez, üçüncü taraflarla paylaşılmaz. Tüm veriler yalnızca sizin cihazınızda güvenle saklanır.
+      </div>
+    </details>
+
     <div class="footer-note">
-      <div class="footer-title">💡 LexUDF Maktu Dilekçe Asistanı</div>
-      <p>Amacımız rutin evrak işlerinde zaman kaybetmenizi önlemek. Eklentiye eklenmesini istediğiniz maktu şablonlar için:</p>
+      <div class="footer-title">💡 LexUDF Matbu Dilekçe Asistanı</div>
+      <p>Amacımız rutin evrak işlerinde zaman kaybetmenizi önlemek. Eklentiye eklenmesini istediğiniz matbu şablonlar için:</p>
       <a href="mailto:av.mustafayildiran@gmail.com">av.mustafayildiran@gmail.com</a>
     </div>
   </div>
