@@ -10,6 +10,208 @@ const rolSel = document.getElementById('rol');
 const isimLabel = document.getElementById('isimLabel');
 const avukatLabel = document.getElementById('avukatLabel');
 
+// Çoklu Profil Elementleri
+const profilSecim = document.getElementById('profilSecim');
+const profAdSoyad = document.getElementById('profAdSoyad');
+const profBaro = document.getElementById('profBaro');
+const profVergi = document.getElementById('profVergi');
+const profAdres = document.getElementById('profAdres');
+const btnSaveProfile = document.getElementById('btnSaveProfile');
+const btnDeleteProfile = document.getElementById('btnDeleteProfile');
+
+// Özelleştirme Elementleri
+const ozelAciklamaToggle = document.getElementById('ozelAciklamaToggle');
+const ozelAciklamaContainer = document.getElementById('ozelAciklamaContainer');
+const ozelAciklamaMetni = document.getElementById('ozelAciklamaMetni');
+
+let avukatlarListesi = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  chrome.storage.local.get(['avukatlarListesi', 'aktifAvukatIndex'], (result) => {
+    avukatlarListesi = Array.isArray(result.avukatlarListesi) ? result.avukatlarListesi : [];
+    profilSecim.innerHTML = '<option value="yeni">➕ Yeni Avukat Ekle...</option>';
+
+    avukatlarListesi.forEach((av, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = av.adSoyad || `Avukat #${index + 1}`;
+      profilSecim.appendChild(opt);
+    });
+
+    if (avukatlarListesi.length > 0) {
+      const aktifIdx = (Number.isInteger(result.aktifAvukatIndex) && result.aktifAvukatIndex >= 0 && result.aktifAvukatIndex < avukatlarListesi.length) 
+        ? result.aktifAvukatIndex 
+        : 0;
+      profilSecim.value = aktifIdx;
+      yukleProfilForma(aktifIdx);
+    }
+  });
+
+  if(ozelAciklamaToggle) {
+    ozelAciklamaToggle.addEventListener('change', () => {
+      if(ozelAciklamaToggle.checked) {
+        ozelAciklamaContainer.style.display = 'block';
+        ozelAciklamaMetni.value = getDefaultExplanationText();
+      } else {
+        ozelAciklamaContainer.style.display = 'none';
+      }
+    });
+  }
+});
+
+dilekceTuruSel.addEventListener('change', () => {
+  toggleFormGroups();
+  if(ozelAciklamaToggle && ozelAciklamaToggle.checked) {
+    ozelAciklamaMetni.value = getDefaultExplanationText();
+  }
+});
+
+function getDefaultExplanationText() {
+  const dilekceTuru = dilekceTuruSel.value;
+  if(dilekceTuru === 'yetki_belgesi') {
+    return "Yalnızca ilgili dosyaya şamil olmak üzere duruşmalara katılmaya, dilekçe sunmaya ve tüm yargılama işlemlerini yürütmeye yetki verilmiştir.";
+  } else if(dilekceTuru === 'cmk_kayit') {
+    return "Ceza Muhakemesi Kanunu Gereğince Müdafi ve Vekillerin Görevlendirilmeleri ile Yapılacak Ödemelerin Usul ve Esaslarına İlişkin Yönetmelik hükümleri uyarınca, görevlendirmeye ilişkin ödemelerin yapılabilmesi amacıyla dosyada vekil kaydımın bulunması gerekmektedir.";
+  } else if(dilekceTuru === 'icra_itiraz') {
+    return "Takip konusu asıl alacağın tamamına, işlemiş ve işleyecek faize, faiz oranına ve ferilerine ayrı ayrı itiraz ediyoruz.";
+  } else if(dilekceTuru === 'gerekceli_karar') {
+    return "Mahkemenizin dosyasında verilen gerekçeli kararın taraflara tebliğ edilmesini ve artan gider avansının iadesini talep ederiz.";
+  } else if(dilekceTuru === 'kesinlesme_talebi') {
+    return "Mahkemenizce verilen kararın kesinleşmesine ilişkin şartların oluştuğu gözetilerek kesinleşme şerhinin düzenlenmesini talep ederiz.";
+  } else {
+    const rol = rolSel ? rolSel.value : 'supheli';
+    const sifat = rol === 'supheli' ? 'müdafi olarak' : 'vekil olarak';
+    return `Başsavcılığınızın soruşturma dosyasının, ${sifat} UYAP Avukat Portal üzerinden incelenebilmesi için gerekli yetkilendirmenin yapılmasını talep ederim.`;
+  }
+}
+
+profilSecim.addEventListener('change', () => {
+  const val = profilSecim.value;
+  if (val === 'yeni') {
+    profAdSoyad.value = '';
+    profBaro.value = '';
+    profVergi.value = '';
+    profAdres.value = '';
+  } else {
+    yukleProfilForma(parseInt(val, 10));
+  }
+});
+
+function yukleProfilForma(index) {
+  const av = avukatlarListesi[index];
+  if (!av) return;
+  profAdSoyad.value = av.adSoyad || '';
+  profBaro.value = av.baro || '';
+  profVergi.value = av.vergi || '';
+  profAdres.value = av.adres || '';
+
+  applyProfileToForms(av);
+  chrome.storage.local.set({ aktifAvukatIndex: index });
+}
+
+btnSaveProfile.addEventListener('click', () => {
+  const ad = profAdSoyad.value.trim();
+  if (!ad) {
+    alert('Lütfen en azından Avukat Adı Soyadı alanını doldurun.');
+    return;
+  }
+
+  const yeniAvukat = {
+    adSoyad: ad,
+    baro: profBaro.value.trim(),
+    vergi: profVergi.value.trim(),
+    adres: profAdres.value.trim()
+  };
+
+  const secilenVal = profilSecim.value;
+  let hedefIndex;
+
+  if (secilenVal === 'yeni') {
+    avukatlarListesi.push(yeniAvukat);
+    hedefIndex = avukatlarListesi.length - 1;
+  } else {
+    hedefIndex = parseInt(secilenVal, 10);
+    avukatlarListesi[hedefIndex] = yeniAvukat;
+  }
+
+  chrome.storage.local.set({ avukatlarListesi: avukatlarListesi, aktifAvukatIndex: hedefIndex }, () => {
+    profilSecim.innerHTML = '<option value="yeni">➕ Yeni Avukat Ekle...</option>';
+    avukatlarListesi.forEach((av, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = av.adSoyad;
+      if (index === hedefIndex) opt.selected = true;
+      profilSecim.appendChild(opt);
+    });
+
+    applyProfileToForms(yeniAvukat);
+    alert('Avukat profili başarıyla cihaza kaydedildi!');
+  });
+});
+
+btnDeleteProfile.addEventListener('click', () => {
+  const secilenVal = profilSecim.value;
+  if (secilenVal === 'yeni') {
+    alert('Silinecek bir profil seçilmedi.');
+    return;
+  }
+
+  const index = parseInt(secilenVal, 10);
+  if (!confirm('Bu avukat profilini silmek istediğinize emin misiniz?')) {
+    return;
+  }
+
+  avukatlarListesi.splice(index, 1);
+  const yeniAktifIndex = avukatlarListesi.length > 0 ? Math.max(0, index - 1) : 0;
+
+  chrome.storage.local.set({ avukatlarListesi: avukatlarListesi, aktifAvukatIndex: yeniAktifIndex }, () => {
+    profilSecim.innerHTML = '<option value="yeni">➕ Yeni Avukat Ekle...</option>';
+    avukatlarListesi.forEach((av, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = av.adSoyad;
+      if (idx === yeniAktifIndex) opt.selected = true;
+      profilSecim.appendChild(opt);
+    });
+
+    if (avukatlarListesi.length > 0) {
+      yukleProfilForma(yeniAktifIndex);
+    } else {
+      profAdSoyad.value = '';
+      profBaro.value = '';
+      profVergi.value = '';
+      profAdres.value = '';
+    }
+    alert('Profil silindi.');
+  });
+});
+
+function applyProfileToForms(p) {
+  const yvAvukat = document.getElementById('yvAvukat');
+  const yvBaro = document.getElementById('yvBaro');
+  const yvVergi = document.getElementById('yvVergi');
+  const yvAdres = document.getElementById('yvAdres');
+  if(yvAvukat) yvAvukat.value = p.adSoyad;
+  if(yvBaro) yvBaro.value = p.baro;
+  if(yvVergi) yvVergi.value = p.vergi;
+  if(yvAdres) yvAdres.value = p.adres;
+
+  const avukat = document.getElementById('avukat');
+  if(avukat) avukat.value = p.adSoyad;
+
+  const cmkAvukat = document.getElementById('cmkAvukat');
+  if(cmkAvukat) cmkAvukat.value = p.adSoyad;
+
+  const icraAvukat = document.getElementById('icraAvukat');
+  if(icraAvukat) icraAvukat.value = p.adSoyad;
+
+  const gkAvukatAdi = document.getElementById('gkAvukatAdi');
+  if(gkAvukatAdi) gkAvukatAdi.value = p.adSoyad;
+
+  const kesAvukatAdi = document.getElementById('kesAvukatAdi');
+  if(kesAvukatAdi) kesAvukatAdi.value = p.adSoyad;
+}
+
 function toggleFormGroups(){
   const val = dilekceTuruSel.value;
   groupSorusturma.style.display = 'none';
@@ -33,7 +235,6 @@ function toggleFormGroups(){
     groupSorusturma.style.display = 'block';
   }
 }
-dilekceTuruSel.addEventListener('change', toggleFormGroups);
 toggleFormGroups();
 
 function syncLabels(){
@@ -51,9 +252,27 @@ if(rolSel){
   syncLabels();
 }
 
+function sanitizeXmlText(value) {
+  return String(value ?? '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+}
+
+function escapeCdata(text) {
+  return sanitizeXmlText(text).replace(/]]>/g, ']]]]><![CDATA[>');
+}
+
+function escapeXmlAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function attrsToStr(a){
   let s = '';
-  for(const k in a){ s += ' ' + k + '="' + a[k] + '"'; }
+  for(const k in a){ 
+    s += ' ' + k + '="' + escapeXmlAttr(a[k]) + '"'; 
+  }
   return s;
 }
 
@@ -71,13 +290,15 @@ function buildContentXml(data){
   let fullText = '';
   let bodyParas = '';
   const font = data.yaziTipi || 'Times New Roman';
+  const isOzel = data.ozelToggle && data.ozelMetin;
 
   function addPara(pAttrs, runs){
     let inner = '';
     for(const r of runs){
-      const len = r.text.length;
+      const rawText = escapeCdata(r.text);
+      const len = rawText.length;
       inner += '<content' + attrsToStr(r.attrs || {}) + ' startOffset="' + offset + '" length="' + len + '" />';
-      fullText += r.text;
+      fullText += rawText;
       offset += len;
     }
     bodyParas += '<paragraph' + attrsToStr(pAttrs) + '>' + inner + '</paragraph>';
@@ -161,15 +382,17 @@ function buildContentXml(data){
       {text:"YETKİ BELGESİNİN KAPSAMI\n", attrs:{bold:"true", underline:"true"}}
     ]);
 
-    const kapsamMetni1 = "Yalnızca " + data.mahkemeAdi + " " + data.mahkemeEsas + " Esas sayılı dosyaya şamil olmak üzere duruşmalara katılmaya, dilekçe, beyan ve soru sunmaya, delil sunmaya ve tüm yargılama faaliyetlerini yürütmeye, kararın tebliğini talep etmeye ve tebliğ almaya tarafımca yetki verilmiştir. İşbu yetki, müvekkilin haklarını korumak amacıyla vekaletname kapsamındaki yetkilerim çerçevesinde devredilmiştir.\n";
+    const kapsamMetni1 = isOzel ? (data.ozelMetin + "\n") : ("Yalnızca " + data.mahkemeAdi + " " + data.mahkemeEsas + " Esas sayılı dosyaya şamil olmak üzere duruşmalara katılmaya, dilekçe, beyan ve soru sunmaya, delil sunmaya ve tüm yargılama faaliyetlerini yürütmeye, kararın tebliğini talep etmeye ve tebliğ almaya tarafımca yetki verilmiştir. İşbu yetki, müvekkilin haklarını korumak amacıyla vekaletname kapsamındaki yetkilerim çerçevesinde devredilmiştir.\n");
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: kapsamMetni1, attrs:{resolver:"hvl-default"}}
     ]);
 
-    const kapsamMetni2 = "Bu yetki belgesi, 1136 sayılı Avukatlık Kanunu’nu değiştiren 4667 sayılı Kanun’un 36. maddesi ile 56. maddesine eklenen hüküm uyarınca, vekaletname yerine geçmek üzere, tarafımdan düzenlenmiştir.\n";
-    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: kapsamMetni2, attrs:{resolver:"hvl-default"}}
-    ]);
+    if(!isOzel) {
+      const kapsamMetni2 = "Bu yetki belgesi, 1136 sayılı Avukatlık Kanunu’nu değiştiren 4667 sayılı Kanun’un 36. maddesi ile 56. maddesine eklenen hüküm uyarınca, vekaletname yerine geçmek üzere, tarafımdan düzenlenmiştir.\n";
+      addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
+        {text: kapsamMetni2, attrs:{resolver:"hvl-default"}}
+      ]);
+    }
 
     addEmptyLine("2");
 
@@ -184,8 +407,6 @@ function buildContentXml(data){
     const isMudaﬁ = data.cmkRol === 'supheli';
     const tarafTitle = isMudaﬁ ? 'ŞÜPHELİ' : 'MÜŞTEKİ';
     const avTitle = isMudaﬁ ? 'MÜDAFİ' : 'VEKİLİ';
-    const tarafIbare = isMudaﬁ ? 'şüpheli' : 'müşteki/mağdur';
-    const sifatIbare = isMudaﬁ ? 'müdafi' : 'vekili';
 
     addPara({Alignment:"1", LineSpacing:"0.5"}, [
       {text:"T.C.\n", attrs:{bold:"true"}}
@@ -214,19 +435,9 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    const p1 = "Başsavcılığınızın yukarıda soruşturma numarası belirtilen dosyasında, Ceza Muhakemesi Kanunu kapsamında (" + tarafIbare + ") (" + data.cmkTarafIsim + ") (" + sifatIbare + ") olarak görevlendirilmiş bulunmaktayım.\n";
+    const cmkMetin = isOzel ? (data.ozelMetin + "\n\n") : ("Başsavcılığınızın yukarıda soruşturma numarası belirtilen dosyasında, Ceza Muhakemesi Kanunu kapsamında görevlendirilmiş bulunmaktayım. Görevlendirmeye ilişkin işlemlerin yürütülmesi amacıyla dosyada vekil kaydımın yapılmasını vekâleten talep ederim.\n\n");
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: p1, attrs:{resolver:"hvl-default"}}
-    ]);
-
-    const p2 = "Ceza Muhakemesi Kanunu Gereğince Müdafi ve Vekillerin Görevlendirilmeleri ile Yapılacak Ödemelerin Usul ve Esaslarına İlişkin Yönetmelik hükümleri uyarınca, görevlendirmeye ilişkin ödemelerin yapılabilmesi amacıyla dosyada vekil kaydımın bulunması gerekmektedir.\n";
-    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: p2, attrs:{resolver:"hvl-default"}}
-    ]);
-
-    const p3 = "Bu nedenle, anılan soruşturma dosyasına CMK kapsamında görevli vekil olarak kaydımın yapılmasını vekâleten talep ederim.\n\n";
-    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: p3, attrs:{resolver:"hvl-default"}}
+      {text: cmkMetin, attrs:{resolver:"hvl-default"}}
     ]);
 
     addEmptyLine("2");
@@ -268,14 +479,9 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    const icraP1 = "Yukarıda esas numarası belirtilen icra dosyası kapsamında tarafımıza yöneltilen takip konusu asıl alacağın tamamına, işlemiş ve işleyecek faizin tamamına, faiz oranına, faiz başlangıç tarihine, icra takip giderlerine, vekâlet ücretine ve sair tüm asli ve fer’î alacaklara ayrı ayrı ve açıkça itiraz ediyoruz.\n";
+    const icraMetin = isOzel ? (data.ozelMetin + "\n\n") : ("Yukarıda esas numarası belirtilen icra dosyası kapsamında takibe, asıl alacağa, faize ve ferilerine açıkça itiraz ediyoruz. Takibin durdurulmasını talep ederiz.\n\n");
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: icraP1, attrs:{resolver:"hvl-default"}}
-    ]);
-
-    const icraP2 = "İtirazlarımız doğrultusunda icra takibinin durdurulmasına karar verilmesini vekâleten talep ederim.\n\n";
-    addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: icraP2, attrs:{resolver:"hvl-default"}}
+      {text: icraMetin, attrs:{resolver:"hvl-default"}}
     ]);
 
     addEmptyLine("2");
@@ -312,7 +518,7 @@ function buildContentXml(data){
 
     let konuMetni = "Gerekçeli kararın tebliğe çıkarılması";
     if(data.artanAvansIadesi){
-      konuMetni += " ve artan gider avansının kararın kesinleşmesine müteakip tarafımıza iadesi";
+      konuMetni += " ve artan gider avansının iadesi";
     }
     konuMetni += " talebidir.\n";
 
@@ -324,14 +530,15 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    let aciklamaMetni = "Mahkemenizin yukarıda esas numarası belirtilen dosyasında verilen gerekçeli kararın taraflara tebliğ edilmesini";
+    let varsayilanGkMetin = "Mahkemenizin yukarıda esas numarası belirtilen dosyasında verilen kararın tebliğe çıkarılmasını";
     if(data.artanAvansIadesi){
-      aciklamaMetni += " ve dosyada mevcut olması hâlinde kullanılmayan ve artan gider avansının tarafımıza iadesini";
+      varsayilanGkMetin += " ve artan gider avansının tarafımıza iadesini";
     }
-    aciklamaMetni += " vekâleten talep ederiz.\n\n";
+    varsayilanGkMetin += " vekâleten talep ederiz.\n\n";
 
+    const gkMetin = isOzel ? (data.ozelMetin + "\n\n") : varsayilanGkMetin;
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: aciklamaMetni, attrs:{resolver:"hvl-default"}}
+      {text: gkMetin, attrs:{resolver:"hvl-default"}}
     ]);
 
     addEmptyLine("2");
@@ -368,16 +575,15 @@ function buildContentXml(data){
 
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
       {text:"KONU\t\t: ", attrs:{bold:"true"}},
-      {text: "Kararın kesinleştirilmesi ve kesinleşme şerhinin dosyaya eklenmesi talebidir.\n", attrs:{}}
+      {text: "Kararın kesinleştirilmesi ve şerh verilmesi talebidir.\n", attrs:{}}
     ]);
     addPara({Alignment:"3", LineSpacing:"0.5"}, [
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
 
-    const kesAciklamaMetni = "Mahkemenizce verilen kararın kesinleşmesine ilişkin kanuni şartların oluşmuş olduğu gözetilerek, kararın kesinleştirilmesine ve kesinleşme şerhinin düzenlenerek dosyaya eklenmesine karar verilmesini vekâleten talep ederiz.\n\n";
-
+    const kesMetin = isOzel ? (data.ozelMetin + "\n\n") : ("Mahkemenizce verilen kararın kesinleşmesine ilişkin şartların oluştuğu gözetilerek kesinleşme şerhinin düzenlenmesini vekâleten talep ederiz.\n\n");
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
-      {text: kesAciklamaMetni, attrs:{resolver:"hvl-default"}}
+      {text: kesMetin, attrs:{resolver:"hvl-default"}}
     ]);
 
     addEmptyLine("2");
@@ -421,7 +627,7 @@ function buildContentXml(data){
       {text:"AÇIKLAMALAR\t:\n", attrs:{bold:"true"}}
     ]);
     
-    const aciklamaMetni = "Başsavcılığınızın yukarıda numarası belirtilen soruşturma dosyasının, " + sifatUnvani + " UYAP Avukat Portal üzerinden tarafımızca incelenebilmesi ve dosya kapsamında bulunan belgelere erişim sağlanabilmesi için gerekli yetkilendirmenin yapılmasını vekâleten talep ederim.\n";
+    const aciklamaMetni = isOzel ? (data.ozelMetin + "\n") : ("Başsavcılığınızın yukarıda numarası belirtilen soruşturma dosyasının, " + sifatUnvani + " UYAP Avukat Portal üzerinden tarafımızca incelenebilmesi ve dosya kapsamında bulunan belgelere erişim sağlanabilmesi için gerekli yetkilendirmenin yapılmasını vekâleten talep ederim.\n");
     addPara({Alignment:"3", FirstLineIndent:"25.51181", LineSpacing:"0.5"}, [
       {text: aciklamaMetni, attrs:{resolver:"hvl-default"}}
     ]);
@@ -440,10 +646,6 @@ function buildContentXml(data){
   footerInner += '<content family="' + font + '" size="12" description="Gövde" startOffset="' + offset + '" length="' + t2.length + '" />';
   fullText += t2; offset += t2.length;
   fullText += "\n";
-
-  if(fullText.indexOf(']]>') !== -1){
-    fullText = fullText.split(']]>').join(']]&gt;');
-  }
 
   return '<?xml version="1.0" encoding="UTF-8" ?> \n\n<template format_id="1.8" >\n' +
     '<content><![CDATA[' + fullText + ']]></content>' +
@@ -485,8 +687,8 @@ async function createZipBlob(filename, uncompressedData) {
 
   const cs = new CompressionStream('deflate-raw');
   const writer = cs.writable.getWriter();
-  writer.write(fileBytes);
-  writer.close();
+  await writer.write(fileBytes);
+  await writer.close();
 
   const compressedChunks = [];
   const reader = cs.readable.getReader();
@@ -568,8 +770,11 @@ async function createZipBlob(filename, uncompressedData) {
 document.getElementById('go').addEventListener('click', async () => {
   const dilekceTuru = document.getElementById('dilekceTuru').value;
   const yaziTipi = document.getElementById('yaziTipi').value;
+  const ozelToggle = ozelAciklamaToggle ? ozelAciklamaToggle.checked : false;
+  const ozelMetin = ozelAciklamaMetni ? ozelAciklamaMetni.value.trim() : '';
+
   let fileName = "";
-  let payload = { dilekceTuru, yaziTipi };
+  let payload = { dilekceTuru, yaziTipi, ozelToggle, ozelMetin };
 
   if(dilekceTuru === 'yetki_belgesi'){
     payload.yvAvukat = document.getElementById('yvAvukat').value.trim();
@@ -685,8 +890,12 @@ document.getElementById('go').addEventListener('click', async () => {
       showMsg('Lütfen tüm alanları doldurun.', 'err');
       return;
     }
-    const safeName = (payload.sorusturmaNo || 'dilekce').replace(/[^\w\-]+/g, '_');
-    fileName = 'sorusturma_' + safeName + '.udf';
+
+    const cleanSavcilik = cleanPartForFilename(payload.bassavcilik);
+    const cleanSorusturma = cleanPartForFilename(payload.sorusturmaNo);
+    const cleanAv = cleanPartForFilename(payload.avukat);
+
+    fileName = `SorusturmaInceleme_${cleanSavcilik}_${cleanSorusturma}_${cleanAv}.udf`;
   }
 
   if (!fileName || !fileName.endsWith('.udf')) {
@@ -717,7 +926,8 @@ document.getElementById('go').addEventListener('click', async () => {
     btn.textContent = 'UDF Dosyasını İndir';
 
   } catch(err){
-    showMsg('Beklenmeyen bir hata oluştu: ' + (err && err.message ? err.message : err), 'err');
+    console.error(err);
+    showMsg('Belge oluşturulurken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.', 'err');
     btn.disabled = false;
     btn.textContent = 'UDF Dosyasını İndir';
   }
