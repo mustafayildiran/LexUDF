@@ -226,4 +226,63 @@ console.log('\n6) Golden referanslar (UYAP-onaylı çıktı değişmedi mi?)');
   }
 }
 
+console.log('\n7) Belge üretiminin durum taşımadığı doğrulanıyor');
+{
+  const { createDocument } = await import('../js/core/xml.js');
+  const footerCount = s => (s.match(/5070 Sayılı/g) || []).length;
+  ok('toXml() kaç kez çağrılırsa çağrılsın aynı XML\'i döndürür (footer bir kez)', () => {
+    const doc = createDocument('Times New Roman');
+    doc.addPara({ Alignment: '1' }, [{ text: 'Merhaba\n', attrs: {} }]);
+    const a = doc.toXml();
+    const b = doc.toXml();
+    assert.equal(footerCount(a), 1);
+    assert.equal(footerCount(b), 1, 'toXml() ikinci çağrıda footer\'ı ikinci kez ekledi');
+    assert.equal(a, b, 'toXml() çağrılar arasında belge durumunu bozuyor');
+  });
+  ok('addPara() toXml() sonrası hâlâ çalışır (dokunulmazlık bozulmadı)', () => {
+    const doc = createDocument('Times New Roman');
+    doc.toXml();
+    doc.addPara({ Alignment: '3' }, [{ text: 'Sonradan\n', attrs: {} }]);
+    assert.ok(doc.toXml().includes('Sonradan'));
+    assert.equal(footerCount(doc.toXml()), 1);
+  });
+  ok('buildXml() üretimi golden ile aynı kaldı (değişiklik fark edilmedi)', () => {
+    const t = getTemplate('yetki_belgesi');
+    const p = { ...base, dilekceTuru: t.id, yaziTipi: 'Times New Roman', ozelToggle: false, ozelMetin: '' };
+    const expected = fs.readFileSync(new URL('./golden/yetki_belgesi__varsayilan__times__normal.xml', import.meta.url), 'utf8');
+    assert.equal(buildXml(t, p), expected);
+  });
+}
+
+console.log('\n8) Dosya adı sınırı (uzun girdiler yol sınırını aşmasın)');
+{
+  const { shortPartForFilename, cleanPartForFilename, MAX_PART_LENGTH } = await import('../js/core/utils.js');
+  const uzun = 'F'.repeat(300);
+  ok('her parça sınırlanıyor, kısaltma sonrası "_" kalmıyor', () => {
+    assert.equal(shortPartForFilename(uzun).length, MAX_PART_LENGTH);
+    // 40. karakter alt çizgiye denk geliyor: sondaki "_" temizlenmeli
+    const kesik = shortPartForFilename('F'.repeat(39) + '/' + 'G'.repeat(300));
+    assert.equal(kesik, 'F'.repeat(39), 'kırpma noktasındaki alt çizgi bırakılmamalı');
+    assert.ok(!kesik.endsWith('_'));
+  });
+  ok('kısa girdi değişmez — mevcut dosya adları bozulmaz', () => {
+    for (const v of ['BURSA', '2024/999', 'Örnek Borçlu A.Ş.', 'Ayşe Yılmaz', 'İSTANBUL 1.'])
+      assert.equal(shortPartForFilename(v), cleanPartForFilename(v), v);
+  });
+  ok('300 karakterlik girdide 6 şablonun hiçbiri Windows yol sınırını aşmıyor', () => {
+    const p = { ...base, bassavcilik: uzun, icraMudurlugu: uzun, gkMahkemeAdi: uzun, kesMahkemeAdi: uzun, borcluAdi: uzun, gkEsasNo: uzun, gkKararNo: uzun, cmkBassavcilik: uzun, cmkSorusturmaNo: uzun, sorusturmaNo: uzun, icraEsasNo: uzun, kesEsasNo: uzun, kesKararNo: uzun };
+    for (const t of templates) {
+      const name = t.fileName({ ...p, ozelToggle: false, ozelMetin: '' }, shortPartForFilename);
+      assert.ok(name.length < 200, `${t.id}: dosya adı çok uzun (${name.length})`);
+      assert.ok(name.endsWith('.udf'));
+    }
+  });
+  ok('sınır uygulanmasa dosya adı gerçekten patlıyordu (regresyon testi)', () => {
+    const p = { ...base, gkMahkemeAdi: uzun, gkEsasNo: uzun, gkKararNo: uzun, gkTarafAdi: 'X', gkAvukatAdi: 'Y' };
+    const t = getTemplate('gerekceli_karar');
+    assert.ok(t.fileName(p, cleanPartForFilename).length > 200, 'beklenen: sınırsızda ad şişiyor');
+    assert.ok(t.fileName(p, shortPartForFilename).length < 200, 'düzeltme: ad sınırlanıyor');
+  });
+}
+
 console.log(`\n✅ ${passed} test grubu geçti`);

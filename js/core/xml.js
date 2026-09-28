@@ -47,18 +47,23 @@ export function createDocument(font) {
     addPara({ Alignment: alignment, LineSpacing: '0.5' }, [{ text: '\n', attrs: {} }]);
   }
 
+  // SAF FONKSİYON: belge durumunu (offset/fullText) değiştirmez.
+  // Footer hesabı yerel kopyalar üzerinde yapılır; böylece toXml() kaç kez
+  // çağrılırsa çağrılsın aynı XML'i döndürür (önceden footer iki kez eklenirdi).
   function toXml() {
+    let off = offset;
+    let text = fullText;
     let footerInner = '';
     const t1 = '5070 Sayılı Kanuna Göre Güvenli Elektronik İmza ile İmzalanmıştır.';
-    footerInner += '<content size="8" foreground="-196608" startOffset="' + offset + '" length="' + t1.length + '" />';
-    fullText += t1; offset += t1.length;
+    footerInner += '<content size="8" foreground="-196608" startOffset="' + off + '" length="' + t1.length + '" />';
+    text += t1; off += t1.length;
     const t2 = '\n';
-    footerInner += '<content family="' + font + '" size="12" description="Gövde" startOffset="' + offset + '" length="' + t2.length + '" />';
-    fullText += t2; offset += t2.length;
-    fullText += '\n';
+    footerInner += '<content family="' + font + '" size="12" description="Gövde" startOffset="' + off + '" length="' + t2.length + '" />';
+    text += t2; off += t2.length;
+    text += '\n';
 
     return '<?xml version="1.0" encoding="UTF-8" ?> \n\n<template format_id="1.8" >\n' +
-      '<content><![CDATA[' + fullText + ']]></content>' +
+      '<content><![CDATA[' + text + ']]></content>' +
       '<properties><pageFormat mediaSizeName="1" leftMargin="42.525000000000006" rightMargin="42.525000000000006" topMargin="42.525000000000006" bottomMargin="42.525000000000006" paperOrientation="1" headerFOffset="20.0" footerFOffset="20.0" /></properties>\n' +
       '<elements resolver="hvl-default" >\n' + bodyParas +
       '<footer><paragraph Alignment="1">' + footerInner + '</paragraph></footer>\n</elements>\n' +

@@ -5,7 +5,7 @@ import { collectFields, findMissing } from './core/form.js';
 import { buildXml, resolveAciklama } from './core/builder.js';
 import { findUnresolved, listPlaceholders } from './core/placeholders.js';
 import { createZipBlob } from './core/zip.js';
-import { cleanPartForFilename } from './core/utils.js';
+import { shortPartForFilename } from './core/utils.js';
 import { initProfiles } from './core/profiles.js';
 
 const $ = id => document.getElementById(id);
@@ -103,7 +103,9 @@ goBtn.addEventListener('click', async () => {
     return;
   }
 
-  let fileName = template.fileName(payload, cleanPartForFilename);
+  // shortPartForFilename: her parçayı sınırlar, uzun girdilerde ad şişip
+  // Windows yol sınırını aşmasın.
+  let fileName = template.fileName(payload, shortPartForFilename);
   if (!fileName || !fileName.endsWith('.udf')) fileName = 'dilekce.udf';
 
   goBtn.disabled = true;
