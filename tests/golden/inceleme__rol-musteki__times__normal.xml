@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<template format_id="1.8" >
+<content><![CDATA[T.C.
+BURSA CUMHURİYET BAŞSAVCILIĞINA
+SORUŞTURMA NO.	: 2024/999
+MÜŞTEKİ		: Cem Aydın
+VEKİLİ		: Ayşe Yılmaz
+KONU		: Avukatın Soruşturma Dosyasını İnceleme Talebi (Portal)
+AÇIKLAMALAR	:
+Başsavcılığınızın yukarıda numarası belirtilen soruşturma dosyasının, vekil olarak UYAP Avukat Portal üzerinden tarafımızca incelenebilmesi ve dosya kapsamında bulunan belgelere erişim sağlanabilmesi için gerekli yetkilendirmenin yapılmasını vekâleten talep ederim.
+Av. Ayşe Yılmaz
+5070 Sayılı Kanuna Göre Güvenli Elektronik İmza ile İmzalanmıştır.
+
+]]></content><properties><pageFormat mediaSizeName="1" leftMargin="42.525000000000006" rightMargin="42.525000000000006" topMargin="42.525000000000006" bottomMargin="42.525000000000006" paperOrientation="1" headerFOffset="20.0" footerFOffset="20.0" /></properties>
+<elements resolver="hvl-default" >
+<paragraph Alignment="1" LineSpacing="0.5"><content bold="true" startOffset="0" length="5" /></paragraph><paragraph Alignment="1" LineSpacing="0.5"><content bold="true" startOffset="5" length="32" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="37" length="17" /><content startOffset="54" length="9" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="63" length="11" /><content startOffset="74" length="10" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="84" length="10" /><content resolver="hvl-default" startOffset="94" length="12" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content resolver="hvl-default" bold="true" startOffset="106" length="7" /><content resolver="hvl-default" startOffset="113" length="56" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="169" length="14" /></paragraph><paragraph Alignment="3" FirstLineIndent="25.51181" LineSpacing="0.5"><content resolver="hvl-default" startOffset="183" length="266" /></paragraph><paragraph Alignment="2" FirstLineIndent="25.51181" LineSpacing="0.5"><content resolver="hvl-default" startOffset="449" length="4" /><content startOffset="453" length="12" /></paragraph><footer><paragraph Alignment="1"><content size="8" foreground="-196608" startOffset="465" length="66" /><content family="Times New Roman" size="12" description="Gövde" startOffset="531" length="1" /></paragraph></footer>
+</elements>
+<styles><style name="default" description="Geçerli" family="Times New Roman" size="12" bold="false" italic="false" foreground="-13421773" FONT_ATTRIBUTE_KEY="javax.swing.plaf.FontUIResource[family=Times New Roman,name=Times New Roman,style=plain,size=12]" /><style name="hvl-default" family="Times New Roman" size="12" description="Gövde" /></styles>
+</template>

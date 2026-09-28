@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<template format_id="1.8" >
+<content><![CDATA[T.C.
+İZMİR 4. SULH HUKUK MAHKEMESİNE
+
+DOSYA NO		: 2022/5 E., 2023/9 K.
+DAVALI		: Özgür Ünal
+VEKİLİ		: Av. Ayşe Yılmaz
+KONU		: Kararın kesinleştirilmesi ve şerh verilmesi talebidir.
+AÇIKLAMALAR	:
+Özel metin ]]]]><![CDATA[> & <b> "tırnak"
+İkinci satır
+
+
+Av. Ayşe Yılmaz
+e-imzalıdır
+5070 Sayılı Kanuna Göre Güvenli Elektronik İmza ile İmzalanmıştır.
+
+]]></content><properties><pageFormat mediaSizeName="1" leftMargin="42.525000000000006" rightMargin="42.525000000000006" topMargin="42.525000000000006" bottomMargin="42.525000000000006" paperOrientation="1" headerFOffset="20.0" footerFOffset="20.0" /></properties>
+<elements resolver="hvl-default" >
+<paragraph Alignment="1" LineSpacing="0.5"><content bold="true" startOffset="0" length="5" /></paragraph><paragraph Alignment="1" LineSpacing="0.5"><content bold="true" startOffset="5" length="33" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="38" length="12" /><content startOffset="50" length="21" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="71" length="10" /><content startOffset="81" length="11" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="92" length="10" /><content startOffset="102" length="16" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="118" length="8" /><content startOffset="126" length="55" /></paragraph><paragraph Alignment="3" LineSpacing="0.5"><content bold="true" startOffset="181" length="14" /></paragraph><paragraph Alignment="3" FirstLineIndent="25.51181" LineSpacing="0.5"><content resolver="hvl-default" startOffset="195" length="56" /></paragraph><paragraph Alignment="2" LineSpacing="0.5"><content startOffset="251" length="1" /></paragraph><paragraph Alignment="2" LineSpacing="0.5"><content startOffset="252" length="16" /></paragraph><paragraph Alignment="2" LineSpacing="0.5"><content startOffset="268" length="12" /></paragraph><footer><paragraph Alignment="1"><content size="8" foreground="-196608" startOffset="280" length="66" /><content family="Cambria" size="12" description="Gövde" startOffset="346" length="1" /></paragraph></footer>
+</elements>
+<styles><style name="default" description="Geçerli" family="Cambria" size="12" bold="false" italic="false" foreground="-13421773" FONT_ATTRIBUTE_KEY="javax.swing.plaf.FontUIResource[family=Cambria,name=Cambria,style=plain,size=12]" /><style name="hvl-default" family="Cambria" size="12" description="Gövde" /></styles>
+</template>

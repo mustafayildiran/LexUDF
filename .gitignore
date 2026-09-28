@@ -1,0 +1,7 @@
+# Mağaza paketi ikili dosyadır, sürüm geçmişine girmez
+*.zip
+
+# işletim sistemi / editör artıkları
+Thumbs.db
+Desktop.ini
+.vscode/

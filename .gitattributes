@@ -1,0 +1,10 @@
+.gitattributes text eol=lf
+.gitignore text eol=lf
+# Testlerin bayt-bayt karşılaştırma yaptığı dosyalar her platformda LF kalmalı
+*.js text eol=lf
+*.mjs text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+tests/golden/*.xml text eol=lf
+*.png binary
