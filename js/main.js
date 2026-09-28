@@ -125,7 +125,7 @@ goBtn.addEventListener('click', async () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showMsg('UDF dosyası indirildi. UYAP\u2019a yüklemeden önce bilgileri kontrol etmeyi unutmayın.', 'ok');
+      showMsg('UDF dosyası başarıyla indirildi.', 'ok');
       goBtn.disabled = false;
       goBtn.textContent = 'UDF Dosyasını İndir';
     }, 50);
