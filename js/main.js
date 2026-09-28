@@ -139,3 +139,15 @@ goBtn.addEventListener('click', async () => {
 
 toggleFormGroups();
 initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
+
+// Gizlilik penceresi: başlıktaki kilit simgesiyle açılır, ✕ / dışarı tıklama / Esc ile kapanır.
+{
+  const modal = $('privacyModal');
+  if (modal) {
+    const close = () => modal.classList.remove('open');
+    $('privacyBtn')?.addEventListener('click', () => modal.classList.add('open'));
+    $('privacyClose')?.addEventListener('click', close);
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  }
+}
