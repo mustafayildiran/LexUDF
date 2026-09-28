@@ -3,6 +3,10 @@ import { centered, row, aciklamalarBaslik, bodyText } from '../core/blocks.js';
 export default {
   id: 'inceleme',
   groupId: 'groupSorusturma',
+  // Mağaza metinlerinde ve README'de görünen ad. popup.html'deki <option> metni
+  // bu değerden senkronize edilir (bkz. scripts/sync-docs.mjs) — tek kaynak burasıdır.
+  label: 'Soruşturma Dosyasını İnceleme Talebi (Portal)',
+  aciklamaKisa: 'UYAP Avukat Portal üzerinden dosya inceleme yetkisi talebi (müdafi veya vekil).',
 
   // key: payload anahtarı, id: HTML elemanı (verilmezse key ile aynı)
   fields: [

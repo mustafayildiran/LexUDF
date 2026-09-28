@@ -3,6 +3,8 @@ import { centered, row, aciklamalarBaslik, bodyText, signature } from '../core/b
 export default {
   id: 'icra_itiraz',
   groupId: 'groupIcraItiraz',
+  label: 'İcra Borca ve Ferilerine İtiraz Dilekçesi',
+  aciklamaKisa: 'Ödeme emrine, alacağın aslı, faizi ve ferilerine yasal süresinde itiraz.',
 
   fields: [
     { key: 'icraMudurlugu', upper: true },

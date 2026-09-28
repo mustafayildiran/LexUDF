@@ -2,5 +2,11 @@
   "name": "lexudf",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node tests/run.mjs" }
+  "scripts": {
+    "test": "node tests/run.mjs",
+    "sync": "node scripts/sync-docs.mjs",
+    "release": "node scripts/sync-docs.mjs && node tests/run.mjs && node scripts/build-store-zip.mjs && node scripts/smoke-test.mjs",
+    "shots": "node scripts/build-store-shots.mjs",
+    "golden": "node tests/update-golden.mjs"
+  }
 }

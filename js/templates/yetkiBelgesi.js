@@ -3,6 +3,8 @@ import { centered, row, sectionTitle, bodyText, signature } from '../core/blocks
 export default {
   id: 'yetki_belgesi',
   groupId: 'groupYetkiBelgesi',
+  label: 'Yetki Belgesi',
+  aciklamaKisa: 'Avukatlık ortaklığı veya tek avukattan diğerine, dosya kapsamında yetki devri.',
 
   fields: [
     { key: 'yvAvukat' }, { key: 'yvBaro' }, { key: 'yvVergi' }, { key: 'yvAdres' },

@@ -3,6 +3,8 @@ import { centered, row, aciklamalarBaslik, bodyText, signature } from '../core/b
 export default {
   id: 'kesinlesme_talebi',
   groupId: 'groupKesinlesme',
+  label: 'Dosyanın Kesinleştirilmesi Talebi',
+  aciklamaKisa: 'Uyuşmazlık kesinleşmediği için kesinleşme şerhinin düzenlenmesi.',
 
   fields: [
     { key: 'kesMahkemeAdi', upper: true },

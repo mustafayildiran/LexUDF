@@ -86,6 +86,8 @@ for (const t of templates) {
     assert.equal(new Set(keys).size, keys.length, 'tekrarlayan alan anahtarı');
     t.required.forEach(k => assert.ok(keys.includes(k), `required '${k}' fields içinde yok`));
     t.aciklamaDeps.forEach(k => assert.ok(keys.includes(k), `aciklamaDeps '${k}' fields içinde yok`));
+    for (const k of ['label', 'aciklamaKisa'])
+      assert.ok(typeof t[k] === 'string' && t[k].length > 5, `${t.id}: '${k}' eksik veya çok kısa`);
     assert.ok(t.fileName({ ...base }, cleanPartForFilename).endsWith('.udf'));
     const unresolved = findUnresolved(resolvePlaceholders(t.aciklama({ ...base, rol: 'supheli' }), t, { ...base }));
     assert.deepEqual(unresolved, [], `${t.id}: aciklama() içinde tanımsız [alan] var`);
@@ -102,6 +104,40 @@ ok('şablon id\'leri benzersiz ve popup.html <option> değerleriyle eşleşiyor'
     for (const el of Object.keys(t.profileFill)) assert.ok(html.includes(`id="${el}"`), `${t.id}: profileFill #${el} HTML'de yok`);
   }
   assert.equal(getTemplate('bilinmeyen').id, 'inceleme');
+});
+ok('popup.html <option> metinleri şablon `label`ı ile aynı (sync-docs senkronu)', () => {
+  const html = fs.readFileSync(new URL('../popup.html', import.meta.url), 'utf8');
+  for (const t of templates) {
+    const re = new RegExp(`<option value="${t.id}">([^<]*)</option>`);
+    const m = html.match(re);
+    assert.ok(m, `${t.id}: option bulunamadı`);
+    assert.equal(m[1], t.label, `${t.id}: HTML metni "${m[1]}" ≠ label "${t.label}" — node scripts/sync-docs.mjs çalıştırın`);
+  }
+});
+ok('dokümanlarda şablon sayısı elle yazılmış değil (tek kaynak: js/templates)', () => {
+  for (const p of ['README.md', 'MAGAZA_ACIKLAMASI.md']) {
+    const md = fs.readFileSync(new URL('../' + p, import.meta.url), 'utf8');
+    // 1) her şablon adı geçiyor mu
+    for (const t of templates) assert.ok(md.includes(t.label), `${p}: "${t.label}" eksik`);
+    // 2) hiçbir yerde "6 şablon" gibi kalabalık sayı kalmasın
+    assert.ok(!/\b\d+\s+(matbu\s+)?şablon/i.test(md), `${p}: elle yazılmış şablon sayısı var — sync-docs işaretli bloklara geçmeli`);
+    // 3) senkronizasyon işaretleri mevcut
+    assert.ok(md.includes('ŞABLON-LİSTESİ:BAŞ') && md.includes('ŞABLON-LİSTESİ:BİT'), `${p}: senkron işaretleri yok`);
+  }
+});
+ok('mağaza açıklamasındaki sürüm/açıklama manifest ile aynı', () => {
+  const mf = JSON.parse(fs.readFileSync(new URL('../manifest.json', import.meta.url), 'utf8'));
+  const md = fs.readFileSync(new URL('../MAGAZA_ACIKLAMASI.md', import.meta.url), 'utf8');
+  assert.ok(md.includes(mf.version), `MAGAZA_ACIKLAMASI.md sürüm ${mf.version} içermiyor`);
+  assert.ok(md.includes(mf.description), 'kısa açıklama manifest ile aynı değil');
+  assert.ok(mf.description.length <= 132, `kısa açıklama ${mf.description.length} karakter (sınır 132)`);
+});
+ok('gizlilik politikası eklentiyi doğru tanımlıyor (Data Safety "Hayır" beyanı tutarlı)', () => {
+  const mf = JSON.parse(fs.readFileSync(new URL('../manifest.json', import.meta.url), 'utf8'));
+  const pol = fs.readFileSync(new URL('../GIZLILIK_POLITIKASI.md', import.meta.url), 'utf8');
+  assert.ok(!mf.host_permissions, 'beyan tutarlı olsun diye host_permissions olmamalı');
+  for (const izin of mf.permissions) assert.ok(pol.includes('`' + izin + '`'), `politika '${izin}' iznini açıklamıyor`);
+  assert.ok(pol.includes('1.0.0'), 'politika sürümü manifest ile eşleşmeli');
 });
 
 console.log('\n4) İcra müdürlüğü: kullanıcı "İCRA MÜDÜRLÜĞÜ" yazsa da tekrarlanmaz');

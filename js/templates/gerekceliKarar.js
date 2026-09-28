@@ -3,6 +3,8 @@ import { centered, row, aciklamalarBaslik, bodyText, signature } from '../core/b
 export default {
   id: 'gerekceli_karar',
   groupId: 'groupGerekceliKarar',
+  label: 'Gerekçeli Karar ve Gider Avansı Talebi',
+  aciklamaKisa: 'Kararın gerekçesinin tebliğe çıkarılması ve artan gider avansının iadesi.',
 
   fields: [
     { key: 'gkMahkemeAdi', upper: true },

@@ -3,6 +3,8 @@ import { centered, row, aciklamalarBaslik, bodyText, signature } from '../core/b
 export default {
   id: 'cmk_kayit',
   groupId: 'groupCmk',
+  label: 'CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi',
+  aciklamaKisa: 'Ceza Muhakemesi Kanunu uyarınca zorunlu müdafi veya vekil kaydının yapılması.',
 
   fields: [
     { key: 'cmkBassavcilik', upper: true },

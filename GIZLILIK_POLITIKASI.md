@@ -2,7 +2,7 @@
 
 # LexUDF — Gizlilik Politikası
 
-Son güncelleme: 28 Eylül 2026
+**Sürüm 1.0.0** · Son güncelleme: 28 Eylül 2026
 
 LexUDF ("eklenti"), UYAP uyumlu UDF dilekçe taslakları hazırlayan bir tarayıcı eklentisidir.
 Gizliliğiniz bizim için esastır: **eklenti hiçbir verinizi toplamaz, kaydetmek üzere
@@ -18,13 +18,27 @@ tamamen tarayıcınızın içinde (istemci tarafında) gerçekleşir.
 
 Kaydettiğiniz avukat profilleri (ad soyad, baro/sicil, vergi dairesi, ofis adresi),
 yalnızca sizin cihazınızda, tarayıcının `chrome.storage.local` alanında saklanır.
-Bu verilere yalnızca siz erişebilirsiniz; eklentiyi kaldırdığınızda tarayıcı
-bu verileri de siler.
+Bu verilere yalnızca siz erişebilirsiniz.
+
+Hazırladığınız dilekçe form verileri (müvekkil adları, dosya numaraları, açıklama metinleri)
+saklanmaz; bunlar yalnızca panel açıkken bellekte tutulur, belge oluşturulduktan sonra
+kullanıcı tarayıcısını kapattığında silinir.
+
+## Verilerin silinmesi
+
+Kayıtlı profilleri tek tek "Profili Sil" düğmesiyle, tümünü ise eklentiyi kaldırarak
+kalıcı olarak silebilirsiniz. Eklenti kaldırıldığında `chrome.storage.local` alanındaki
+veriler de tarayıcı tarafından silinir.
+
+## Hukuki dayanak
+
+Avukatlık kanunu uyarınca avukata ait dosya ve müvekkil bilgileri gizlidir. Bu eklenti,
+bu bilgilerin cihazınızdan çıkmasına hiçbir teknik yol sunmaz.
 
 ## İzinlerin kullanımı
 
-- **sidePanel:** Dilekçe hazırlama panelini tarayıcının yan panelinde göstermek için kullanılır.
-- **storage:** Avukat profillerinizi yalnızca cihazınızda saklamak için kullanılır.
+- **sidePanel:** Dilekçe hazırlama panelini tarayıcının yan panelinde (`sidePanel`) göstermek için kullanılır.
+- **storage:** Avukat profillerinizi yalnızca cihazınızda saklamak (`storage`) için kullanılır.
 
 Eklenti; sekmelerinizin içeriğini okumaz, gezinti geçmişinize erişmez, uzaktaki
 hiçbir adresle iletişim kurmaz ve analitik/izleme kodu içermez.
