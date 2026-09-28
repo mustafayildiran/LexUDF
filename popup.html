@@ -165,10 +165,9 @@
   }
   .site-footer .footer-credit strong { color: var(--navy); }
 
-  /* UYAP öncesi kontrol uyarısı */
+  /* UYAP öncesi kontrol uyarısı (açılır-kapanır) */
   .uyap-warning {
     margin-top: 14px;
-    padding: 10px 12px;
     background: #fffbeb;
     border: 1px solid #fcd34d;
     border-left: 4px solid #d97706;
@@ -176,8 +175,23 @@
     font-size: 11.5px;
     color: #92400e;
     line-height: 1.5;
+    overflow: hidden;
   }
-  .uyap-warning strong { display: block; margin-bottom: 2px; font-size: 12px; }
+  .uyap-warning summary {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+  }
+  .uyap-warning summary:hover { background: #fef3c7; }
+  .uyap-warning .uyap-content {
+    padding: 0 12px 10px 12px;
+    border-top: 1px dashed #fcd34d;
+    margin-top: 2px;
+    padding-top: 8px;
+  }
 </style>
 </head>
 <body>
@@ -403,11 +417,13 @@
       <div class="hint" id="ozelPlaceholderHint" style="display:none;"></div>
     </div>
 
-    <div class="uyap-warning">
-      <strong>⚠️ UYAP'a yüklemeden önce kontrol edin</strong>
-      Bu eklenti matbu bir taslak hazırlar. İsim, dosya numarası, mahkeme adı gibi bilgileri
-      UDF dosyasını UYAP'a yüklemeden önce mutlaka gözden geçirin.
-    </div>
+    <details class="uyap-warning">
+      <summary>⚠️ UYAP'a yüklemeden önce kontrol edin</summary>
+      <div class="uyap-content">
+        Bu eklenti matbu bir taslak hazırlar. İsim, dosya numarası, mahkeme adı gibi bilgileri
+        UDF dosyasını UYAP'a yüklemeden önce mutlaka gözden geçirin.
+      </div>
+    </details>
 
     <button id="go">UDF Dosyasını İndir</button>
     <div class="msg" id="msg"></div>
