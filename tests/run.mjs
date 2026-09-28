@@ -285,4 +285,63 @@ console.log('\n8) Dosya adı sınırı (uzun girdiler yol sınırını aşmasın
   });
 }
 
+console.log('\n9) Astral karakterlerde offset/length tutarlılığı');
+{
+  const { createDocument, textLength } = await import('../js/core/xml.js');
+  ok('textLength() JS .length\'ten farklıdır (birleşik karakter 1 sayılır)', () => {
+    assert.equal(textLength('abc'), 3);
+    assert.equal('😀'.length, 2, 'ön koşul: JS astral karakteri 2 birim sayar');
+    assert.equal(textLength('😀'), 1, 'textLength() 1 demeli');
+    assert.equal(textLength('Ali 😀 Veli'), 10);
+  });
+  ok('emoji girdisinde son content öğesinin bitişi CDATA uzunluğuyla tutarlı', () => {
+    const t = getTemplate('inceleme');
+    const p = { ...base, isim: 'Ali 😀 Veli', dilekceTuru: t.id, yaziTipi: 'Times New Roman', ozelToggle: false, ozelMetin: '' };
+    const xml = buildXml(t, p);
+    const body = xml.match(/<content><!\[CDATA\[([\s\S]*?)\]\]><\/content>/)[1];
+    const els = [...xml.matchAll(/<content[^>]*startOffset="(\d+)" length="(\d+)"/g)];
+    const last = els[els.length - 1];
+    const end = Number(last[1]) + Number(last[2]);
+    // Gövdenin sonunda <content> öğesine karşılık gelmeyen tek bir satır sonu vardır
+    // (bkz. xml.js toXml(): metin += '\n'). Offset'lar bunu saymamalıdır.
+    assert.ok(body.endsWith('\n'), 'gövde satır sonuyla bitmeli');
+    assert.equal(end, textLength(body.slice(0, -1)), 'offset/length CDATA ile uyuşmuyor');
+  });
+  ok('her content öğesinin uzunluğu metniyle birebir tutarlı', () => {
+    const doc = createDocument('Times New Roman');
+    doc.addPara({ Alignment: '3' }, [{ text: '😀😀 bir\n', attrs: {} }]);
+    const xml = doc.toXml();
+    const body = xml.match(/<content><!\[CDATA\[([\s\S]*?)\]\]><\/content>/)[1];
+    const first = xml.match(/<content[^>]*startOffset="(\d+)" length="(\d+)"/);
+    assert.equal(Number(first[1]), 0);
+    assert.equal(Number(first[2]), textLength('😀😀 bir\n'));
+    assert.ok(body.startsWith('😀😀 bir\n'));
+  });
+  ok('regresyon: JS .length kullanılsaydı tutarsızlık çıkardı', () => {
+    const s = '😀';
+    assert.notEqual(s.length, textLength(s), 'bu eşitlik düzeltmenin gerekçesidir');
+  });
+}
+
+console.log('\n10) font değeri XML\'e güvenli giriyor');
+{
+  const { createDocument } = await import('../js/core/xml.js');
+  ok('tırnak/&/< içeren font değeri XML yapısını bozmaz', () => {
+    const xml = createDocument('Evil" family="x & <y>').toXml();
+    assert.ok(!/family="Evil" family=/.test(xml), 'ham tırnak sızdı');
+    assert.ok(xml.includes('&quot;'), 'tırnak kaçırılmış olmalı');
+    assert.ok(xml.includes('&amp;'), "& kaçırılmış olmalı");
+    assert.ok(xml.includes('&lt;y&gt;'), '< > kaçırılmış olmalı');
+    // styles/footer satırlarındaki her family="..." kapanışı eşleşmeli
+    for (const m of xml.matchAll(/<style name="[^"]+"[^>]*family="([^"]*)"/g))
+      assert.ok(m[1].includes('&quot;') || !m[1].includes('"'), 'açılmamış tırnak kalmamalı');
+  });
+  ok('normal font adı çıktıyı değiştirmez (golden korunur)', () => {
+    const a = createDocument('Times New Roman').toXml();
+    const b = createDocument('Times New Roman').toXml();
+    assert.equal(a, b);
+    assert.ok(a.includes('family="Times New Roman"'));
+  });
+}
+
 console.log(`\n✅ ${passed} test grubu geçti`);
