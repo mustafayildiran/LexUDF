@@ -68,7 +68,7 @@ ok(entries.has(mf.background.service_worker), `service_worker mevcut: ${mf.backg
 // --- Paket içeriği ---
 console.log('\n3) Paket içeriği');
 const names = [...entries.keys()].sort();
-ok(!names.some(n => /^(tests|scripts)\//.test(n) || /\.(md|zip)$/.test(n) || n === 'package.json'), 'test/doküman/paket sızıntısı yok');
+ok(!names.some(n => /^(tests|scripts|docs)\//.test(n) || /\.(md|zip)$/.test(n) || ['package.json', '.gitattributes', '.gitignore', 'LICENSE'].includes(n)), 'test/doküman/paket sızıntısı yok');
 ok(names.filter(n => n.startsWith('js/')).length === 16, `js/ altında 16 modül (${names.filter(n => n.startsWith('js/')).length})`);
 
 // --- Modül bütünlüğü: her import çözülebiliyor mu? ---

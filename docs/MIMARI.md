@@ -17,6 +17,13 @@ js/
   templates/
     index.js              ŞABLON KAYIT DEFTERİ
     inceleme.js, yetkiBelgesi.js, cmkKayit.js, icraItiraz.js, gerekceliKarar.js, kesinlesme.js
+portal/
+  content-uyap-sablon.js  UYAP Portal içerik betiği (tek dosya, sıfır bağımlılık).
+                          UDF çekirdeği js/core ile birebir aynıdır ama MV3 content-script
+                          ES modülü import edemediği için gömülüdür. Ayrıntılar: portal/README.md
+  content-uyap-sablon.css Logo butonu ve tooltip stilleri
+docs/
+  MIMARI.md (bu dosya), MAGAZA_ACIKLAMASI.md, GIZLILIK_POLITIKASI.md
 scripts/
   sync-docs.mjs           Şablon adlarını/sayılarını README, mağaza metni ve popup.html'e yazar
   build-store-zip.mjs     Mağaza paketini (lexudf-<sürüm>-store.zip) üretir ve temizliğini doğrular
@@ -55,7 +62,9 @@ Tek kaynak `manifest.json` → `version`. Mağaza gönderim dosyasındaki sürü
 (`node scripts/sync-docs.mjs`).
 
 ## Yayın paketi
-Chrome Web Store'a yüklenecek zip'e `tests/`, `scripts/`, `*.md`, `package.json`
-ve `.gitattributes` KOYMAYIN; sadece `manifest.json`, `background.js`, `popup.html`, `js/`
-ve ikonlar (`icon16/48/128.png`) gerekir. `node scripts/build-store-zip.mjs` bu listeyi
-kendisi kurar ve sızıntı/eksik dosya denetimi yapar.
+Chrome Web Store'a yüklenecek zip'e `tests/`, `scripts/`, `docs/`, `portal/README.md`,
+`*.md`, `LICENSE`, `package.json` ve `.gitattributes` KOYMAYIN; sadece `manifest.json`,
+`background.js`, `popup.html`, `js/`, `portal/content-uyap-sablon.js`,
+`portal/content-uyap-sablon.css` ve ikonlar (`icon16/48/128.png`) gerekir.
+`node scripts/build-store-zip.mjs` bu listeyi kendisi kurar ve sızıntı/eksik
+dosya denetimi yapar.

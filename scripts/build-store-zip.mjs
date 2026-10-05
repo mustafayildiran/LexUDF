@@ -107,8 +107,8 @@ console.log(`✓ ${outName} oluşturuldu (${files.length} dosya, sürüm ${versi
 files.forEach(f => console.log('   ' + f.split(path.sep).join('/')));
 
 // --- Paket doğrulaması (kendi ürettiğimiz listeyi denetle) ---
-const yasak = files.filter(f => /^(tests|scripts)\//.test(f) || /\.(md|zip)$/.test(f)
-  || /^(package\.json|\.gitattributes|\.gitignore)$/.test(f));
+const yasak = files.filter(f => /^(tests|scripts|docs)\//.test(f) || /\.(md|zip)$/.test(f)
+  || /^(package\.json|\.gitattributes|\.gitignore|LICENSE)$/.test(f));
 if (yasak.length) { console.error('\n✗ Pakete yolmaması gereken dosyalar sızdı:', yasak); process.exit(1); }
 
 for (const gerekli of ['manifest.json', 'background.js', 'popup.html', 'js/main.js', 'js/templates/index.js', 'portal/content-uyap-sablon.js', 'portal/content-uyap-sablon.css', 'icon16.png', 'icon48.png', 'icon128.png'])

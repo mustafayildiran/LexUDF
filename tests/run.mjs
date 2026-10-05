@@ -115,7 +115,7 @@ ok('popup.html <option> metinleri şablon `label`ı ile aynı (sync-docs senkron
   }
 });
 ok('dokümanlarda şablon sayısı elle yazılmış değil (tek kaynak: js/templates)', () => {
-  for (const p of ['README.md', 'MAGAZA_ACIKLAMASI.md']) {
+  for (const p of ['README.md', 'docs/MAGAZA_ACIKLAMASI.md']) {
     const md = fs.readFileSync(new URL('../' + p, import.meta.url), 'utf8');
     // 1) her şablon adı geçiyor mu
     for (const t of templates) assert.ok(md.includes(t.label), `${p}: "${t.label}" eksik`);
@@ -127,14 +127,14 @@ ok('dokümanlarda şablon sayısı elle yazılmış değil (tek kaynak: js/templ
 });
 ok('mağaza açıklamasındaki sürüm/açıklama manifest ile aynı', () => {
   const mf = JSON.parse(fs.readFileSync(new URL('../manifest.json', import.meta.url), 'utf8'));
-  const md = fs.readFileSync(new URL('../MAGAZA_ACIKLAMASI.md', import.meta.url), 'utf8');
+  const md = fs.readFileSync(new URL('../docs/MAGAZA_ACIKLAMASI.md', import.meta.url), 'utf8');
   assert.ok(md.includes(mf.version), `MAGAZA_ACIKLAMASI.md sürüm ${mf.version} içermiyor`);
   assert.ok(md.includes(mf.description), 'kısa açıklama manifest ile aynı değil');
   assert.ok(mf.description.length <= 132, `kısa açıklama ${mf.description.length} karakter (sınır 132)`);
 });
 ok('gizlilik politikası eklentiyi doğru tanımlıyor (Data Safety "Hayır" beyanı tutarlı)', () => {
   const mf = JSON.parse(fs.readFileSync(new URL('../manifest.json', import.meta.url), 'utf8'));
-  const pol = fs.readFileSync(new URL('../GIZLILIK_POLITIKASI.md', import.meta.url), 'utf8');
+  const pol = fs.readFileSync(new URL('../docs/GIZLILIK_POLITIKASI.md', import.meta.url), 'utf8');
   assert.ok(!mf.host_permissions, 'beyan tutarlı olsun diye host_permissions olmamalı');
   for (const izin of mf.permissions) assert.ok(pol.includes('`' + izin + '`'), `politika '${izin}' iznini açıklamıyor`);
   assert.ok(pol.includes(mf.version), 'politika sürümü manifest ile eşleşmeli');

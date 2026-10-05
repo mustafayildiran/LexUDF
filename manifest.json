@@ -3,7 +3,7 @@
   "name": "LexUDF — UYAP Dilekçe Asistanı",
   "short_name": "LexUDF",
   "version": "1.1.0",
-  "description": "UYAP uyumlu UDF dilekçeleri hazırlayın: matbu şablonlar, çoklu avukat profili, tamamen cihaz içi çalışır.",
+  "description": "UYAP uyumlu UDF dilekçeleri: matbu şablonlar, portalda tek tıkla taslak, çoklu avukat profili, cihaz içi çalışır.",
   "permissions": [
     "sidePanel",
     "storage"

@@ -58,16 +58,16 @@ function replaceBlock(text, block, file, start = START, end = END) {
   console.log('✓ README.md güncellendi');
 }
 
-// 2) MAGAZA_ACIKLAMASI.md
+// 2) docs/MAGAZA_ACIKLAMASI.md
 {
-  const p = 'MAGAZA_ACIKLAMASI.md';
+  const p = 'docs/MAGAZA_ACIKLAMASI.md';
   let t = read(p);
   t = replaceBlock(t, asStoreList(), p);
   t = t.replace(/^DURUMLU_SABLON_SAYISI$/m, String(n));
   t = t.replace(/SÜRÜM_NUMARASI/g, surum);
   t = replaceBlock(t, asShortDescription(), p, SHORT_START, SHORT_END);
   write(p, t);
-  console.log('✓ MAGAZA_ACIKLAMASI.md güncellendi');
+  console.log('✓ docs/MAGAZA_ACIKLAMASI.md güncellendi');
 }
 
 // 3) popup.html — <option> metinleri şablon adlarıyla eşleşsin

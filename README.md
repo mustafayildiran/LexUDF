@@ -59,7 +59,7 @@ scripts/                                     Doküman senkronu, mağaza paketi v
 tests/                                       Testler ve golden referanslar
 ```
 
-Ayrıntılar: [MIMARI.md](MIMARI.md)
+Ayrıntılar: [docs/MIMARI.md](docs/MIMARI.md)
 
 ## Geliştirme
 
@@ -80,7 +80,7 @@ tarafından kabul edilmiş çıktının dondurulmuş halidir (şablon × rol × 
 normal/özel metin). `npm test` her değişiklikte bunlarla bayt-bayt karşılaştırır;
 kabul edilmiş çıktı kayarsa test kırmızıya döner.
 
-**Yeni şablon eklerken:** `MIMARI.md` içindeki adımları izleyin, `npm test`'i geçirin,
+**Yeni şablon eklerken:** `docs/MIMARI.md` içindeki adımları izleyin, `npm test`'i geçirin,
 ardından `node scripts/sync-docs.mjs` çalıştırın — README, mağaza açıklaması ve
 `popup.html` seçenekleri kendiliğinden güncellenir.
 
@@ -88,9 +88,9 @@ ardından `node scripts/sync-docs.mjs` çalıştırın — README, mağaza açı
 
 - **Paket:** `manifest.json`, `background.js`, `popup.html`, `js/`, `portal/`, `icon16/48/128.png`.
   `tests/`, `scripts/`, `*.md`, `LICENSE`, `package.json` ve `.gitattributes` zip'e **girmez**.
-- **Mağaza metinleri:** [MAGAZA_ACIKLAMASI.md](MAGAZA_ACIKLAMASI.md) — açıklama, izin
+- **Mağaza metinleri:** [docs/MAGAZA_ACIKLAMASI.md](docs/MAGAZA_ACIKLAMASI.md) — açıklama, izin
   gerekçeleri, Data Safety yanıtları, sürüm notları ve gönderim kontrol listesi.
-- **Gizlilik politikası:** [GIZLILIK_POLITIKASI.md](GIZLILIK_POLITIKASI.md)
+- **Gizlilik politikası:** [docs/GIZLILIK_POLITIKASI.md](docs/GIZLILIK_POLITIKASI.md)
 - **Ekran görüntüleri:** `magaza-gorseller/`
 - **Paket doğrulaması:** `npm run release` çıktısı "Paket temiz" ve "duman testi geçti"
   demeden zip'i yüklemeyin.

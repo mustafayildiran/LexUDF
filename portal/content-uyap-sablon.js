@@ -1033,6 +1033,20 @@ async function generateUdfDocument(data) {
   }
 }
 
+/**
+ * Başlığın gerçek bir dosya penceresi olup olmadığını anlar.
+ * Kural: başlıkta dosya no deseni (örn. 2026/12313) olmalı; giriş/e-imza
+ * gibi dosyasız ekranlardaki benzer pencereler elenir.
+ * Karşılaştırma Türkçe küçük harfle yapılır (İ→i, Ş→ş doğru çözülür).
+ */
+function isCaseModalTitle(titleText) {
+  const raw = titleText || '';
+  if (!/\d+\/\d+/.test(raw)) return false;
+  const t = raw.toLocaleLowerCase('tr-TR');
+  if (t.includes('imza') || t.includes('giriş') || t.includes('giris') || t.includes('şifre') || t.includes('sifre')) return false;
+  return true;
+}
+
 // --- 10. DOM ENJEKSİYONU ---
 
 // Not: indir butonu sadece logolu (L rozeti) LexUDF butonudur; metin yok,
@@ -1051,6 +1065,15 @@ function checkAndInjectPopup() {
 
     const popupScope = findPopupContainer(titleContainer);
 
+    const titleText = textDiv.getAttribute('title') || textDiv.innerText.trim();
+    // Sadece gerçek dosya penceresi: başlıkta dosya no (örn. 2026/12313) olmalı.
+    // Giriş/e-imza gibi dosyasız ekranlardaki benzer pencerelere buton konmaz;
+    // eski sürümden kalma buton varsa temizlenir.
+    if (!isCaseModalTitle(titleText)) {
+      popupScope.querySelectorAll('.uyap-sablon-indir-btn').forEach(b => b.remove());
+      return;
+    }
+
     // Aynı popup'ta buton zaten varsa yeniden üretme (başlık sekme tıklayınca
     // re-render oluyor, guard yeni düğümde tutmuyor; eski buton sekmede yaşar).
     if (adoptExistingButton(titleContainer, popupScope, textDiv)) return;
@@ -1063,7 +1086,6 @@ function checkAndInjectPopup() {
 
     const downloadBtn = createDownloadButton();
 
-    const titleText = textDiv.getAttribute('title') || textDiv.innerText.trim();
     const isCBS = titleText.toLowerCase().includes('cbs') && (titleText.toLowerCase().includes('soruşturma') || titleText.toLowerCase().includes('sorusturma'));
     
     popupCache.set(titleContainer, {

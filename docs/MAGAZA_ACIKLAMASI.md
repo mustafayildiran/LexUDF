@@ -16,7 +16,7 @@ Sürüm: **1.1.0** · Yüklenecek dosya: **`lexudf-1.1.0-store.zip`**
 
 ```
 <!-- KISA-ACIKLAMA:BAŞ (manifest.json description alanı) -->
-UYAP uyumlu UDF dilekçeleri hazırlayın: matbu şablonlar, çoklu avukat profili, tamamen cihaz içi çalışır.
+UYAP uyumlu UDF dilekçeleri: matbu şablonlar, portalda tek tıkla taslak, çoklu avukat profili, cihaz içi çalışır.
 <!-- KISA-ACIKLAMA:BİT -->
 ```
 
@@ -126,7 +126,7 @@ Gerekçe: Veriler hiçbir zaman cihaz dışına çıkmadığı için Google'ın 
 
 ## 7. Gizlilik politikası
 
-`GIZLILIK_POLITIKASI.md` içindeki metnin tamamı Dashboard'daki **Privacy policy**
+`docs/GIZLILIK_POLITIKASI.md` içindeki metnin tamamı Dashboard'daki **Privacy policy**
 alanına yapıştırılmalıdır. Mağaza genellikle erişilebilir bir **URL** ister: metni
 GitHub Pages, kişisel siteniz veya Google Sites gibi bir yere aynen yayımlayıp o adresi girin.
 
