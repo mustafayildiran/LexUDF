@@ -2,7 +2,7 @@
 
 # LexUDF — Gizlilik Politikası
 
-**Sürüm 1.0.0** · Son güncelleme: 28 Eylül 2026
+**Sürüm 1.1.0** · Son güncelleme: 5 Ekim 2026
 
 LexUDF ("eklenti"), UYAP uyumlu UDF dilekçe taslakları hazırlayan bir tarayıcı eklentisidir.
 Gizliliğiniz bizim için esastır: **eklenti hiçbir verinizi toplamaz, kaydetmek üzere

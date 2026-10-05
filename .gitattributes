@@ -1,5 +1,6 @@
 .gitattributes text eol=lf
 .gitignore text eol=lf
+LICENSE text eol=lf
 # Testlerin bayt-bayt karşılaştırma yaptığı dosyalar her platformda LF kalmalı
 *.js text eol=lf
 *.mjs text eol=lf

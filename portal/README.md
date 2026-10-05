@@ -31,6 +31,4 @@ npm run release   # senkron + test + mağaza paketi + duman testi
 
 ## Yayına alınmadan önce kalanlar
 
-- Sürüm yükseltme (`manifest.json` → `1.1.0`) ve buna bağlı `MAGAZA_ACIKLAMASI.md`
-  ile `GIZLILIK_POLITIKASI.md` içindeki sürüm ibareleri.
-- Mağaza metinlerine portal özelliğini anlatan paragraf ve yeni ekran görüntüleri.
+- Portal düğmesini gösteren yeni mağaza ekran görüntüleri (`npm run shots` + Chrome gerekir).

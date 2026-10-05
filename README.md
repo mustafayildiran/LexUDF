@@ -86,14 +86,19 @@ ardından `node scripts/sync-docs.mjs` çalıştırın — README, mağaza açı
 
 ## Mağaza gönderimi
 
-- **Paket:** `manifest.json`, `background.js`, `popup.html`, `js/`, `icon16/48/128.png`.
-  `tests/`, `scripts/`, `*.md`, `package.json` ve `.gitattributes` zip'e **girmaz**.
+- **Paket:** `manifest.json`, `background.js`, `popup.html`, `js/`, `portal/`, `icon16/48/128.png`.
+  `tests/`, `scripts/`, `*.md`, `LICENSE`, `package.json` ve `.gitattributes` zip'e **girmez**.
 - **Mağaza metinleri:** [MAGAZA_ACIKLAMASI.md](MAGAZA_ACIKLAMASI.md) — açıklama, izin
   gerekçeleri, Data Safety yanıtları, sürüm notları ve gönderim kontrol listesi.
 - **Gizlilik politikası:** [GIZLILIK_POLITIKASI.md](GIZLILIK_POLITIKASI.md)
 - **Ekran görüntüleri:** `magaza-gorseller/`
 - **Paket doğrulaması:** `npm run release` çıktısı "Paket temiz" ve "duman testi geçti"
   demeden zip'i yüklemeyin.
+
+## Lisans
+
+MIT Lisansı — ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
+Telif hakkı © 2026 Av. Mustafa Yıldıran.
 
 ## İletişim
 

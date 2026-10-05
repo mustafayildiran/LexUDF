@@ -2,7 +2,7 @@
 
 # Chrome Web Store — Gönderim Dosyası
 
-Sürüm: **1.0.0** · Yüklenecek dosya: **`lexudf-1.0.0-store.zip`**
+Sürüm: **1.1.0** · Yüklenecek dosya: **`lexudf-1.1.0-store.zip`**
 
 > Bu dosyadaki şablon listesi ve sayılar `scripts/sync-docs.mjs` tarafından
 > `js/templates/` altındaki kaynaktan üretilir. Şablon ekleyip çıkarınca
@@ -145,6 +145,13 @@ doldurulur — gerçek müvekkil bilgisi içermez.
 ## 9. Sürüm notları
 
 ```
+LexUDF 1.1.0
+
+• UYAP Avukat Portal entegrasyonu: dosya detay penceresindeki "Taraf Bilgileri" sekmesine eklenen LexUDF düğmesiyle mahkeme ve dosya bilgileri otomatik dolar, UDF taslağı tek tıkla iner.
+• Hiçbir veri toplanmaz veya sunucuya gönderilmez; portal sayfasındaki bilgiler de cihaz dışına çıkmaz.
+```
+
+```
 LexUDF 1.0.0
 
 • UYAP uyumlu UDF dilekçe ve belge taslakları hazırlayan tamamen çevrimdışı eklenti.
@@ -159,7 +166,7 @@ LexUDF 1.0.0
 ## 10. Gönderim öncesi kontrol listesi
 
 - [ ] `npm run release` çalıştırıldı: testlerin ve "Paket duman testi"nin geçtiği görüldü
-- [ ] `lexudf-1.0.0-store.zip` yüklendi (içinde `tests/`, `scripts/`, `*.md`, `package.json` yok)
+- [ ] `lexudf-1.1.0-store.zip` yüklendi (içinde `tests/`, `scripts/`, `*.md`, `package.json` yok)
 - [ ] Kısa açıklama yapıştırıldı (bölüm 1)
 - [ ] Ana açıklama yapıştırıldı (bölüm 2)
 - [ ] Kategori ve dil seçildi (bölüm 3)

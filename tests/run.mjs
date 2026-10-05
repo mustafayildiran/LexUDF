@@ -137,7 +137,7 @@ ok('gizlilik politikası eklentiyi doğru tanımlıyor (Data Safety "Hayır" bey
   const pol = fs.readFileSync(new URL('../GIZLILIK_POLITIKASI.md', import.meta.url), 'utf8');
   assert.ok(!mf.host_permissions, 'beyan tutarlı olsun diye host_permissions olmamalı');
   for (const izin of mf.permissions) assert.ok(pol.includes('`' + izin + '`'), `politika '${izin}' iznini açıklamıyor`);
-  assert.ok(pol.includes('1.0.0'), 'politika sürümü manifest ile eşleşmeli');
+  assert.ok(pol.includes(mf.version), 'politika sürümü manifest ile eşleşmeli');
 });
 
 console.log('\n4) İcra müdürlüğü: kullanıcı "İCRA MÜDÜRLÜĞÜ" yazsa da tekrarlanmaz');
