@@ -89,6 +89,12 @@ Dilekçe hazırlama arayüzünü tarayıcının yan panelinde göstermek için g
 Kullanıcının kaydettiği avukat profillerini yalnızca kendi cihazında saklamak (chrome.storage.local) için gereklidir. Uzaktan veri gönderimi veya alma işlemi yapılmaz.
 ```
 
+**Site erişimi gerekçesi** (içerik betiği — `host_permissions` bildirilmez, erişim `content_scripts` eşleşmesiyle sağlanır; inceleme ekibi sorarsa aşağıdaki metni aynen yapıştırın)
+
+```
+UYAP Avukat Portal'da (avukat.uyap.gov.tr) açık dosyanın mahkeme ve taraf bilgilerini okuyup UDF dilekçe taslağını kullanıcının cihazında hazırlar. Okunan bilgiler cihaz dışına gönderilmez; eklenti başka hiçbir sitede çalışmaz.
+```
+
 Not: Eklenti `host_permissions` istemiyor. Yalnızca UYAP Avukat Portal sayfalarında dosya bilgilerini cihaz içinde okuyan bir içerik betiği çalışır; gezinti geçmişine erişmez, dış adresle iletişim kurmaz.
 
 ---
@@ -144,6 +150,9 @@ doldurulur — gerçek müvekkil bilgisi içermez.
 
 ## 9. Sürüm notları
 
+Dashboard'da ayrı bir sürüm notu alanı yoktur; aşağıdaki notları ana
+açıklamanın (bölüm 2) en başına ekleyip öyle yapıştırın.
+
 ```
 LexUDF 1.1.0
 
@@ -175,6 +184,6 @@ LexUDF 1.0.0
 - [ ] Data Safety "Hayır" olarak dolduruldu (bölüm 6)
 - [ ] Gizlilik politikası URL'si girildi (bölüm 7)
 - [ ] En az 1 ekran görüntüsü yüklendi (bölüm 8)
-- [ ] Sürüm notları girildi (bölüm 9)
+- [ ] Sürüm notları ana açıklamanın başına eklendi (bölüm 9 → 2)
 - [ ] Geliştirici / destek e-postası girildi
 - [ ] Ülke ve iletişim bilgileri tamam
