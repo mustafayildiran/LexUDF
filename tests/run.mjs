@@ -420,6 +420,7 @@ console.log('\n11) Portal çekirdek paritesi (portal/ gömülü çekirdek js/cor
     assert.ok(Array.isArray(mf.content_scripts) && mf.content_scripts.length > 0, 'content_scripts yok');
     for (const cs of mf.content_scripts) {
       assert.ok((cs.matches || []).includes('https://avukat.uyap.gov.tr/*'), 'portal eşleşmesi yok');
+      assert.ok((cs.exclude_matches || []).some(m => m.includes('/giris')), 'giris hariç tutma yok');
       for (const f of [...(cs.js || []), ...(cs.css || [])]) {
         assert.ok(fs.existsSync(new URL('../' + f, import.meta.url)), `eksik dosya: ${f}`);
       }

@@ -1036,7 +1036,9 @@ async function generateUdfDocument(data) {
 /**
  * Başlığın gerçek bir dosya penceresi olup olmadığını anlar.
  * Kural: başlıkta dosya no deseni (örn. 2026/12313) olmalı; giriş/e-imza
- * gibi dosyasız ekranlardaki benzer pencereler elenir.
+ * gibi dosyasız ekranlardaki benzer pencereler elenir. Tarih içeren duyuru/
+ * bakım pencereleri (örn. 05/10/2026) dosya-no desenini kandırabildiği için
+ * ayrıca elenir.
  * Karşılaştırma Türkçe küçük harfle yapılır (İ→i, Ş→ş doğru çözülür).
  */
 function isCaseModalTitle(titleText) {
@@ -1044,6 +1046,7 @@ function isCaseModalTitle(titleText) {
   if (!/\d+\/\d+/.test(raw)) return false;
   const t = raw.toLocaleLowerCase('tr-TR');
   if (t.includes('imza') || t.includes('giriş') || t.includes('giris') || t.includes('şifre') || t.includes('sifre')) return false;
+  if (t.includes('duyuru') || t.includes('bakım') || t.includes('bakim') || t.includes('bilgilendirme')) return false;
   return true;
 }
 

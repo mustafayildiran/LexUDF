@@ -22,6 +22,7 @@
   "content_scripts": [
     {
       "matches": ["https://avukat.uyap.gov.tr/*"],
+      "exclude_matches": ["https://avukat.uyap.gov.tr/giris*"],
       "js": ["portal/content-uyap-sablon.js"],
       "css": ["portal/content-uyap-sablon.css"],
       "run_at": "document_end"
