@@ -53,6 +53,7 @@ HAZIR MATBU ŞABLONLAR
 • Yazı tipi seçimi — Times New Roman veya Cambria.
 • UYAP uyumlu çıktı — üretilen dosyalar UYAP Döküman Editörü'nde sorunsuz açılır.
 • Akıllı dosya adlandırma — her dosya, içerdiği bölge/mahkeme, esas numarası ve taraf bilgisiyle adlandırılır.
+• Portal şablon indirici — UYAP Avukat Portal'da açık dosyanın "Taraf Bilgileri" sekmesine eklenen düğmeyle dosya bilgileri otomatik dolar, UDF taslağı tek tıkla iner.
 
 GİZLİLİK
 Eklenti %100 çevrimdışıdır. Girdiğiniz avukat profilleri, müvekkil bilgileri ve dosya numaraları hiçbir sunucuya gönderilmez, üçüncü taraflarla paylaşılmaz. Tüm veriler yalnızca sizin cihazınızda saklanır. Eklentinin sunucusu, hesap sistemi veya analitik kodu yoktur.
@@ -88,7 +89,7 @@ Dilekçe hazırlama arayüzünü tarayıcının yan panelinde göstermek için g
 Kullanıcının kaydettiği avukat profillerini yalnızca kendi cihazında saklamak (chrome.storage.local) için gereklidir. Uzaktan veri gönderimi veya alma işlemi yapılmaz.
 ```
 
-Not: Eklenti `host_permissions` istemiyor. Sekme içeriği okumaz, gezinti geçmişine erişmez.
+Not: Eklenti `host_permissions` istemiyor. Yalnızca UYAP Avukat Portal sayfalarında dosya bilgilerini cihaz içinde okuyan bir içerik betiği çalışır; gezinti geçmişine erişmez, dış adresle iletişim kurmaz.
 
 ---
 

@@ -98,8 +98,15 @@ for (const t of templates) {
 ok(html.includes('js/main.js'), 'popup.html js/main.js modülünü yüklüyor');
 ok(html.includes('type="module"'), 'script type="module" (ESM, MV3 uyumlu)');
 
+// --- Portal content-script kablolaması ---
+console.log('\n6) Portal şablon indirici (content_scripts)');
+for (const cs of (mf.content_scripts || [])) {
+  for (const f of [...(cs.js || []), ...(cs.css || [])]) ok(entries.has(f), `pakette mevcut: ${f}`);
+}
+ok((mf.content_scripts || []).some(cs => (cs.matches || []).includes('https://avukat.uyap.gov.tr/*')), 'portal eşleşmesi avukat.uyap.gov.tr');
+
 // --- Politika uyumu ---
-console.log('\n6) Gizlilik beyanı tutarlılığı');
+console.log('\n7) Gizlilik beyanı tutarlılığı');
 ok(!mf.host_permissions && mf.permissions.every(p => ['sidePanel', 'storage'].includes(p)),
    'beyan "veri toplamıyor" — yalnızca cihaz içi izinler var');
 

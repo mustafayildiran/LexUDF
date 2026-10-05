@@ -16,6 +16,14 @@ tarayıcıda, tamamen çevrimdışı (client-side) üretilir.
 | 6 | Dosyanın Kesinleştirilmesi Talebi | Uyuşmazlık kesinleşmediği için kesinleşme şerhinin düzenlenmesi. |
 <!-- ŞABLON-LİSTESİ:BİT -->
 
+## Portal şablon indirici
+
+UYAP Avukat Portal'daki dosya detay penceresini izleyen içerik betiği
+(`portal/`): "Taraf Bilgileri" sekmesine LexUDF logolu bir indir düğmesi ekler,
+mahkeme ve dosya bilgilerini sayfadan otomatik okuyup UDF taslağı indirir.
+Arka plan, ek izin veya sunucu gerektirmez; UDF çekirdeği panel şablonlarıyla
+aynı disiplinde üretilir. Ayrıntılar: [portal/README.md](portal/README.md).
+
 ## Özellikler
 
 - **Çoklu avukat profili** — ad, baro sicil, vergi dairesi ve adres bilgileri cihazda

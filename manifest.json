@@ -19,6 +19,14 @@
   "side_panel": {
     "default_path": "popup.html"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://avukat.uyap.gov.tr/*"],
+      "js": ["portal/content-uyap-sablon.js"],
+      "css": ["portal/content-uyap-sablon.css"],
+      "run_at": "document_end"
+    }
+  ],
   "background": {
     "service_worker": "background.js"
   }

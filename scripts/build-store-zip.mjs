@@ -22,6 +22,9 @@ function collectJs(dir, acc = []) {
 }
 files.push(...collectJs('js'));
 
+// Portal şablon indirici (UYAP Avukat Portal content-script + stili)
+files.push('portal/content-uyap-sablon.js', 'portal/content-uyap-sablon.css');
+
 const crcTable = (() => {
   const t = new Int32Array(256);
   for (let n = 0; n < 256; n++) {
@@ -108,7 +111,7 @@ const yasak = files.filter(f => /^(tests|scripts)\//.test(f) || /\.(md|zip)$/.te
   || /^(package\.json|\.gitattributes|\.gitignore)$/.test(f));
 if (yasak.length) { console.error('\n✗ Pakete yolmaması gereken dosyalar sızdı:', yasak); process.exit(1); }
 
-for (const gerekli of ['manifest.json', 'background.js', 'popup.html', 'js/main.js', 'js/templates/index.js', 'icon16.png', 'icon48.png', 'icon128.png'])
+for (const gerekli of ['manifest.json', 'background.js', 'popup.html', 'js/main.js', 'js/templates/index.js', 'portal/content-uyap-sablon.js', 'portal/content-uyap-sablon.css', 'icon16.png', 'icon48.png', 'icon128.png'])
   if (!files.includes(gerekli)) { console.error('\n✗ Pakette eksik:', gerekli); process.exit(1); }
 
 console.log('\n✓ Paket temiz: yalnızca çalışma dosyaları içeriyor.');

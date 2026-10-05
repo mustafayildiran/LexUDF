@@ -40,8 +40,11 @@ bu bilgilerin cihazınızdan çıkmasına hiçbir teknik yol sunmaz.
 - **sidePanel:** Dilekçe hazırlama panelini tarayıcının yan panelinde (`sidePanel`) göstermek için kullanılır.
 - **storage:** Avukat profillerinizi yalnızca cihazınızda saklamak (`storage`) için kullanılır.
 
-Eklenti; sekmelerinizin içeriğini okumaz, gezinti geçmişinize erişmez, uzaktaki
-hiçbir adresle iletişim kurmaz ve analitik/izleme kodu içermez.
+Eklenti; gezinti geçmişinize erişmez, uzaktaki hiçbir adresle iletişim kurmaz ve
+analitik/izleme kodu içermez. Yalnızca UYAP Avukat Portal sayfalarında
+(`avukat.uyap.gov.tr`) çalışan içerik betiği, açık dosyanın mahkeme ve taraf
+bilgilerini sayfadan okuyup dilekçe taslağını cihazınızın içinde hazırlar;
+okunan bu bilgiler de cihaz dışına çıkarılmaz.
 
 ## Üçüncü taraflar
 

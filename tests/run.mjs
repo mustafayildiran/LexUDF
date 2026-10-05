@@ -380,4 +380,51 @@ console.log('\n10) font değeri XML\'e güvenli giriyor');
   });
 }
 
+console.log('\n11) Portal çekirdek paritesi (portal/ gömülü çekirdek js/core ile aynı)');
+{
+  const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
+  const xmlCore = fs.readFileSync(new URL('../js/core/xml.js', import.meta.url), 'utf8');
+  const blocks = fs.readFileSync(new URL('../js/core/blocks.js', import.meta.url), 'utf8');
+  const zipCore = fs.readFileSync(new URL('../js/core/zip.js', import.meta.url), 'utf8');
+  const utils = fs.readFileSync(new URL('../js/core/utils.js', import.meta.url), 'utf8');
+  const coreAll = xmlCore + blocks + zipCore + utils;
+  // Kritik UYAP çıktı sabitleri iki tarafta da birebir olmalı (biri kayarsa çıktı sapar)
+  for (const imza of [
+    '5070 Sayılı Kanuna Göre Güvenli Elektronik İmza ile İmzalanmıştır.',
+    'bottomMargin="42.525000000000006"',
+    'foreground="-13421773"',
+    "LineSpacing: '0.5'",
+    'for (const _ of s)',
+    ']]]]><![CDATA[>',
+    'FirstLineIndent',
+    '25.51181',
+    'AÇIKLAMALAR\\t:\\n',
+    'e-imzalıdır\\n',
+    'deflate-raw',
+    '0xEDB88320',
+    '[çÇğĞıİöÖşŞüÜ]',
+  ]) {
+    ok(`parite: ${imza.slice(0, 30)}`, () => {
+      assert.ok(coreAll.includes(imza), 'js/core tarafında yok');
+      assert.ok(portal.includes(imza), 'portal tarafında yok');
+    });
+  }
+  ok('portal harici bağımlılık içermiyor', () => {
+    assert.ok(!/new\s+(window\.)?PizZip\s*\(/.test(portal), 'PizZip kullanımı');
+    assert.ok(!/(window\.)?saveAs\s*\(/.test(portal), 'FileSaver kullanımı');
+    assert.ok(!/^\s*import\s/m.test(portal), 'ES import (content-script klasik olmalı)');
+    assert.ok(!portal.includes('require('), 'CommonJS require');
+  });
+  ok('manifest content_scripts dosyalara çözülüyor', () => {
+    const mf = JSON.parse(fs.readFileSync(new URL('../manifest.json', import.meta.url), 'utf8'));
+    assert.ok(Array.isArray(mf.content_scripts) && mf.content_scripts.length > 0, 'content_scripts yok');
+    for (const cs of mf.content_scripts) {
+      assert.ok((cs.matches || []).includes('https://avukat.uyap.gov.tr/*'), 'portal eşleşmesi yok');
+      for (const f of [...(cs.js || []), ...(cs.css || [])]) {
+        assert.ok(fs.existsSync(new URL('../' + f, import.meta.url)), `eksik dosya: ${f}`);
+      }
+    }
+  });
+}
+
 console.log(`\n✅ ${passed} test grubu geçti`);
