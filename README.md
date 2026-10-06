@@ -3,6 +3,8 @@
 Chrome Web Store eklentisi. UYAP uyumlu `.udf` dilekçe ve belge taslakları
 tarayıcıda, tamamen çevrimdışı (client-side) üretilir.
 
+Kurmak için: [Chrome Web Store'da LexUDF](https://chromewebstore.google.com/detail/lexudf-%E2%80%94-uyap-dilek%C3%A7e-asi/hebinkkipghelmcnllhaoihonigdnhgb)
+
 ## Desteklenen şablonlar
 
 <!-- ŞABLON-LİSTESİ:BAŞ (scripts/sync-docs.mjs tarafından üretilir, elle düzenlemeyin) -->
@@ -22,7 +24,7 @@ UYAP Avukat Portal'daki dosya detay penceresini izleyen içerik betiği
 (`portal/`): "Taraf Bilgileri" sekmesine LexUDF logolu bir indir düğmesi ekler,
 mahkeme ve dosya bilgilerini sayfadan otomatik okuyup UDF taslağı indirir.
 Arka plan, ek izin veya sunucu gerektirmez; UDF çekirdeği panel şablonlarıyla
-aynı disiplinde üretilir. Ayrıntılar: [portal/README.md](portal/README.md).
+aynı disiplinde üretilir.
 
 ## Özellikler
 
@@ -40,60 +42,33 @@ aynı disiplinde üretilir. Ayrıntılar: [portal/README.md](portal/README.md).
 > ⚠️ Eklenti matbu bir taslak hazırlar. UDF dosyasını UYAP'a yüklemeden önce isim,
 > dosya numarası ve mahkeme bilgilerini gözden geçirin. Eklenti hukuki görüş sunmaz.
 
-## Kurulum (geliştirici modu)
+## Kurulum
 
-1. `chrome://extensions` adresini açın, **Geliştirici modu**'nu etkinleştirin.
-2. **Paketlenmemiş öğe yükle** ile bu klasörü seçin.
-3. Araç çubuğundaki LexUDF simgesine tıklayın — yan panel açılır.
+1. Yukarıdaki mağaza bağlantısından kurun — ek ayar gerekmez.
+2. Test ve geliştirme için: `chrome://extensions` adresinde **Geliştirici modu**'nu
+   açıp **Paketlenmemiş öğe yükle** ile bu klasörü seçin.
 
-## Mimari
+## Klasörler ne işe yarar
 
-`js/main.js` şablona özel mantık içermez; her şey `js/templates/` kayıt defterine bağlıdır.
+- `portal/` — UYAP Portal içerik betiği ve düğme stilleri.
+- `js/` — yan panel uygulaması (şablonlar + ortak çekirdek).
+- `releases/` — sürüm klasörleri (`v1.1.0`, `v1.1.1` …): her sürümün dosyaları,
+  mağaza metinleri ve gönderilen paketi bir arada tutar.
+- `docs/` — mimari, mağaza gönderim dosyası ve gizlilik politikası.
+- `magaza-gorseller/` — mağaza ekran görüntüleri.
+- `tests/`, `scripts/` — otomatik testler ve yayın araçları.
 
-```
-manifest.json / background.js / popup.html   Eklenti iskeleti
-js/main.js                                   Giriş noktası (şablon bağlayıcı)
-js/core/                                     xml · blocks · builder · form · zip · profiles · placeholders
-js/templates/                                Şablonlar + kayıt defteri
-scripts/                                     Doküman senkronu, mağaza paketi ve görseller
-tests/                                       Testler ve golden referanslar
-```
+## Sürümlerde ne değişti
 
-Ayrıntılar: [docs/MIMARI.md](docs/MIMARI.md)
+- Matbu şablonlardaki değişiklikler: `releases/DEĞİŞİKLİKLER-sablonlar.md`
+- Şablon oluşturucudaki değişiklikler: `releases/DEĞİŞİKLİKLER-olusturucu.md`
+- Bir sürümün yenilikleri: `releases/v1.1.1/magaza/surum-notlari.txt`
+  (mağazaya yapıştırılan tam metin: aynı klasörde `magaza/aciklama.txt`)
 
-## Geliştirme
+## Geliştiriciler için
 
-```
-npm run sync                      # şablon adı/sayısı değiştiyse dokümanları tazele
-npm test                          # tüm testler
-npm run release                   # senkron + test + mağaza paketi + paket duman testi
-npm run shots                     # mağaza ekran görüntülerini üret (Chrome gerekir)
-node tests/update-golden.mjs      # çıktıyı UYAP'ta doğruladıktan SONRA golden'ları güncelle
-```
-
-**Paket duman testi** (`scripts/smoke-test.mjs`): zip'i açıp içindeki `manifest.json`,
-modül grafiği ve `popup.html`'i doğrular — eksik import, sızan test/doküman dosyası,
-şablona uymayan form elemanı ya da beyanla çelişen izin varsa yayına hazır sayılmaz.
-
-**Golden testler:** `tests/golden/` altındaki `GOLDEN_DOSYA_SAYISI` referans XML, UYAP
-tarafından kabul edilmiş çıktının dondurulmuş halidir (şablon × rol × yazı tipi ×
-normal/özel metin). `npm test` her değişiklikte bunlarla bayt-bayt karşılaştırır;
-kabul edilmiş çıktı kayarsa test kırmızıya döner.
-
-**Yeni şablon eklerken:** `docs/MIMARI.md` içindeki adımları izleyin, `npm test`'i geçirin,
-ardından `node scripts/sync-docs.mjs` çalıştırın — README, mağaza açıklaması ve
-`popup.html` seçenekleri kendiliğinden güncellenir.
-
-## Mağaza gönderimi
-
-- **Paket:** `manifest.json`, `background.js`, `popup.html`, `js/`, `portal/`, `icon16/48/128.png`.
-  `tests/`, `scripts/`, `*.md`, `LICENSE`, `package.json` ve `.gitattributes` zip'e **girmez**.
-- **Mağaza metinleri:** [docs/MAGAZA_ACIKLAMASI.md](docs/MAGAZA_ACIKLAMASI.md) — açıklama, izin
-  gerekçeleri, Data Safety yanıtları, sürüm notları ve gönderim kontrol listesi.
-- **Gizlilik politikası:** [docs/GIZLILIK_POLITIKASI.md](docs/GIZLILIK_POLITIKASI.md)
-- **Ekran görüntüleri:** `magaza-gorseller/`
-- **Paket doğrulaması:** `npm run release` çıktısı "Paket temiz" ve "duman testi geçti"
-  demeden zip'i yüklemeyin.
+Yeni şablon ekleme adımları `docs/MIMARI.md`'de; komutlar: `npm test`,
+`npm run release`. Mağaza gönderim ayrıntıları `docs/MAGAZA_ACIKLAMASI.md`'de.
 
 ## Lisans
 
