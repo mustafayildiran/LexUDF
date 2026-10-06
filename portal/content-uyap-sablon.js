@@ -736,10 +736,23 @@ async function createUdfZipBlob(filename, uncompressedData) {
   const fileCrc = udfCrc32(fileBytes);
   const uncompressedSize = fileBytes.length;
 
-  const stream = new Blob([fileBytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
-  const compressedBuffer = await new Response(stream).arrayBuffer();
-  const compressedBytes = new Uint8Array(compressedBuffer);
-  const compressedSize = compressedBytes.length;
+  // Native sıkıştırma yoksa/bozulursa sıkıştırmasız (stored) yazılır;
+  // indirme hiçbir ortamda yarıda kesilmez.
+  let payloadBytes = fileBytes;
+  let zipMethod = 0;
+  if (typeof CompressionStream !== 'undefined') {
+    try {
+      const stream = new Blob([fileBytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      const compressedBuffer = await new Response(stream).arrayBuffer();
+      payloadBytes = new Uint8Array(compressedBuffer);
+      zipMethod = 8;
+    } catch (err) {
+      console.warn('LexUDF Portal: native sıkıştırma kullanılamadı, sıkıştırmasız yazılıyor.', err);
+    }
+  } else {
+    console.warn('LexUDF Portal: CompressionStream yok, sıkıştırmasız yazılıyor.');
+  }
+  const payloadSize = payloadBytes.length;
 
   const fileNameBytes = encoder.encode(filename);
   const fileNameLen = fileNameBytes.length;
@@ -748,7 +761,7 @@ async function createUdfZipBlob(filename, uncompressedData) {
   const cdHeaderLen = 46 + fileNameLen;
   const eocdLen = 22;
 
-  const totalLen = localHeaderLen + compressedSize + cdHeaderLen + eocdLen;
+  const totalLen = localHeaderLen + payloadSize + cdHeaderLen + eocdLen;
   const zipBuffer = new Uint8Array(totalLen);
   const view = new DataView(zipBuffer.buffer);
 
@@ -756,29 +769,29 @@ async function createUdfZipBlob(filename, uncompressedData) {
   view.setUint32(0, 0x04034b50, true);
   view.setUint16(4, 20, true);
   view.setUint16(6, 0, true);
-  view.setUint16(8, 8, true);
+  view.setUint16(8, zipMethod, true);
   view.setUint16(10, 0, true);
   view.setUint16(12, 0, true);
   view.setUint32(14, fileCrc, true);
-  view.setUint32(18, compressedSize, true);
+  view.setUint32(18, payloadSize, true);
   view.setUint32(22, uncompressedSize, true);
   view.setUint16(26, fileNameLen, true);
   view.setUint16(28, 0, true);
   zipBuffer.set(fileNameBytes, 30);
 
-  zipBuffer.set(compressedBytes, localHeaderLen);
+  zipBuffer.set(payloadBytes, localHeaderLen);
 
   // Central directory
-  const cdOffset = localHeaderLen + compressedSize;
+  const cdOffset = localHeaderLen + payloadSize;
   view.setUint32(cdOffset, 0x02014b50, true);
   view.setUint16(cdOffset + 4, 20, true);
   view.setUint16(cdOffset + 6, 20, true);
   view.setUint16(cdOffset + 8, 0, true);
-  view.setUint16(cdOffset + 10, 8, true);
+  view.setUint16(cdOffset + 10, zipMethod, true);
   view.setUint16(cdOffset + 12, 0, true);
   view.setUint16(cdOffset + 14, 0, true);
   view.setUint32(cdOffset + 16, fileCrc, true);
-  view.setUint32(cdOffset + 20, compressedSize, true);
+  view.setUint32(cdOffset + 20, payloadSize, true);
   view.setUint32(cdOffset + 24, uncompressedSize, true);
   view.setUint16(cdOffset + 28, fileNameLen, true);
   view.setUint16(cdOffset + 30, 0, true);
@@ -1083,6 +1096,9 @@ function checkAndInjectPopup() {
         if (isPartyTableRendered(popupScope)) {
           handlePartyDataFound(titleContainer, popupScope);
         } else {
+          console.warn('LexUDF Portal: taraf tablosu bulunamadı, indirme başlatılmadı.');
+          showTooltip(downloadBtn, 'Taraf Bilgileri Bulunamadı');
+          setTimeout(hideTooltip, 2500);
           return;
         }
       }
