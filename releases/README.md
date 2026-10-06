@@ -1,21 +1,27 @@
 # Sürümler (sabit noktalar)
 
-Her klasör (`v1.1.0`, `v1.1.1`, ...) bir güncelleme anlığıdır:
-`manifest.json` + `portal/` dosyaları ve `BİLGİ.md` kaydı.
+İki sistem ayrı klasörde izlenir:
+
+- `sablonlar/` — paneldeki matbu şablonlar (`js/templates/` + `popup.html`).
+  "Matbu şablon ekle" işi buradadır (prosedür: `docs/MIMARI.md`).
+- `olusturucu/` — portal şablon oluşturucu (`manifest.json` kablosu + `portal/`).
+  Çalıştığı sürece bu tarafa dokunulmaz (donduruldu).
+
+Her sistem klasöründe `DEĞİŞİKLİKLER.md` (her güncellemede ne değişti) ve
+sürüm anlıkları (`vX.Y.Z/`: dosyalar + `BİLGİ.md` kaydı) durur.
 
 ## Yeni güncelleme onaylanınca ("çok güzel gözüküyor")
 
-1. Bu klasöre `releases/vX.Y.Z/` açılır, dosyalar kopyalanır, `BİLGİ.md` doldurulur.
-2. `npm test` yeşil görülür, commitlenir.
-3. Etiket yayın onayı sonrası eklenir.
+1. İlgili sistem klasörüne `vX.Y.Z/` açılır, dosyalar etiketten/kaynaktan kopyalanır.
+2. `DEĞİŞİKLİKLER.md` ve `BİLGİ.md` doldurulur.
+3. `npm test` yeşil görülür, commitlenir.
 
 ## Aksilikte geri dönüş ("oraya geri dönelim")
 
-1. Hedef klasördeki `BİLGİ.md`'de yazan geri dönüş komutu çalıştırılır.
+1. Hedef `BİLGİ.md`'deki geri dönüş komutu çalıştırılır (sadece ilgili sistem döner).
 2. `node tests/run.mjs` yeşil görülür (kırmızıysa dönülecek nokta burası değildir).
 3. Commitlenir (push öncesi sorulur).
-4. `tests/run.mjs` bölüm 12, anlık bütünlüğü otomatik denetler
-   (kayıtlı kaynaktaki dosyalarla klasördeki kopyaların birebir aynı olduğunu).
+4. `tests/run.mjs` bölüm 12, anlık bütünlüğü otomatik denetler.
 
 Not: bu klasörler tek başına eklenti olarak yüklenmez; tam sürüm için
 etikete/kaynağa dönülür (`git checkout vX.Y.Z`).
