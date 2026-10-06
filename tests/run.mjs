@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { templates, getTemplate } from '../js/templates/index.js';
 import { buildXml, resolveAciklama } from '../js/core/builder.js';
@@ -428,40 +429,61 @@ console.log('\n11) Portal çekirdek paritesi (portal/ gömülü çekirdek js/cor
   });
 }
 
-console.log('\n12) Sürüm anlıkları bütünlüğü (releases/ iki sistemde kaynakla aynı)');
+console.log('\n12) Sürüm kitleri bütünlüğü (releases/vX: anlık + magaza + paket)');
 {
   const kok = fileURLToPath(new URL('../', import.meta.url));
   const git = (args) => execFileSync('git', args, { cwd: kok }).toString().trim();
-  const bilesenler = {
-    sablonlar: ['js/templates/index.js', 'js/templates/inceleme.js', 'js/templates/yetkiBelgesi.js', 'js/templates/cmkKayit.js', 'js/templates/icraItiraz.js', 'js/templates/gerekceliKarar.js', 'js/templates/kesinlesme.js', 'popup.html'],
-    olusturucu: ['manifest.json', 'portal/content-uyap-sablon.js', 'portal/content-uyap-sablon.css'],
-  };
-  for (const [bilesen, dosyalar] of Object.entries(bilesenler)) {
-    ok(`${bilesen}: DEĞİŞİKLİKLER.md var`, () => {
-      assert.ok(fs.existsSync(new URL(`../releases/${bilesen}/DEĞİŞİKLİKLER.md`, import.meta.url)));
+  const sha256 = (rel) => createHash('sha256').update(fs.readFileSync(new URL(`../${rel}`, import.meta.url))).digest('hex');
+  const SABLON = ['js/templates/index.js', 'js/templates/inceleme.js', 'js/templates/yetkiBelgesi.js', 'js/templates/cmkKayit.js', 'js/templates/icraItiraz.js', 'js/templates/gerekceliKarar.js', 'js/templates/kesinlesme.js', 'popup.html'];
+  const OLUSTURUCU = ['manifest.json', 'portal/content-uyap-sablon.js', 'portal/content-uyap-sablon.css'];
+  const MAGAZA = ['magaza/aciklama.txt', 'magaza/kisa-aciklama.txt', 'magaza/surum-notlari.txt', 'magaza/gizlilik-politikasi.txt'];
+  ok('bileşen değişiklik notları var', () => {
+    assert.ok(fs.existsSync(new URL('../releases/DEĞİŞİKLİKLER-sablonlar.md', import.meta.url)));
+    assert.ok(fs.existsSync(new URL('../releases/DEĞİŞİKLİKLER-olusturucu.md', import.meta.url)));
+  });
+  const surumler = fs.readdirSync(new URL('../releases/', import.meta.url), { withFileTypes: true })
+    .filter(e => e.isDirectory() && /^v\d+\.\d+\.\d+$/.test(e.name))
+    .map(e => e.name)
+    .sort();
+  ok('en az bir sürüm kiti var', () => {
+    assert.ok(surumler.length > 0, 'boş');
+  });
+  for (const v of surumler) {
+    ok(`${v} anlık dosyalar kaynakla aynı`, () => {
+      assert.ok(fs.existsSync(new URL(`../releases/${v}/README.md`, import.meta.url)), 'README.md yok');
+      assert.ok(fs.existsSync(new URL(`../releases/${v}/BİLGİ.md`, import.meta.url)), 'BİLGİ.md yok');
+      const bilgi = fs.readFileSync(new URL(`../releases/${v}/BİLGİ.md`, import.meta.url), 'utf8');
+      const m = bilgi.match(/^-\s*Kaynak:\s*(\S+)/m);
+      assert.ok(m, 'BİLGİ.md Kaynak satırı yok');
+      git(['cat-file', '-e', `${m[1]}^{commit}`]);
+      for (const f of SABLON) {
+        assert.equal(git(['hash-object', `releases/${v}/sablonlar/${f}`]), git(['rev-parse', `${m[1]}:${f}`]), `sablonlar/${f} kaynakla uyuşmuyor`);
+      }
+      for (const f of OLUSTURUCU) {
+        assert.equal(git(['hash-object', `releases/${v}/olusturucu/${f}`]), git(['rev-parse', `${m[1]}:${f}`]), `olusturucu/${f} kaynakla uyuşmuyor`);
+      }
+      assert.equal(git(['hash-object', `releases/${v}/README.md`]), git(['rev-parse', `${m[1]}:README.md`]), 'README.md kaynakla uyuşmuyor');
     });
-    const surumler = fs.readdirSync(new URL(`../releases/${bilesen}/`, import.meta.url), { withFileTypes: true })
-      .filter(e => e.isDirectory() && /^v\d+\.\d+\.\d+$/.test(e.name))
-      .map(e => e.name)
-      .sort();
-    ok(`${bilesen}: en az bir sabit anlık var`, () => {
-      assert.ok(surumler.length > 0, 'boş');
+    ok(`${v} mağaza kiti tutarlı`, () => {
+      for (const f of MAGAZA) {
+        assert.ok(fs.existsSync(new URL(`../releases/${v}/${f}`, import.meta.url)), `eksik dosya: ${f}`);
+      }
+      const aciklama = fs.readFileSync(new URL(`../releases/${v}/magaza/aciklama.txt`, import.meta.url), 'utf8');
+      const notlar = fs.readFileSync(new URL(`../releases/${v}/magaza/surum-notlari.txt`, import.meta.url), 'utf8').trim();
+      const kisa = fs.readFileSync(new URL(`../releases/${v}/magaza/kisa-aciklama.txt`, import.meta.url), 'utf8').trim();
+      const gizlilik = fs.readFileSync(new URL(`../releases/${v}/magaza/gizlilik-politikasi.txt`, import.meta.url), 'utf8');
+      assert.ok(aciklama.includes(notlar), 'sürüm notları açıklamada yok');
+      assert.ok(kisa.length <= 132, `kısa açıklama ${kisa.length} karakter (sınır 132)`);
+      assert.ok(gizlilik.includes(`Sürüm ${v.slice(1)}`), 'gizlilik metni sürümü tutmuyor');
     });
-    for (const v of surumler) {
-      ok(`${bilesen} ${v}`, () => {
-        assert.ok(fs.existsSync(new URL(`../releases/${bilesen}/${v}/BİLGİ.md`, import.meta.url)), 'BİLGİ.md yok');
-        for (const f of dosyalar) {
-          assert.ok(fs.existsSync(new URL(`../releases/${bilesen}/${v}/${f}`, import.meta.url)), `eksik dosya: ${f}`);
-        }
-        const bilgi = fs.readFileSync(new URL(`../releases/${bilesen}/${v}/BİLGİ.md`, import.meta.url), 'utf8');
-        const m = bilgi.match(/^-\s*Kaynak:\s*(\S+)/m);
-        assert.ok(m, 'BİLGİ.md Kaynak satırı yok');
-        git(['cat-file', '-e', `${m[1]}^{commit}`]);
-        for (const f of dosyalar) {
-          assert.equal(git(['hash-object', `releases/${bilesen}/${v}/${f}`]), git(['rev-parse', `${m[1]}:${f}`]), `${f} kaynakla uyuşmuyor`);
-        }
-      });
-    }
+    ok(`${v} paket kaydı tutarlı`, () => {
+      const bilgi = fs.readFileSync(new URL(`../releases/${v}/BİLGİ.md`, import.meta.url), 'utf8');
+      const h = bilgi.match(/^-\s*Paket SHA-256:\s*([0-9a-f]{64})/m);
+      assert.ok(h, 'BİLGİ.md Paket SHA-256 satırı yok');
+      const zip = `releases/${v}/lexudf-${v.slice(1)}-store.zip`;
+      assert.ok(fs.existsSync(new URL(`../${zip}`, import.meta.url)), 'paket yok');
+      assert.equal(sha256(zip), h[1], 'paket hash kaydı tutmuyor');
+    });
   }
 }
 

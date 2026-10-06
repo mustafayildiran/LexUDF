@@ -1,0 +1,4 @@
+YENİLİKLER (v1.1.0)
+
+• UYAP Avukat Portal entegrasyonu: dosya detay penceresindeki "Taraf Bilgileri" sekmesine eklenen LexUDF düğmesiyle mahkeme ve dosya bilgileri otomatik dolar, UDF taslağı tek tıkla iner.
+• Hiçbir veri toplanmaz veya sunucuya gönderilmez; portal sayfasındaki bilgiler de cihaz dışına çıkmaz.

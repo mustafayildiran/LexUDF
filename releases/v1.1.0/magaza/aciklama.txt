@@ -1,0 +1,41 @@
+YENİLİKLER (v1.1.0)
+
+• UYAP Avukat Portal entegrasyonu: dosya detay penceresindeki "Taraf Bilgileri" sekmesine eklenen LexUDF düğmesiyle mahkeme ve dosya bilgileri otomatik dolar, UDF taslağı tek tıkla iner.
+• Hiçbir veri toplanmaz veya sunucuya gönderilmez; portal sayfasındaki bilgiler de cihaz dışına çıkmaz.
+LexUDF — UYAP Dilekçe Asistanı
+
+Rutin dilekçe işlerinde zaman kaybetmeyin. LexUDF, UYAP'a yüklenebilir UDF dosyaları hazırlayan, tamamen tarayıcınızın içinde çalışan bir asistandır.
+
+HAZIR MATBU ŞABLONLAR
+<!-- ŞABLON-LİSTESİ:BAŞ (scripts/sync-docs.mjs tarafından üretilir, elle düzenlemeyin) -->
+• Soruşturma Dosyasını İnceleme Talebi (Portal)
+  UYAP Avukat Portal üzerinden dosya inceleme yetkisi talebi (müdafi veya vekil).
+• Yetki Belgesi
+  Avukatlık ortaklığı veya tek avukattan diğerine, dosya kapsamında yetki devri.
+• CMK Zorunlu Müdafi / Vekil Kaydı Dilekçesi
+  Ceza Muhakemesi Kanunu uyarınca zorunlu müdafi veya vekil kaydının yapılması.
+• İcra Borca ve Ferilerine İtiraz Dilekçesi
+  Ödeme emrine, alacağın aslı, faizi ve ferilerine yasal süresinde itiraz.
+• Gerekçeli Karar ve Gider Avansı Talebi
+  Kararın gerekçesinin tebliğe çıkarılması ve artan gider avansının iadesi.
+• Dosyanın Kesinleştirilmesi Talebi
+  Uyuşmazlık kesinleşmediği için kesinleşme şerhinin düzenlenmesi.
+<!-- ŞABLON-LİSTESİ:BİT -->
+
+ÖNE ÇIKAN ÖZELLİKLER
+• Çoklu avukat profili — ofisteki her avukat için ad, baro sicil, vergi dairesi ve adres kaydedin; seçtiğinizde tüm formlar otomatik dolar.
+• Düzenlenebilir matbu metin — "AÇIKLAMALAR" bölümünü kendinize göre düzenleyin. Metinde [Mahkeme Adı] gibi köşeli alanlar yazarsanız belge oluşturulurken formdaki güncel değerle otomatik doldurulur.
+• Yazı tipi seçimi — Times New Roman veya Cambria.
+• UYAP uyumlu çıktı — üretilen dosyalar UYAP Döküman Editörü'nde sorunsuz açılır.
+• Akıllı dosya adlandırma — her dosya, içerdiği bölge/mahkeme, esas numarası ve taraf bilgisiyle adlandırılır.
+• Portal şablon indirici — UYAP Avukat Portal'da açık dosyanın "Taraf Bilgileri" sekmesine eklenen düğmeyle dosya bilgileri otomatik dolar, UDF taslağı tek tıkla iner.
+
+GİZLİLİK
+Eklenti %100 çevrimdışıdır. Girdiğiniz avukat profilleri, müvekkil bilgileri ve dosya numaraları hiçbir sunucuya gönderilmez, üçüncü taraflarla paylaşılmaz. Tüm veriler yalnızca sizin cihazınızda saklanır. Eklentinin sunucusu, hesap sistemi veya analitik kodu yoktur.
+
+ÖNEMLİ UYARI
+Eklenti matbu bir taslak hazırlar. UDF dosyasını UYAP'a yüklemeden önce isim, dosya numarası ve mahkeme bilgilerini mutlaka gözden geçirin.
+
+Bu eklenti hukuki danışmanlık hizmeti değildir ve hukuki görüş sunmaz; yalnızca belge taslağı hazırlar.
+
+Geri bildirim ve yeni şablon önerileri: av.mustafayildiran@gmail.com

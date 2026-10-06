@@ -34,9 +34,9 @@ tests/
   golden.mjs, update-golden.mjs   Golden referans tanımı ve güncelleyici
   golden/                 UYAP-onaylı referans XML'ler
 releases/
-  sablonlar/             Matbu şablon anlıkları (js/templates + popup.html) + DEĞİŞİKLİKLER.md
-  olusturucu/            Şablon oluşturucu anlıkları (manifest + portal) + DEĞİŞİKLİKLER.md
-  README.md              Onay/geri-dönüş prosedürü
+  DEĞİŞİKLİKLER-sablonlar.md, DEĞİŞİKLİKLER-olusturucu.md
+  v1.1.0, v1.1.1 ...      Güncelleme klasörleri: BİLGİ + sablonlar/olusturucu anlıkları,
+                          magaza/ yapıştırma metinleri, gönderilen paket. Ayrıntılar: releases/README.md
 ```
 
 ## Yeni dilekçe türü ekleme

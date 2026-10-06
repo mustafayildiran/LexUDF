@@ -1,0 +1,5 @@
+YENİLİKLER (v1.1.1)
+
+• Portal düğmesinin bazı dosya pencerelerinde görünmemesine yol açan başlık filtresi kaldırıldı.
+• Sıkıştırma kullanılamazsa UDF sıkıştırmasız yazılır; indirme yarıda kesilmez.
+• Taraf tablosu bulunamazsa düğme sessiz kalmak yerine uyarı gösterir.
