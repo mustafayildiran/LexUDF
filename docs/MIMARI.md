@@ -33,6 +33,9 @@ tests/
   run.mjs                 Otomatik testler (npm test — Node 18+)
   golden.mjs, update-golden.mjs   Golden referans tanımı ve güncelleyici
   golden/                 UYAP-onaylı referans XML'ler
+releases/
+  v1.1.0, v1.1.1 ...      Onaylı sürüm anlıkları (manifest + portal + BİLGİ kaydı).
+                          Geri dönüş prosedürü: releases/README.md
 ```
 
 ## Yeni dilekçe türü ekleme

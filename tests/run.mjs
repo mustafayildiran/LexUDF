@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { templates, getTemplate } from '../js/templates/index.js';
 import { buildXml, resolveAciklama } from '../js/core/builder.js';
@@ -425,6 +426,34 @@ console.log('\n11) Portal çekirdek paritesi (portal/ gömülü çekirdek js/cor
       }
     }
   });
+}
+
+console.log('\n12) Sürüm anlıkları bütünlüğü (releases/ klasörü kaynağıyla aynı)');
+{
+  const kok = fileURLToPath(new URL('../', import.meta.url));
+  const git = (args) => execFileSync('git', args, { cwd: kok }).toString().trim();
+  const surumler = fs.readdirSync(new URL('../releases/', import.meta.url), { withFileTypes: true })
+    .filter(e => e.isDirectory() && /^v\d+\.\d+\.\d+$/.test(e.name))
+    .map(e => e.name)
+    .sort();
+  const beklenen = ['manifest.json', 'portal/content-uyap-sablon.js', 'portal/content-uyap-sablon.css', 'portal/README.md', 'BİLGİ.md'];
+  ok('en az bir sabit sürüm anlığı var', () => {
+    assert.ok(surumler.length > 0, 'releases/ boş');
+  });
+  for (const v of surumler) {
+    ok(v, () => {
+      for (const f of beklenen) {
+        assert.ok(fs.existsSync(new URL(`../releases/${v}/${f}`, import.meta.url)), `eksik dosya: ${f}`);
+      }
+      const bilgi = fs.readFileSync(new URL(`../releases/${v}/BİLGİ.md`, import.meta.url), 'utf8');
+      const m = bilgi.match(/^-\s*Kaynak:\s*(\S+)/m);
+      assert.ok(m, 'BİLGİ.md Kaynak satırı yok');
+      git(['cat-file', '-e', `${m[1]}^{commit}`]);
+      for (const f of beklenen.filter(x => x !== 'BİLGİ.md')) {
+        assert.equal(git(['hash-object', `releases/${v}/${f}`]), git(['rev-parse', `${m[1]}:${f}`]), `${f} kaynakla uyuşmuyor`);
+      }
+    });
+  }
 }
 
 console.log(`\n✅ ${passed} test grubu geçti`);
