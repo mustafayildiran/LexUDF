@@ -7,6 +7,7 @@ import { findUnresolved, listPlaceholders } from './core/placeholders.js';
 import { createZipBlob } from './core/zip.js';
 import { shortPartForFilename } from './core/utils.js';
 import { initProfiles } from './core/profiles.js';
+import { OTOFILL_KEY, OTOFILL_ISTEK_KEY } from './core/icraOtofill.js';
 
 const $ = id => document.getElementById(id);
 const dilekceTuruSel = $('dilekceTuru');
@@ -141,6 +142,113 @@ goBtn.addEventListener('click', async () => {
 
 toggleFormGroups();
 initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
+
+// UYAP otomatik doldurma (deneme): istek-yanıt modeliyle çalışır.
+// Her matbu formdaki (yetki belgesi hariç) "UYAP’tan doldur" düğmesi içerik
+// betiğine istek yazar; betik sayfayı BİR KEZ okuyup yanıtı yazar. Portal indir
+// düğmesiyle hiçbir bağı yoktur. Elle doldurma her zaman mümkündür.
+{
+  const dugmeler = [...document.querySelectorAll('.btn-otofill[data-sablon]')];
+  let bekleyen = '';
+  const applyOtofill = (paket) => {
+    if (!paket || !paket.sablon || !paket.alanlar) return false;
+    const entries = Object.entries(paket.alanlar).filter(([, v]) => v);
+    if (entries.length === 0) return false;
+    if (dilekceTuruSel.value !== paket.sablon) {
+      dilekceTuruSel.value = paket.sablon;
+      toggleFormGroups();
+    }
+    for (const [k, v] of entries) {
+      const el = $(k);
+      if (!el) continue;
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    refreshOzelMetinIfActive();
+    return true;
+  };
+  const bitir = (btn, orijinal, okMsg) => {
+    bekleyen = '';
+    if (btn) { btn.disabled = false; if (orijinal) btn.innerHTML = orijinal; }
+    if (okMsg) showMsg(okMsg, 'ok');
+  };
+  for (const btn of dugmeler) {
+    btn.addEventListener('click', async () => {
+      const sablon = btn.dataset.sablon;
+      if (!sablon || bekleyen) return;
+      if (typeof chrome === 'undefined' || !chrome.storage?.local) {
+        showMsg('Otomatik doldurma bu ortamda çalışmaz — alanları elle doldurun.', 'err');
+        return;
+      }
+      bekleyen = sablon;
+      const orijinal = btn.innerHTML;
+      btn.dataset.orijinal = orijinal;
+      btn.disabled = true;
+      btn.textContent = 'Okunuyor…';
+      try { await chrome.storage.local.remove(OTOFILL_KEY); } catch {}
+      try {
+        const mevcut = await chrome.storage.local.get(OTOFILL_KEY);
+        const paket = mevcut?.[OTOFILL_KEY];
+        if (paket && paket.sablon === sablon && paket.zaman && (Date.now() - paket.zaman) < 2 * 60 * 1000) {
+          if (applyOtofill(paket)) {
+            await chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+            bitir(btn, orijinal, 'UYAP’tan dolduruldu — göndermeden önce kontrol edin.');
+            return;
+          }
+        }
+      } catch (err) { console.error('Otofill okunamadı:', err); }
+      try {
+        await chrome.storage.local.set({ [OTOFILL_ISTEK_KEY]: { sablon, zaman: Date.now() } });
+      } catch (err) {
+        console.error('Otofill isteği yazılamadı:', err);
+        bitir(btn, orijinal);
+        showMsg('İstek yazılamadı — alanları elle doldurun.', 'err');
+        return;
+      }
+      const baslangic = Date.now();
+      const yokla = setInterval(async () => {
+        if (bekleyen !== sablon) { clearInterval(yokla); return; }
+        if (Date.now() - baslangic > 8000) {
+          clearInterval(yokla);
+          if (bekleyen === sablon) {
+            bitir(btn, orijinal);
+            showMsg('UYAP’tan veri alınamadı — ilgili dosya sayfası (Taraf Bilgileri görünür) açık mı? Açıksa sayfayı yenileyip tekrar deneyin.', 'err');
+          }
+          return;
+        }
+        try {
+          const res = await chrome.storage.local.get(OTOFILL_KEY);
+          const paket = res?.[OTOFILL_KEY];
+          if (paket && paket.sablon === sablon) {
+            clearInterval(yokla);
+            if (applyOtofill(paket)) {
+              await chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+              bitir(btn, orijinal, 'UYAP’tan dolduruldu — göndermeden önce kontrol edin.');
+            } else {
+              bitir(btn, orijinal);
+              showMsg('Sayfada bilgi bulunamadı — alanları elle doldurun.', 'err');
+            }
+          }
+        } catch {}
+      }, 500);
+    });
+  }
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((degisen, alan) => {
+        if (alan === 'local' && degisen[OTOFILL_KEY]?.newValue && bekleyen) {
+          const paket = degisen[OTOFILL_KEY].newValue;
+          if (paket.sablon === bekleyen && applyOtofill(paket)) {
+            chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+            const btn = dugmeler.find(b => b.dataset.sablon === bekleyen);
+            bitir(btn, btn ? (btn.dataset.orijinal || '') : '', 'UYAP’tan dolduruldu — göndermeden önce kontrol edin.');
+          }
+        }
+      });
+    }
+  } catch (err) { console.error('Otofill dinlenemedi:', err); }
+}
 
 // Gizlilik penceresi: başlıktaki kilit simgesiyle açılır, ✕ / dışarı tıklama / Esc ile kapanır.
 {

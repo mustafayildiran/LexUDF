@@ -1178,4 +1178,181 @@ initGlobalTooltip();
 checkAndInjectPopup();
 console.log("LexUDF Portal v2.7: başlatıldı.");
 
+// --- 12. İCRA OTOMATİK DOLDURMA (deneme/icra-otofill) ---
+// Dava buton akışına dokunmaz: sadece icra dosya sayfasındaki başlık +
+// taraf satırlarını okuyup `lexudf.otofill` anahtarına yazar. Panel
+// (js/main.js) bunu forma öneri olarak yazar; direkt indirme yok,
+// elle düzeltme her zaman mümkün.
+try {
+  const ICRA_OTOFILL_KEY = 'lexudf.otofill';
+  const icraNormTr = (s) => String(s || '').replace(/[\[\]]/g, '').trim().toLowerCase()
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const icraFold = (s) => String(s).toLocaleLowerCase('tr')
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const icraParseBaslik = (metin) => {
+    if (!metin) return null;
+    const s = String(metin).replace(/\s+/g, ' ').trim();
+    const fl = icraFold(s);
+    const m = fl.match(/^(\d+\/\d+)\s+(.+?)\s*-\s*icra dosyasi\s*$/);
+    if (!m) return null;
+    const idx = fl.lastIndexOf(' - icra dosyasi');
+    if (idx < 0) return null;
+    return { esas: s.slice(0, m[1].length).trim(), ham: s.slice(m[1].length, idx).trim() };
+  };
+  const icraNormMud = (ham) => {
+    if (!ham) return '';
+    const t = String(ham).trim();
+    const fl = icraFold(t);
+    const m = fl.match(/^(.*)\s+icra\s+(dairesi|mudurlugu)\s*\.?\s*$/);
+    if (!m) return t;
+    return t.slice(0, m[1].length).trim() || t;
+  };
+  const icraAdTokens = (ad) => icraNormTr(ad).replace(/^av\.?\s+/, '').replace(/\s+av\.?$/, '')
+    .split(/[\s\-.]+/).map(t => t.replace(/[^a-z]/g, '')).filter(t => t.length > 1);
+  const icraAvukatEslesme = (avukat, vekil) => {
+    const a = icraAdTokens(avukat), v = icraAdTokens(vekil);
+    if (!a.length || !v.length) return false;
+    if (!v.includes(a[a.length - 1])) return false;
+    return a.filter(t => v.includes(t)).length >= 2 || a.length === 1;
+  };
+  const checkIcraOtofill = async () => {
+    try {
+      if (!window.location.href.includes('uyap.gov.tr')) return false;
+      const bodyMetni = document.body ? (document.body.innerText || '') : '';
+      if (!bodyMetni.includes('cra Dosyas')) return false;
+      let baslik = '';
+      for (const el of document.querySelectorAll('span')) {
+        const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
+        if (t.length > 10 && t.length < 200 && t.includes('cra Dosyas') && icraParseBaslik(t)) { baslik = t; break; }
+      }
+      if (!baslik) return false;
+      const parsed = icraParseBaslik(baslik);
+      const satirlar = [];
+      for (const row of document.querySelectorAll('tr.dx-data-row')) {
+        const c = row.querySelectorAll('td');
+        if (c.length !== 4) continue;
+        satirlar.push({ rol: c[0].innerText.trim(), adi: c[2].innerText.trim(), vekil: c[3].innerText.trim() });
+      }
+      const borclular = satirlar.filter(s => icraNormTr(s.rol).includes('borclu') && s.adi);
+      if (!borclular.length) return false;
+      const avukat = (typeof getLoggedInAttorney === 'function') ? getLoggedInAttorney() : '';
+      const eslesen = borclular.filter(s => icraAvukatEslesme(avukat, s.vekil));
+      const secilen = eslesen.length ? eslesen : borclular;
+      const alanlar = {
+        icraMudurlugu: icraNormMud(parsed.ham),
+        icraEsasNo: parsed.esas,
+        borcluAdi: secilen.map(s => s.adi).join(', ')
+      };
+      if (!alanlar.borcluAdi && !alanlar.icraEsasNo) return false;
+      if (chrome && chrome.storage && chrome.storage.local) {
+        await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon: 'icra_itiraz', alanlar, kaynak: 'icra-sayfa', zaman: Date.now() } });
+        return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  };
+  // İstek-yanıt: paneldeki düğme `lexudf.otofill-istek` yazar, biz BİR KEZ okuyup
+  // yanıtı yazarız. Sürekli izleme yok; portal indir düğmesiyle bağ yok.
+  // Dava/soruşturma şablonları dava penceresinden, icra şablonu icra sayfasından okur.
+  const otofillFold = (s) => String(s || '').toLocaleLowerCase('tr')
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const otofillSupheliMi = (roller) => {
+    const list = (Array.isArray(roller) ? roller : [roller]).map(otofillFold);
+    const ok = list.some(r => r.includes('sanik') || r.includes('supheli') || r.includes('suruklenen') || (r.includes('suc') && r.includes('cocuk')));
+    return ok ? 'supheli' : 'musteki';
+  };
+  const otofillDavaciMi = (roller) => {
+    const list = (Array.isArray(roller) ? roller : [roller]).map(otofillFold);
+    if (list.some(r => r.includes('davaci'))) return 'davaci';
+    if (list.some(r => r.includes('davali'))) return 'davali';
+    return '';
+  };
+  const otofillNormMah = (ham) => {
+    const t = String(ham || '').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    const fl = otofillFold(t);
+    const m = fl.match(/^(.*)\s+mahkemesi\s*\.?\s*$/);
+    if (!m) return t;
+    return t.slice(0, m[1].length).trim() || t;
+  };
+  const checkDavaOtofill = async (sablon) => {
+    try {
+      if (!window.location.href.includes('uyap.gov.tr')) return false;
+      const basliklar = document.querySelectorAll(CONFIG.POPUP_TITLE_CONTAINER);
+      for (const titleContainer of basliklar) {
+        let popupScope = null;
+        try { popupScope = findPopupContainer(titleContainer); } catch (e) { continue; }
+        if (!popupScope) continue;
+        const header = parseCaseHeader(titleContainer);
+        if (!header || header.dosya_no === 'Tespit Edilemedi') continue;
+        const avukat = (typeof getLoggedInAttorney === 'function') ? getLoggedInAttorney() : '';
+        // Soruşturma sayfasında taraf tablosu olmaz: başlık varsa partiyi bekleme,
+        // başsavcılık + dosya no yazılır, tarafı kullanıcı elle seçer.
+        // (Yalnızca inceleme: CMK sayfasından hiçbir veri çekilemediği için düğmesi kaldırıldı.)
+        const tabloVar = isPartyTableRendered(popupScope);
+        if (sablon === 'inceleme' && !tabloVar) {
+          const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
+          const alanlar = sablon === 'inceleme'
+            ? { bassavcilik: sehir, sorusturma: header.dosya_no }
+            : { cmkBassavcilik: sehir, cmkSorusturmaNo: header.dosya_no };
+          if (chrome && chrome.storage && chrome.storage.local) {
+            await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon, alanlar, kaynak: 'sorusturma-baslik', zaman: Date.now() } });
+            return true;
+          }
+          continue;
+        }
+        if (!tabloVar) continue;
+        const parties = extractPartiesAndRoles(avukat, popupScope);
+        const mvk = (parties.muvekkiller && parties.muvekkiller.length) ? parties.muvekkiller : [];
+        const ilk = mvk[0] || null;
+        const roller = mvk.map(t => t.rol);
+        const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
+        let alanlar = null;
+        if (sablon === 'inceleme') {
+          alanlar = { bassavcilik: sehir, sorusturma: header.dosya_no, rol: roller.length ? otofillSupheliMi(roller) : '', isim: ilk ? ilk.adi : '' };
+        } else if (sablon === 'cmk_kayit') {
+          alanlar = { cmkBassavcilik: sehir, cmkSorusturmaNo: header.dosya_no, cmkRol: roller.length ? otofillSupheliMi(roller) : '', cmkTarafIsim: ilk ? ilk.adi : '' };
+        } else if (sablon === 'gerekceli_karar') {
+          alanlar = { gkMahkemeAdi: otofillNormMah(header.mahkeme), gkEsasNo: header.dosya_no, gkTarafAdi: ilk ? ilk.adi : '' };
+          const r = roller.length ? otofillDavaciMi(roller) : '';
+          if (r) alanlar.gkTarafRolu = r;
+        } else if (sablon === 'kesinlesme_talebi') {
+          alanlar = { kesMahkemeAdi: otofillNormMah(header.mahkeme), kesEsasNo: header.dosya_no, kesTarafAdi: ilk ? ilk.adi : '' };
+          const r = roller.length ? otofillDavaciMi(roller) : '';
+          if (r) alanlar.kesTarafRolu = r;
+        } else { continue; }
+        const dolu = Object.values(alanlar).some(v => v);
+        if (!dolu) continue;
+        if (chrome && chrome.storage && chrome.storage.local) {
+          await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon, alanlar, kaynak: 'dava-pencere', zaman: Date.now() } });
+          return true;
+        }
+      }
+      return false;
+    } catch (e) { return false; }
+  };
+  // Tablo düğmeye basıldığı anda henüz çizilmemiş olabilir (sekmeye yeni
+  // geçildiyse): en fazla 3 deneme, 700ms arayla. Toplam ~2 sn < panel 8 sn.
+  const otofillDene = async (fn, deneme = 3) => {
+    for (let i = 0; i < deneme; i++) {
+      try { if (await fn()) return true; } catch (e) {}
+      await new Promise(r => setTimeout(r, 700));
+    }
+    return false;
+  };
+  try {
+    if (chrome && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((degisen, alan) => {
+        const istek = alan === 'local' && degisen['lexudf.otofill-istek']?.newValue;
+        if (!istek) return;
+        if (istek.sablon === 'icra_itiraz') otofillDene(checkIcraOtofill);
+        else otofillDene(() => checkDavaOtofill(istek.sablon));
+      });
+    }
+  } catch (e) { /* dinleyici kurulamazsa düğme zaman aşımına düşer */ }
+} catch (e) { /* deneme bloğu ana akışı etkilemez */ }
+
 })();
