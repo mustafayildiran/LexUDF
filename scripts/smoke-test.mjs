@@ -69,7 +69,17 @@ ok(entries.has(mf.background.service_worker), `service_worker mevcut: ${mf.backg
 console.log('\n3) Paket içeriği');
 const names = [...entries.keys()].sort();
 ok(!names.some(n => /^(tests|scripts|docs)\//.test(n) || /\.(md|zip)$/.test(n) || ['package.json', '.gitattributes', '.gitignore', 'LICENSE'].includes(n)), 'test/doküman/paket sızıntısı yok');
-ok(names.filter(n => n.startsWith('js/')).length === 16, `js/ altında 16 modül (${names.filter(n => n.startsWith('js/')).length})`);
+const repoJs = [];
+{
+  const gez = (d) => fs.readdirSync(d, { withFileTypes: true }).forEach(e => {
+    const p = d + '/' + e.name;
+    if (e.isDirectory()) gez(p);
+    else if (p.endsWith('.js')) repoJs.push(p);
+  });
+  gez('js');
+}
+ok(names.filter(n => n.startsWith('js/')).length === repoJs.length &&
+  repoJs.every(f => entries.has(f)), `js/ anlığı repoyla birebir (${repoJs.length} modül)`);
 
 // --- Modül bütünlüğü: her import çözülebiliyor mu? ---
 console.log('\n4) Modül grafiği (import\'lar çözülebiliyor mu?)');

@@ -3,6 +3,13 @@
 UYAP Portal'dan otomatik taslak üreten içerik betiği (`portal/`).
 Çalıştığı sürece bu tarafa dokunulmaz (donduruldu).
 
+## v1.2.0 (7 Ekim 2026)
+
+- İçerik betiği panel düğmesinden gelen tek seferlik okuma isteğini yanıtlar
+  (sürekli izleme yok; indir akışıyla bağı yok). Tablo geç çizilirse 3 kez dener.
+- UYAP başlığındaki "Mahkemesi"/"İcra Dairesi" sonekleri forma soneksiz yazılır
+  (şablon ekini kendisi koyar, tekrar olmaz).
+
 ## v1.1.1 (6 Ekim 2026)
 
 - Dosya-no kapısı geri alındı (bazı gerçek pencerelerde buton üretilmiyordu).

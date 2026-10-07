@@ -1,0 +1,145 @@
+/* content.css - LexUDF İndir Butonu ve Tooltip Stilleri (Sürüm 2.0) */
+
+/* === LEXUDF LOGO BUTONU (başlık metninin hemen yanında, sadece logo) === */
+.uyap-sablon-indir-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  margin-left: 6px; /* Sekme yazısı / başlık metni ile arasındaki mesafe */
+  padding: 4px;
+  border-radius: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+  align-self: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
+  position: relative;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+/* LexUDF logosu: lacivert üstünde altın L (harici resim gerektirmez) */
+.uyap-sablon-indir-btn .lexudf-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #d4af37;
+  color: #0f2846;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+/* === DURUM 1: HAZIR DEĞİL (PASİF - MAT AÇIK GRİ) === */
+.uyap-sablon-indir-btn.not-ready {
+  background-color: #d3d3d3 !important; /* Mat açık gri */
+  color: #757575 !important;
+  cursor: not-allowed !important;       /* Fare imleci yasak işareti */
+  box-shadow: none !important;          /* Pasifken gölge olmasın */
+}
+
+.uyap-sablon-indir-btn.not-ready:hover {
+  background-color: #c0c0c0 !important; /* Hover durumunda hafif koyu gri */
+}
+
+.uyap-sablon-indir-btn.not-ready .lexudf-badge {
+  background: #bdbdbd !important;
+  color: #757575 !important;
+}
+
+/* === DURUM 2: HAZIR (LEXUDF LACİVERTİ) === */
+.uyap-sablon-indir-btn.ready {
+  background-color: #0f2846 !important; /* LexUDF laciverti */
+  color: #ffffff !important;
+  cursor: pointer !important;
+}
+
+.uyap-sablon-indir-btn.ready:hover {
+  background-color: #173a63 !important; /* Hover durumunda LexUDF vurgusu */
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) !important;
+}
+
+.uyap-sablon-indir-btn.ready:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* === DURUM 3: YÜKLEME (LOADING - LEXUDF VURGUSU) === */
+.uyap-sablon-indir-btn.loading {
+  background-color: #1e4d85 !important; /* LexUDF vurgu mavisi - işlem devam ediyor */
+  color: #ffffff !important;
+  cursor: wait !important;
+  pointer-events: none !important;
+}
+
+.uyap-sablon-indir-btn.loading .lexudf-badge {
+  animation: lexudf-pulse 1s ease-in-out infinite !important;
+}
+
+@keyframes lexudf-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+
+/* === GLOBAL FIXED TOOLTIP STİLLERİ (Overflow Sınırı Olmayan) === */
+
+#uyap-eklenti-tooltip {
+  position: fixed;
+  z-index: 9999999;
+  pointer-events: none; /* Tooltip fare hareketlerini engellememeli */
+  display: block;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+/* Tooltip Gizli Durumu */
+.uyap-tooltip-hidden {
+  opacity: 0 !important;
+  transform: translateY(4px) !important; /* Hafif aşağıdan yukarı süzülme */
+  visibility: hidden;
+}
+
+/* Tooltip Görünür Durumu */
+.uyap-tooltip-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  visibility: visible;
+}
+
+/* Tooltip Metin Kutusu */
+.uyap-tooltip-content {
+  background-color: rgba(33, 33, 33, 0.95);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  line-height: 1.4;
+}
+
+/* Tooltip Alt Ok İşareti */
+.uyap-tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(33, 33, 33, 0.95) transparent transparent transparent;
+  width: 0;
+  height: 0;
+}
