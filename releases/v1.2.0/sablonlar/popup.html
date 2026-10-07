@@ -104,15 +104,16 @@
   }
   .btn-delete:hover { background: #a93226; }
   .btn-otofill {
-    display: inline-flex; align-items: center; gap: 6px;
-    width: auto; margin: 0 0 8px auto; padding: 5px 12px;
-    background: #f4f7fb; color: var(--navy); border: 1px solid #cce0ff;
-    font-size: 11.5px; font-weight: 600; border-radius: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; margin: 0 0 4px; padding: 8px 9px;
+    background: #fff; color: var(--navy); border: 1px solid var(--accent);
+    font-size: 12px; font-weight: 700; border-radius: 5px; cursor: pointer;
+    font-family: inherit;
   }
-  .btn-otofill:hover { background: #e8effa; border-color: #a9c8f0; }
+  .btn-otofill:hover { background: #eef4fb; }
   .btn-otofill:disabled { opacity: .6; cursor: default; }
   .btn-otofill svg { width: 13px; height: 13px; flex: none; }
-  .otofill-wrap { display: flex; justify-content: flex-end; }
+  .otofill-wrap { display: block; }
 
   .checkbox-group {
     display: flex; align-items: center; gap: 8px; margin-top: 12px;
