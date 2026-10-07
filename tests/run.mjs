@@ -487,4 +487,53 @@ console.log('\n12) Sürüm kitleri bütünlüğü (releases/vX: anlık + magaza 
   }
 }
 
+console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrıştırıcı)');
+{
+  const { parseIcraBaslik, normalizeMudurluk, isAttorneyMatch, mapIcraOtofill } =
+    await import('../js/core/icraOtofill.js');
+  ok('başlık parse: esas + müdürlük ham', () => {
+    assert.deepEqual(parseIcraBaslik('2026/123456 Konya 7. İcra Dairesi - İcra Dosyası'),
+      { icraEsasNo: '2026/123456', mudurlukHam: 'Konya 7. İcra Dairesi' });
+    assert.equal(parseIcraBaslik('alakasız metin'), null);
+    assert.equal(parseIcraBaslik(''), null);
+  });
+  ok('müdürlük normalize: Dairesi/Müdürlüğü soneki temizlenir, çıplak ad aynen kalır', () => {
+    assert.equal(normalizeMudurluk('Konya 7. İcra Dairesi'), 'Konya 7.');
+    assert.equal(normalizeMudurluk('Konya 7. İCRA DAİRESİ'), 'Konya 7.');
+    assert.equal(normalizeMudurluk('İSTANBUL 1.'), 'İSTANBUL 1.');
+    assert.equal(normalizeMudurluk('İstanbul 1. İcra Müdürlüğü'), 'İstanbul 1.');
+  });
+  ok('vekil eşleşme: [AD], Av. öneki ve "-" toleranslı', () => {
+    assert.equal(isAttorneyMatch('Mustafa Yıldıran', '[MUSTAFA YILDIRAN]'), true);
+    assert.equal(isAttorneyMatch('Mustafa Yıldıran', '[av. blablabla]'), false);
+    assert.equal(isAttorneyMatch('Mustafa Yıldıran', '-'), false);
+    assert.equal(isAttorneyMatch('', '[MUSTAFA YILDIRAN]'), false);
+  });
+  ok('uçtan uca: müvekkil borçlu seçilir, müdürlük normalize edilir', () => {
+    const satirlar = [
+      { rol: 'Alacaklı', adi: 'ALACAKLI A', vekil: '[av. blablabla]' },
+      { rol: 'Borçlu', adi: 'BORCLU B', vekil: '-' },
+      { rol: 'Borçlu', adi: 'MUVEKKIL C', vekil: '[MUSTAFA YILDIRAN]' }
+    ];
+    const out = mapIcraOtofill('2026/123456 Konya 7. İcra Dairesi - İcra Dosyası', satirlar, 'Mustafa Yıldıran');
+    assert.equal(out.icraEsasNo, '2026/123456');
+    assert.equal(out.icraMudurlugu, 'Konya 7.');
+    assert.equal(out.borcluAdi, 'MUVEKKIL C');
+  });
+  ok('eşleşme yoksa tüm borçlular doldurulur (kullanıcı eler)', () => {
+    const satirlar = [
+      { rol: 'Borçlu', adi: 'BORCLU B', vekil: '-' },
+      { rol: 'Alacaklı', adi: 'ALACAKLI A', vekil: '[av. blablabla]' }
+    ];
+    const out = mapIcraOtofill('2026/123456 Konya 7. İcra Dairesi - İcra Dosyası', satirlar, 'Mustafa Yıldıran');
+    assert.equal(out.borcluAdi, 'BORCLU B');
+  });
+  ok('portal gömülü kopya çekirdekle aynı kuralları taşıyor', () => {
+    const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
+    assert.ok(portal.includes('lexudf.otofill'), 'otofill anahtarı portalda yok');
+    assert.ok(portal.includes('cra Dosyas'), 'icra başlık taraması portalda yok');
+    assert.ok(portal.includes('icra_itiraz'), 'hedef şablon portalda yok');
+  });
+}
+
 console.log(`\n✅ ${passed} test grubu geçti`);

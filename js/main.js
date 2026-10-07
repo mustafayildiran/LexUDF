@@ -7,6 +7,7 @@ import { findUnresolved, listPlaceholders } from './core/placeholders.js';
 import { createZipBlob } from './core/zip.js';
 import { shortPartForFilename } from './core/utils.js';
 import { initProfiles } from './core/profiles.js';
+import { OTOFILL_KEY } from './core/icraOtofill.js';
 
 const $ = id => document.getElementById(id);
 const dilekceTuruSel = $('dilekceTuru');
@@ -141,6 +142,60 @@ goBtn.addEventListener('click', async () => {
 
 toggleFormGroups();
 initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
+
+// UYAP otomatik doldurma (deneme/icra-otofill): içerik betiği sayfadaki icra
+// başlık + taraf satırlarını `lexudf.otofill` anahtarına yazar. Panel açıkken
+// veya sonradan açıldığında form alanlarına öneri olarak yazılır; elle
+// düzeltme her zaman mümkün (kilitlenmez). Tek kullanımlıktır: uygulayınca
+// anahtar silinir, sonraki elle girdiyi ezmez.
+{
+  const applyOtofill = (paket) => {
+    if (!paket || paket.sablon !== 'icra_itiraz' || !paket.alanlar) return false;
+    const alanlar = paket.alanlar;
+    const keys = Object.keys(alanlar).filter(k => alanlar[k]);
+    if (keys.length === 0) return false;
+    if (dilekceTuruSel.value !== 'icra_itiraz') {
+      dilekceTuruSel.value = 'icra_itiraz';
+      toggleFormGroups();
+    }
+    for (const [k, v] of Object.entries(alanlar)) {
+      const el = $(k);
+      if (el && v) {
+        el.value = v;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    refreshOzelMetinIfActive();
+    showMsg('UYAP’tan dolduruldu — göndermeden önce kontrol edin.', 'ok');
+    return true;
+  };
+  const tuket = async () => {
+    try {
+      if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
+      const res = await chrome.storage.local.get(OTOFILL_KEY);
+      const paket = res?.[OTOFILL_KEY];
+      if (!paket) return;
+      // 10 dakikadan eski öneri bayatsa dokunma.
+      if (paket.zaman && (Date.now() - paket.zaman) > 10 * 60 * 1000) {
+        await chrome.storage.local.remove(OTOFILL_KEY);
+        return;
+      }
+      if (applyOtofill(paket)) await chrome.storage.local.remove(OTOFILL_KEY);
+    } catch (err) { console.error('Otofill okunamadı:', err); }
+  };
+  tuket();
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((degisen, alan) => {
+        if (alan === 'local' && degisen[OTOFILL_KEY]?.newValue) {
+          const paket = degisen[OTOFILL_KEY].newValue;
+          if (applyOtofill(paket)) chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+        }
+      });
+    }
+  } catch (err) { console.error('Otofill dinlenemedi:', err); }
+}
 
 // Gizlilik penceresi: başlıktaki kilit simgesiyle açılır, ✕ / dışarı tıklama / Esc ile kapanır.
 {

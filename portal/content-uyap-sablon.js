@@ -1178,4 +1178,85 @@ initGlobalTooltip();
 checkAndInjectPopup();
 console.log("LexUDF Portal v2.7: başlatıldı.");
 
+// --- 12. İCRA OTOMATİK DOLDURMA (deneme/icra-otofill) ---
+// Dava buton akışına dokunmaz: sadece icra dosya sayfasındaki başlık +
+// taraf satırlarını okuyup `lexudf.otofill` anahtarına yazar. Panel
+// (js/main.js) bunu forma öneri olarak yazar; direkt indirme yok,
+// elle düzeltme her zaman mümkün.
+try {
+  const ICRA_OTOFILL_KEY = 'lexudf.otofill';
+  let icraSonJson = '';
+  const icraNormTr = (s) => String(s || '').replace(/[\[\]]/g, '').trim().toLowerCase()
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const icraFold = (s) => String(s).toLocaleLowerCase('tr')
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const icraParseBaslik = (metin) => {
+    if (!metin) return null;
+    const s = String(metin).replace(/\s+/g, ' ').trim();
+    const fl = icraFold(s);
+    const m = fl.match(/^(\d+\/\d+)\s+(.+?)\s*-\s*icra dosyasi\s*$/);
+    if (!m) return null;
+    const idx = fl.lastIndexOf(' - icra dosyasi');
+    if (idx < 0) return null;
+    return { esas: s.slice(0, m[1].length).trim(), ham: s.slice(m[1].length, idx).trim() };
+  };
+  const icraNormMud = (ham) => {
+    if (!ham) return '';
+    const t = String(ham).trim();
+    const fl = icraFold(t);
+    const m = fl.match(/^(.*)\s+icra\s+(dairesi|mudurlugu)\s*\.?\s*$/);
+    if (!m) return t;
+    return t.slice(0, m[1].length).trim() || t;
+  };
+  const icraAdTokens = (ad) => icraNormTr(ad).replace(/^av\.?\s+/, '').replace(/\s+av\.?$/, '')
+    .split(/[\s\-.]+/).map(t => t.replace(/[^a-z]/g, '')).filter(t => t.length > 1);
+  const icraAvukatEslesme = (avukat, vekil) => {
+    const a = icraAdTokens(avukat), v = icraAdTokens(vekil);
+    if (!a.length || !v.length) return false;
+    if (!v.includes(a[a.length - 1])) return false;
+    return a.filter(t => v.includes(t)).length >= 2 || a.length === 1;
+  };
+  const checkIcraOtofill = async () => {
+    try {
+      if (!window.location.href.includes('uyap.gov.tr')) return;
+      const bodyMetni = document.body ? (document.body.innerText || '') : '';
+      if (!bodyMetni.includes('cra Dosyas')) return;
+      let baslik = '';
+      for (const el of document.querySelectorAll('span')) {
+        const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
+        if (t.length > 10 && t.length < 200 && t.includes('cra Dosyas') && icraParseBaslik(t)) { baslik = t; break; }
+      }
+      if (!baslik) return;
+      const parsed = icraParseBaslik(baslik);
+      const satirlar = [];
+      for (const row of document.querySelectorAll('tr.dx-data-row')) {
+        const c = row.querySelectorAll('td');
+        if (c.length !== 4) continue;
+        satirlar.push({ rol: c[0].innerText.trim(), adi: c[2].innerText.trim(), vekil: c[3].innerText.trim() });
+      }
+      const borclular = satirlar.filter(s => icraNormTr(s.rol).includes('borclu') && s.adi);
+      if (!borclular.length) return;
+      const avukat = (typeof getLoggedInAttorney === 'function') ? getLoggedInAttorney() : '';
+      const eslesen = borclular.filter(s => icraAvukatEslesme(avukat, s.vekil));
+      const secilen = eslesen.length ? eslesen : borclular;
+      const alanlar = {
+        icraMudurlugu: icraNormMud(parsed.ham),
+        icraEsasNo: parsed.esas,
+        borcluAdi: secilen.map(s => s.adi).join(', ')
+      };
+      if (!alanlar.borcluAdi && !alanlar.icraEsasNo) return;
+      const json = JSON.stringify(alanlar);
+      if (json === icraSonJson) return;
+      icraSonJson = json;
+      if (chrome && chrome.storage && chrome.storage.local) {
+        await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon: 'icra_itiraz', alanlar, kaynak: 'icra-sayfa', zaman: Date.now() } });
+      }
+    } catch (e) { /* deneme gözlemcisi sessiz kalır */ }
+  };
+  setInterval(checkIcraOtofill, 3000);
+  setTimeout(checkIcraOtofill, 2000);
+} catch (e) { /* deneme bloğu ana akışı etkilemez */ }
+
 })();
