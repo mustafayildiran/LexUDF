@@ -65,6 +65,9 @@
     padding:8px 14px 14px 14px;
     font-size:11.5px; color:#14532d; line-height:1.5;
   }
+  .modal-box.profile{ border-top-color:var(--navy); }
+  .modal-box.profile .modal-head{ color:var(--navy-dark); }
+  .modal-box.profile .modal-body{ color:var(--text); }
   
   /* İçerik alanına güvenli kenar boşluğu (İki yana yaslanmayı önler) */
   .body{padding:16px;}
@@ -74,13 +77,6 @@
   .section-title{font-size:12px; font-weight:700; color:var(--navy); margin:14px 0 6px; padding-bottom:3px; border-bottom:1px dashed var(--border);}
   
   /* Profil Kutusu Stili */
-  .profile-box {
-    background: #f4f7fb; border: 1px solid #cce0ff; border-radius: 6px;
-    padding: 10px; margin-bottom: 14px;
-  }
-  .profile-box summary {
-    font-size: 12px; font-weight: 700; color: var(--navy); cursor: pointer; outline: none;
-  }
   .profile-content { margin-top: 8px; }
 
   label{display:block; font-size:12px; font-weight:600; margin:10px 0 4px;}
@@ -206,39 +202,12 @@
   <div class="titlebar">
     <div class="logo">L</div>
     <div class="title">LexUDF — Dilekçe Asistanı</div>
+    <button type="button" class="icon-btn" id="profileBtn" title="Avukat Profilleri">👤</button>
     <button type="button" class="icon-btn" id="privacyBtn" title="Gizlilik ve Güvenlik Bilgisi">🔒</button>
   </div>
   <div class="body">
     <h1>UDF Dilekçe Hazırlama</h1>
     <hr class="rule">
-
-    <!-- AVUKAT PROFİLLERİ KUTUSU -->
-    <details class="profile-box">
-      <summary>👥 Avukat Profilleri</summary>
-      <div class="profile-content">
-        <label for="profilSecim">Kayıtlı Avukat Seç / Yeni Ekle</label>
-        <select id="profilSecim">
-          <option value="yeni">➕ Yeni Avukat Ekle...</option>
-        </select>
-
-        <label for="profAdSoyad">Ad Soyad</label>
-        <input type="text" id="profAdSoyad" placeholder="Mustafa Yıldıran">
-
-        <label for="profBaro">Baro ve Sicil No</label>
-        <input type="text" id="profBaro" placeholder="Yalova Barosu - 1234">
-
-        <label for="profVergi">Vergi Dairesi ve No</label>
-        <input type="text" id="profVergi" placeholder="Yalova V.D. - 1234567890">
-
-        <label for="profAdres">Ofis Adresi</label>
-        <input type="text" id="profAdres" placeholder="Merkez / Yalova">
-
-        <div class="btn-row">
-          <button type="button" class="btn-save" id="btnSaveProfile">Profili Kaydet</button>
-          <button type="button" class="btn-delete" id="btnDeleteProfile">Profili Sil</button>
-        </div>
-      </div>
-    </details>
 
     <label for="dilekceTuru">Dilekçe / Belge Şablonu</label>
     <select id="dilekceTuru">
@@ -462,6 +431,41 @@
       </div>
 
       <div class="footer-credit">© 2026 <strong>Mustafa YILDIRAN</strong> tarafından geliştirilmiştir.</div>
+    </div>
+
+    <!-- AVUKAT PROFİLLERİ (başlıktaki 👤 simgesiyle açılır) -->
+    <div class="modal-overlay" id="profileModal">
+      <div class="modal-box profile" role="dialog" aria-modal="true" aria-label="Avukat Profilleri">
+        <div class="modal-head">
+          <span>👤 Avukat Profilleri</span>
+          <button type="button" class="modal-close" id="profileClose" title="Kapat">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="profile-content">
+            <label for="profilSecim">Kayıtlı Avukat Seç / Yeni Ekle</label>
+            <select id="profilSecim">
+              <option value="yeni">➕ Yeni Avukat Ekle...</option>
+            </select>
+
+            <label for="profAdSoyad">Ad Soyad</label>
+            <input type="text" id="profAdSoyad" placeholder="Mustafa Yıldıran">
+
+            <label for="profBaro">Baro ve Sicil No</label>
+            <input type="text" id="profBaro" placeholder="Yalova Barosu - 1234">
+
+            <label for="profVergi">Vergi Dairesi ve No</label>
+            <input type="text" id="profVergi" placeholder="Yalova V.D. - 1234567890">
+
+            <label for="profAdres">Ofis Adresi</label>
+            <input type="text" id="profAdres" placeholder="Merkez / Yalova">
+
+            <div class="btn-row">
+              <button type="button" class="btn-save" id="btnSaveProfile">Profili Kaydet</button>
+              <button type="button" class="btn-delete" id="btnDeleteProfile">Profili Sil</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- GİZLİLİK PENCERESİ (başlıktaki kilit simgesiyle açılır) -->
