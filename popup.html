@@ -104,12 +104,15 @@
   }
   .btn-delete:hover { background: #a93226; }
   .btn-otofill {
-    width: 100%; margin-bottom: 10px; padding: 7px 10px;
-    background: #fff; color: var(--navy); border: 1px solid var(--accent);
-    font-size: 12px; font-weight: 600; border-radius: 5px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    width: auto; margin: 0 0 8px auto; padding: 5px 12px;
+    background: #f4f7fb; color: var(--navy); border: 1px solid #cce0ff;
+    font-size: 11.5px; font-weight: 600; border-radius: 20px; cursor: pointer;
   }
-  .btn-otofill:hover { background: #eef4fb; }
+  .btn-otofill:hover { background: #e8effa; border-color: #a9c8f0; }
   .btn-otofill:disabled { opacity: .6; cursor: default; }
+  .btn-otofill svg { width: 13px; height: 13px; flex: none; }
+  .otofill-wrap { display: flex; justify-content: flex-end; }
 
   .checkbox-group {
     display: flex; align-items: center; gap: 8px; margin-top: 12px;
@@ -341,7 +344,9 @@
 
     <!-- İCRA İTİRAZ FORMU -->
     <div id="groupIcraItiraz" style="display:none;">
-      <button type="button" class="btn-otofill" id="icraOtofillBtn">UYAP’tan doldur</button>
+      <div class="otofill-wrap">
+        <button type="button" class="btn-otofill" id="icraOtofillBtn" title="Açık icra dosyasındaki müdürlük, esas no ve borçlu adını forma yazar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>UYAP’tan doldur</button>
+      </div>
       <div class="hint">Açık icra dosyasındayken basın — müdürlük, esas no ve borçlu adı forma yazılır. Yanlışsa elle düzeltin.</div>
       <label for="icraMudurlugu">İcra Müdürlüğü Adı</label>
       <input type="text" id="icraMudurlugu" placeholder="Örn: İSTANBUL 1.">

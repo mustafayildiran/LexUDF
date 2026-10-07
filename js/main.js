@@ -150,6 +150,7 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
 // Elle doldurma her zaman mümkündür; doldurma tek seferlik öneridir.
 {
   const btn = $('icraOtofillBtn');
+  const btnOrijinal = btn ? btn.innerHTML : '';
   let bekliyor = false;
   const applyOtofill = (paket) => {
     if (!paket || paket.sablon !== 'icra_itiraz' || !paket.alanlar) return false;
@@ -173,7 +174,7 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
   };
   const bitir = (okMsg) => {
     bekliyor = false;
-    if (btn) { btn.disabled = false; btn.textContent = 'UYAP’tan doldur'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = btnOrijinal; }
     if (okMsg) showMsg(okMsg, 'ok');
   };
   const zamanAsimi = () => {
@@ -190,7 +191,7 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
       }
       bekliyor = true;
       btn.disabled = true;
-      btn.textContent = 'Okunuyor...';
+      btn.textContent = 'Okunuyor…';
       try { await chrome.storage.local.remove(OTOFILL_KEY); } catch {}
       // Önce taze bir yanıt var mı (panel kapalıyken yazılmış olabilir).
       try {
