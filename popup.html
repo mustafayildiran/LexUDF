@@ -30,12 +30,15 @@
   }
   .titlebar .title{font-size:13px; font-weight:700; color:var(--navy-dark);}
   .titlebar .icon-btn{
-    margin-left:auto; flex:none;
+    flex:none;
     width:28px; height:28px; border-radius:6px;
     border:1px solid var(--border); background:#fff;
     font-size:14px; cursor:pointer; line-height:1;
     display:flex; align-items:center; justify-content:center;
   }
+  .titlebar .icon-group{ display:flex; gap:0; margin-left:auto; flex:none; }
+  .titlebar .icon-group .icon-btn:first-child{ border-radius:6px 0 0 6px; border-right:none; }
+  .titlebar .icon-group .icon-btn:last-child{ border-radius:0 6px 6px 0; }
   .titlebar .icon-btn:hover{ background:var(--security-bg); border-color:var(--security-border); }
 
   /* Gizlilik penceresi (modal) */
@@ -101,14 +104,14 @@
   .btn-delete:hover { background: #a93226; }
   .btn-otofill {
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    width: 100%; margin: 0 0 4px; padding: 8px 9px;
-    background: #fff; color: var(--navy); border: 1px solid var(--accent);
-    font-size: 12px; font-weight: 700; border-radius: 5px; cursor: pointer;
+    width: 100%; margin: 10px 0 4px; padding: 10px;
+    background: var(--navy); color: #fff; border: none;
+    font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer;
     font-family: inherit;
   }
-  .btn-otofill:hover { background: #eef4fb; }
+  .btn-otofill:hover { background: var(--navy-dark); }
   .btn-otofill:disabled { opacity: .6; cursor: default; }
-  .btn-otofill svg { width: 13px; height: 13px; flex: none; }
+  .btn-otofill svg { width: 14px; height: 14px; flex: none; }
   .otofill-wrap { display: block; }
 
   .checkbox-group {
@@ -202,8 +205,10 @@
   <div class="titlebar">
     <div class="logo">L</div>
     <div class="title">LexUDF — Dilekçe Asistanı</div>
-    <button type="button" class="icon-btn" id="profileBtn" title="Avukat Profilleri">👤</button>
-    <button type="button" class="icon-btn" id="privacyBtn" title="Gizlilik ve Güvenlik Bilgisi">🔒</button>
+    <span class="icon-group">
+      <button type="button" class="icon-btn" id="profileBtn" title="Avukat Profilleri">👤</button>
+      <button type="button" class="icon-btn" id="privacyBtn" title="Gizlilik ve Güvenlik Bilgisi">🔒</button>
+    </span>
   </div>
   <div class="body">
     <h1>UDF Dilekçe Hazırlama</h1>
