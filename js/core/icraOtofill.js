@@ -3,6 +3,7 @@
 // Kural: elle doldurma her zaman mümkün; bu modül sadece öneri değer üretir.
 
 export const OTOFILL_KEY = 'lexudf.otofill';
+export const OTOFILL_ISTEK_KEY = 'lexudf.otofill-istek';
 
 function normalizeTr(text) {
   if (!text) return '';

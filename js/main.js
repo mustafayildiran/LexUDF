@@ -7,7 +7,7 @@ import { findUnresolved, listPlaceholders } from './core/placeholders.js';
 import { createZipBlob } from './core/zip.js';
 import { shortPartForFilename } from './core/utils.js';
 import { initProfiles } from './core/profiles.js';
-import { OTOFILL_KEY } from './core/icraOtofill.js';
+import { OTOFILL_KEY, OTOFILL_ISTEK_KEY } from './core/icraOtofill.js';
 
 const $ = id => document.getElementById(id);
 const dilekceTuruSel = $('dilekceTuru');
@@ -143,12 +143,14 @@ goBtn.addEventListener('click', async () => {
 toggleFormGroups();
 initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
 
-// UYAP otomatik doldurma (deneme/icra-otofill): içerik betiği sayfadaki icra
-// başlık + taraf satırlarını `lexudf.otofill` anahtarına yazar. Panel açıkken
-// veya sonradan açıldığında form alanlarına öneri olarak yazılır; elle
-// düzeltme her zaman mümkün (kilitlenmez). Tek kullanımlıktır: uygulayınca
-// anahtar silinir, sonraki elle girdiyi ezmez.
+// UYAP otomatik doldurma (deneme/icra-otofill): istek-yanıt modeliyle çalışır.
+// Paneldeki "UYAP’tan doldur" düğmesine basılınca içerik betiğine istek yazılır;
+// içerik betiği sayfayı BİR KEZ okuyup yanıtı yazar. Portal indir düğmesiyle
+// hiçbir bağı yoktur (o kendi UDF'ini indirir, buraya yazmaz).
+// Elle doldurma her zaman mümkündür; doldurma tek seferlik öneridir.
 {
+  const btn = $('icraOtofillBtn');
+  let bekliyor = false;
   const applyOtofill = (paket) => {
     if (!paket || paket.sablon !== 'icra_itiraz' || !paket.alanlar) return false;
     const alanlar = paket.alanlar;
@@ -167,30 +169,80 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
       }
     }
     refreshOzelMetinIfActive();
-    showMsg('UYAP’tan dolduruldu — göndermeden önce kontrol edin.', 'ok');
     return true;
   };
-  const tuket = async () => {
-    try {
-      if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
-      const res = await chrome.storage.local.get(OTOFILL_KEY);
-      const paket = res?.[OTOFILL_KEY];
-      if (!paket) return;
-      // 10 dakikadan eski öneri bayatsa dokunma.
-      if (paket.zaman && (Date.now() - paket.zaman) > 10 * 60 * 1000) {
-        await chrome.storage.local.remove(OTOFILL_KEY);
+  const bitir = (okMsg) => {
+    bekliyor = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'UYAP’tan doldur'; }
+    if (okMsg) showMsg(okMsg, 'ok');
+  };
+  const zamanAsimi = () => {
+    if (!bekliyor) return;
+    bitir();
+    showMsg('UYAP’tan veri alınamadı — icra dosya sayfası açık mı? Açıksa sayfayı yenileyip tekrar deneyin.', 'err');
+  };
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      if (bekliyor) return;
+      if (typeof chrome === 'undefined' || !chrome.storage?.local) {
+        showMsg('Otomatik doldurma bu ortamda çalışmaz — alanları elle doldurun.', 'err');
         return;
       }
-      if (applyOtofill(paket)) await chrome.storage.local.remove(OTOFILL_KEY);
-    } catch (err) { console.error('Otofill okunamadı:', err); }
-  };
-  tuket();
+      bekliyor = true;
+      btn.disabled = true;
+      btn.textContent = 'Okunuyor...';
+      try { await chrome.storage.local.remove(OTOFILL_KEY); } catch {}
+      // Önce taze bir yanıt var mı (panel kapalıyken yazılmış olabilir).
+      try {
+        const mevcut = await chrome.storage.local.get(OTOFILL_KEY);
+        const paket = mevcut?.[OTOFILL_KEY];
+        if (paket && paket.sablon === 'icra_itiraz' && paket.zaman && (Date.now() - paket.zaman) < 2 * 60 * 1000) {
+          if (applyOtofill(paket)) {
+            await chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+            bitir('UYAP’tan dolduruldu — göndermeden önce kontrol edin.');
+            return;
+          }
+        }
+      } catch (err) { console.error('Otofill okunamadı:', err); }
+      try {
+        await chrome.storage.local.set({ [OTOFILL_ISTEK_KEY]: { sablon: 'icra_itiraz', zaman: Date.now() } });
+      } catch (err) {
+        console.error('Otofill isteği yazılamadı:', err);
+        bitir();
+        showMsg('İstek yazılamadı — alanları elle doldurun.', 'err');
+        return;
+      }
+      setTimeout(zamanAsimi, 8000);
+      const baslangic = Date.now();
+      const yokla = setInterval(async () => {
+        if (!bekliyor) { clearInterval(yokla); return; }
+        if (Date.now() - baslangic > 8000) { clearInterval(yokla); return; }
+        try {
+          const res = await chrome.storage.local.get(OTOFILL_KEY);
+          const paket = res?.[OTOFILL_KEY];
+          if (paket && paket.sablon === 'icra_itiraz') {
+            clearInterval(yokla);
+            if (applyOtofill(paket)) {
+              await chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+              bitir('UYAP’tan dolduruldu — göndermeden önce kontrol edin.');
+            } else {
+              bitir();
+              showMsg('Sayfada borçlu bilgisi bulunamadı — alanları elle doldurun.', 'err');
+            }
+          }
+        } catch {}
+      }, 500);
+    });
+  }
   try {
     if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
       chrome.storage.onChanged.addListener((degisen, alan) => {
-        if (alan === 'local' && degisen[OTOFILL_KEY]?.newValue) {
+        if (alan === 'local' && degisen[OTOFILL_KEY]?.newValue && bekliyor) {
           const paket = degisen[OTOFILL_KEY].newValue;
-          if (applyOtofill(paket)) chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+          if (applyOtofill(paket)) {
+            chrome.storage.local.remove(OTOFILL_KEY).catch(() => {});
+            bitir('UYAP’tan dolduruldu — göndermeden önce kontrol edin.');
+          }
         }
       });
     }

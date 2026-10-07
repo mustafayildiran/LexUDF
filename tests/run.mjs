@@ -534,6 +534,18 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
     assert.ok(portal.includes('cra Dosyas'), 'icra başlık taraması portalda yok');
     assert.ok(portal.includes('icra_itiraz'), 'hedef şablon portalda yok');
   });
+  ok('ayrışma: portal indir düğmesi kendi işini yapar, otomatik periyodik yazma yok', () => {
+    const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
+    assert.ok(!/setInterval\s*\(\s*checkIcraOtofill/.test(portal), 'içerik betiği periyodik yazmamalı (istek-yanıt olmalı)');
+    assert.ok(portal.includes('lexudf.otofill-istek'), 'istek anahtarı dinlenmiyor');
+  });
+  ok('panelde istek düğmesi var ve istek anahtarını yazıyor', () => {
+    const html = fs.readFileSync(new URL('../popup.html', import.meta.url), 'utf8');
+    const main = fs.readFileSync(new URL('../js/main.js', import.meta.url), 'utf8');
+    assert.ok(html.includes('id="icraOtofillBtn"'), 'icra grubunda düğme yok');
+    assert.ok(main.includes('OTOFILL_ISTEK_KEY'), 'main.js istek anahtarını kullanmıyor');
+    assert.ok(main.includes('icraOtofillBtn'), 'main.js düğmeyi bağlamıyor');
+  });
 }
 
 console.log(`\n✅ ${passed} test grubu geçti`);

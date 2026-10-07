@@ -1185,7 +1185,6 @@ console.log("LexUDF Portal v2.7: başlatıldı.");
 // elle düzeltme her zaman mümkün.
 try {
   const ICRA_OTOFILL_KEY = 'lexudf.otofill';
-  let icraSonJson = '';
   const icraNormTr = (s) => String(s || '').replace(/[\[\]]/g, '').trim().toLowerCase()
     .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
     .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
@@ -1220,15 +1219,15 @@ try {
   };
   const checkIcraOtofill = async () => {
     try {
-      if (!window.location.href.includes('uyap.gov.tr')) return;
+      if (!window.location.href.includes('uyap.gov.tr')) return false;
       const bodyMetni = document.body ? (document.body.innerText || '') : '';
-      if (!bodyMetni.includes('cra Dosyas')) return;
+      if (!bodyMetni.includes('cra Dosyas')) return false;
       let baslik = '';
       for (const el of document.querySelectorAll('span')) {
         const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
         if (t.length > 10 && t.length < 200 && t.includes('cra Dosyas') && icraParseBaslik(t)) { baslik = t; break; }
       }
-      if (!baslik) return;
+      if (!baslik) return false;
       const parsed = icraParseBaslik(baslik);
       const satirlar = [];
       for (const row of document.querySelectorAll('tr.dx-data-row')) {
@@ -1237,7 +1236,7 @@ try {
         satirlar.push({ rol: c[0].innerText.trim(), adi: c[2].innerText.trim(), vekil: c[3].innerText.trim() });
       }
       const borclular = satirlar.filter(s => icraNormTr(s.rol).includes('borclu') && s.adi);
-      if (!borclular.length) return;
+      if (!borclular.length) return false;
       const avukat = (typeof getLoggedInAttorney === 'function') ? getLoggedInAttorney() : '';
       const eslesen = borclular.filter(s => icraAvukatEslesme(avukat, s.vekil));
       const secilen = eslesen.length ? eslesen : borclular;
@@ -1246,17 +1245,25 @@ try {
         icraEsasNo: parsed.esas,
         borcluAdi: secilen.map(s => s.adi).join(', ')
       };
-      if (!alanlar.borcluAdi && !alanlar.icraEsasNo) return;
-      const json = JSON.stringify(alanlar);
-      if (json === icraSonJson) return;
-      icraSonJson = json;
+      if (!alanlar.borcluAdi && !alanlar.icraEsasNo) return false;
       if (chrome && chrome.storage && chrome.storage.local) {
         await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon: 'icra_itiraz', alanlar, kaynak: 'icra-sayfa', zaman: Date.now() } });
+        return true;
       }
-    } catch (e) { /* deneme gözlemcisi sessiz kalır */ }
+      return false;
+    } catch (e) { return false; }
   };
-  setInterval(checkIcraOtofill, 3000);
-  setTimeout(checkIcraOtofill, 2000);
+  // İstek-yanıt: paneldeki düğme `lexudf.otofill-istek` yazar, biz BİR KEZ okuyup
+  // yanıtı yazarız. Sürekli izleme yok; portal indir düğmesiyle bağ yok.
+  try {
+    if (chrome && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((degisen, alan) => {
+        if (alan === 'local' && degisen['lexudf.otofill-istek']?.newValue) {
+          checkIcraOtofill();
+        }
+      });
+    }
+  } catch (e) { /* dinleyici kurulamazsa düğme zaman aşımına düşer */ }
 } catch (e) { /* deneme bloğu ana akışı etkilemez */ }
 
 })();
