@@ -1270,6 +1270,14 @@ try {
     if (list.some(r => r.includes('davali'))) return 'davali';
     return '';
   };
+  const otofillNormMah = (ham) => {
+    const t = String(ham || '').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    const fl = otofillFold(t);
+    const m = fl.match(/^(.*)\s+mahkemesi\s*\.?\s*$/);
+    if (!m) return t;
+    return t.slice(0, m[1].length).trim() || t;
+  };
   const checkDavaOtofill = async (sablon) => {
     try {
       if (!window.location.href.includes('uyap.gov.tr')) return false;
@@ -1277,10 +1285,26 @@ try {
       for (const titleContainer of basliklar) {
         let popupScope = null;
         try { popupScope = findPopupContainer(titleContainer); } catch (e) { continue; }
-        if (!popupScope || !isPartyTableRendered(popupScope)) continue;
+        if (!popupScope) continue;
         const header = parseCaseHeader(titleContainer);
         if (!header || header.dosya_no === 'Tespit Edilemedi') continue;
         const avukat = (typeof getLoggedInAttorney === 'function') ? getLoggedInAttorney() : '';
+        // Soruşturma sayfasında taraf tablosu olmaz: başlık varsa partiyi bekleme,
+        // başsavcılık + dosya no yazılır, tarafı kullanıcı elle seçer.
+        // (Yalnızca inceleme: CMK sayfasından hiçbir veri çekilemediği için düğmesi kaldırıldı.)
+        const tabloVar = isPartyTableRendered(popupScope);
+        if (sablon === 'inceleme' && !tabloVar) {
+          const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
+          const alanlar = sablon === 'inceleme'
+            ? { bassavcilik: sehir, sorusturma: header.dosya_no }
+            : { cmkBassavcilik: sehir, cmkSorusturmaNo: header.dosya_no };
+          if (chrome && chrome.storage && chrome.storage.local) {
+            await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon, alanlar, kaynak: 'sorusturma-baslik', zaman: Date.now() } });
+            return true;
+          }
+          continue;
+        }
+        if (!tabloVar) continue;
         const parties = extractPartiesAndRoles(avukat, popupScope);
         const mvk = (parties.muvekkiller && parties.muvekkiller.length) ? parties.muvekkiller : [];
         const ilk = mvk[0] || null;
@@ -1292,11 +1316,11 @@ try {
         } else if (sablon === 'cmk_kayit') {
           alanlar = { cmkBassavcilik: sehir, cmkSorusturmaNo: header.dosya_no, cmkRol: roller.length ? otofillSupheliMi(roller) : '', cmkTarafIsim: ilk ? ilk.adi : '' };
         } else if (sablon === 'gerekceli_karar') {
-          alanlar = { gkMahkemeAdi: header.mahkeme, gkEsasNo: header.dosya_no, gkTarafAdi: ilk ? ilk.adi : '' };
+          alanlar = { gkMahkemeAdi: otofillNormMah(header.mahkeme), gkEsasNo: header.dosya_no, gkTarafAdi: ilk ? ilk.adi : '' };
           const r = roller.length ? otofillDavaciMi(roller) : '';
           if (r) alanlar.gkTarafRolu = r;
         } else if (sablon === 'kesinlesme_talebi') {
-          alanlar = { kesMahkemeAdi: header.mahkeme, kesEsasNo: header.dosya_no, kesTarafAdi: ilk ? ilk.adi : '' };
+          alanlar = { kesMahkemeAdi: otofillNormMah(header.mahkeme), kesEsasNo: header.dosya_no, kesTarafAdi: ilk ? ilk.adi : '' };
           const r = roller.length ? otofillDavaciMi(roller) : '';
           if (r) alanlar.kesTarafRolu = r;
         } else { continue; }

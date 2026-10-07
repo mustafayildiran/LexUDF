@@ -550,7 +550,7 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
 
 console.log('\n14) Dava/soruşturma otomatik doldurma (yetki belgesi hariç)');
 {
-  const { mapDavaOtofill, rolSupheliMi, rolDavaciMi, sehirCikar } =
+  const { mapDavaOtofill, rolSupheliMi, rolDavaciMi, sehirCikar, normalizeMahkemeAdi } =
     await import('../js/core/otofill.js');
   const header = { mahkeme: 'YALOVA 2. ASLİYE HUKUK', dosyaNo: '2026/123' };
   const taraflar = [
@@ -583,15 +583,31 @@ console.log('\n14) Dava/soruşturma otomatik doldurma (yetki belgesi hariç)');
     assert.equal(kes.kesTarafRolu, 'davaci');
     assert.ok(!('kesKararNo' in kes), 'karar no doldurulmamalı');
   });
+  ok('mahkeme soneki ayıklanır (MAHKEMESİNE tekrarı olmaz)', () => {
+    assert.equal(normalizeMahkemeAdi('YALOVA 2. ASLİYE HUKUK MAHKEMESİ'), 'YALOVA 2. ASLİYE HUKUK');
+    assert.equal(normalizeMahkemeAdi('Yalova 2. Asliye Hukuk Mahkemesi'), 'Yalova 2. Asliye Hukuk');
+    assert.equal(normalizeMahkemeAdi('İSTANBUL 1. ASLİYE TİCARET'), 'İSTANBUL 1. ASLİYE TİCARET');
+    const gk = mapDavaOtofill('gerekceli_karar',
+      { mahkeme: 'YALOVA 2. ASLİYE HUKUK MAHKEMESİ', dosyaNo: '2026/123' }, taraflar, 'Mustafa Yıldıran');
+    assert.equal(gk.gkMahkemeAdi, 'YALOVA 2. ASLİYE HUKUK');
+    assert.ok(!gk.gkMahkemeAdi.toLocaleLowerCase('tr').includes('mahkeme'), 'sonek kalmamalı');
+  });
   ok('eşleşen müvekkil yoksa isim boş kalır (yanlış ad yazılmaz)', () => {
     const out = mapDavaOtofill('inceleme', header,
       [{ rol: 'Davacı', adi: 'X', vekil: '[av. baskasi]' }], 'Mustafa Yıldıran');
     assert.equal(out.isim, '');
   });
-  ok('5 formda düğme var, yetki belgesinde yok', () => {
+  ok('soruşturma sayfası (taraf tablosu yok): başsavcılık + no dolar, taraf elle kalır', () => {
+    const out = mapDavaOtofill('inceleme', { mahkeme: 'BURSA', dosyaNo: '2024/999' }, [], 'Mustafa Yıldıran');
+    assert.deepEqual(out, { bassavcilik: 'BURSA', sorusturma: '2024/999', rol: '', isim: '' });
+    const cmk = mapDavaOtofill('cmk_kayit', { mahkeme: 'BURSA', dosyaNo: '2024/999' }, [], 'Mustafa Yıldıran');
+    assert.deepEqual(cmk, { cmkBassavcilik: 'BURSA', cmkSorusturmaNo: '2024/999', cmkRol: '', cmkTarafIsim: '' });
+  });
+  ok('4 formda düğme var, yetki belgesi ve CMK kaydında yok', () => {
     const html = fs.readFileSync(new URL('../popup.html', import.meta.url), 'utf8');
-    for (const s of ['inceleme', 'cmk_kayit', 'icra_itiraz', 'gerekceli_karar', 'kesinlesme_talebi'])
+    for (const s of ['inceleme', 'icra_itiraz', 'gerekceli_karar', 'kesinlesme_talebi'])
       assert.ok(html.includes(`data-sablon="${s}"`), `${s} düğmesi yok`);
+    assert.ok(!html.includes('data-sablon="cmk_kayit"'), 'cmk düğmesi kaldırılmalıydı');
     const yetkiBolumu = html.slice(html.indexOf('id="groupYetkiBelgesi"'));
     assert.ok(!yetkiBolumu.slice(0, yetkiBolumu.indexOf('id="groupCmk"')).includes('btn-otofill'), 'yetki belgesinde düğme olmamalı');
   });

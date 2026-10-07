@@ -37,6 +37,18 @@ export function sehirCikar(mahkeme) {
   return s ? s.split(' ')[0] : '';
 }
 
+// Mahkeme adı şablonlarda "MAHKEMESİNE" ekini otomatik alır
+// (ipucu: "Tam mahkeme adını yazınız" = soneksiz). UYAP başlığındaki
+// "Mahkemesi" soneki o yüzden temizlenir: "YALOVA 2. ASLİYE HUKUK MAHKEMESİ" -> "YALOVA 2. ASLİYE HUKUK".
+export function normalizeMahkemeAdi(ham) {
+  if (!ham) return '';
+  const t = String(ham).replace(/\s+/g, ' ').trim();
+  const fl = foldTr(t);
+  const m = fl.match(/^(.*)\s+mahkemesi\s*\.?\s*$/);
+  if (!m) return t;
+  return t.slice(0, m[1].length).trim() || t;
+}
+
 function muvekkiller(taraflar, avukatAdi) {
   const list = taraflar || [];
   const eslesen = list.filter(t => isAttorneyMatch(avukatAdi, t.vekil || ''));
@@ -69,13 +81,13 @@ export function mapDavaOtofill(sablon, header, taraflar, avukatAdi) {
       };
     case 'gerekceli_karar': {
       const r = roller.length ? rolDavaciMi(roller) : '';
-      const out = { gkMahkemeAdi: mahkeme, gkEsasNo: dosyaNo, gkTarafAdi: ilkMvk ? ilkMvk.adi : '' };
+      const out = { gkMahkemeAdi: normalizeMahkemeAdi(mahkeme), gkEsasNo: dosyaNo, gkTarafAdi: ilkMvk ? ilkMvk.adi : '' };
       if (r) out.gkTarafRolu = r;
       return out;
     }
     case 'kesinlesme_talebi': {
       const r = roller.length ? rolDavaciMi(roller) : '';
-      const out = { kesMahkemeAdi: mahkeme, kesEsasNo: dosyaNo, kesTarafAdi: ilkMvk ? ilkMvk.adi : '' };
+      const out = { kesMahkemeAdi: normalizeMahkemeAdi(mahkeme), kesEsasNo: dosyaNo, kesTarafAdi: ilkMvk ? ilkMvk.adi : '' };
       if (r) out.kesTarafRolu = r;
       return out;
     }
