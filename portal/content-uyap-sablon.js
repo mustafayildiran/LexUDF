@@ -1255,12 +1255,68 @@ try {
   };
   // İstek-yanıt: paneldeki düğme `lexudf.otofill-istek` yazar, biz BİR KEZ okuyup
   // yanıtı yazarız. Sürekli izleme yok; portal indir düğmesiyle bağ yok.
+  // Dava/soruşturma şablonları dava penceresinden, icra şablonu icra sayfasından okur.
+  const otofillFold = (s) => String(s || '').toLocaleLowerCase('tr')
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const otofillSupheliMi = (roller) => {
+    const list = (Array.isArray(roller) ? roller : [roller]).map(otofillFold);
+    const ok = list.some(r => r.includes('sanik') || r.includes('supheli') || r.includes('suruklenen') || (r.includes('suc') && r.includes('cocuk')));
+    return ok ? 'supheli' : 'musteki';
+  };
+  const otofillDavaciMi = (roller) => {
+    const list = (Array.isArray(roller) ? roller : [roller]).map(otofillFold);
+    if (list.some(r => r.includes('davaci'))) return 'davaci';
+    if (list.some(r => r.includes('davali'))) return 'davali';
+    return '';
+  };
+  const checkDavaOtofill = async (sablon) => {
+    try {
+      if (!window.location.href.includes('uyap.gov.tr')) return false;
+      const basliklar = document.querySelectorAll(CONFIG.POPUP_TITLE_CONTAINER);
+      for (const titleContainer of basliklar) {
+        let popupScope = null;
+        try { popupScope = findPopupContainer(titleContainer); } catch (e) { continue; }
+        if (!popupScope || !isPartyTableRendered(popupScope)) continue;
+        const header = parseCaseHeader(titleContainer);
+        if (!header || header.dosya_no === 'Tespit Edilemedi') continue;
+        const avukat = (typeof getLoggedInAttorney === 'function') ? getLoggedInAttorney() : '';
+        const parties = extractPartiesAndRoles(avukat, popupScope);
+        const mvk = (parties.muvekkiller && parties.muvekkiller.length) ? parties.muvekkiller : [];
+        const ilk = mvk[0] || null;
+        const roller = mvk.map(t => t.rol);
+        const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
+        let alanlar = null;
+        if (sablon === 'inceleme') {
+          alanlar = { bassavcilik: sehir, sorusturma: header.dosya_no, rol: roller.length ? otofillSupheliMi(roller) : '', isim: ilk ? ilk.adi : '' };
+        } else if (sablon === 'cmk_kayit') {
+          alanlar = { cmkBassavcilik: sehir, cmkSorusturmaNo: header.dosya_no, cmkRol: roller.length ? otofillSupheliMi(roller) : '', cmkTarafIsim: ilk ? ilk.adi : '' };
+        } else if (sablon === 'gerekceli_karar') {
+          alanlar = { gkMahkemeAdi: header.mahkeme, gkEsasNo: header.dosya_no, gkTarafAdi: ilk ? ilk.adi : '' };
+          const r = roller.length ? otofillDavaciMi(roller) : '';
+          if (r) alanlar.gkTarafRolu = r;
+        } else if (sablon === 'kesinlesme_talebi') {
+          alanlar = { kesMahkemeAdi: header.mahkeme, kesEsasNo: header.dosya_no, kesTarafAdi: ilk ? ilk.adi : '' };
+          const r = roller.length ? otofillDavaciMi(roller) : '';
+          if (r) alanlar.kesTarafRolu = r;
+        } else { continue; }
+        const dolu = Object.values(alanlar).some(v => v);
+        if (!dolu) continue;
+        if (chrome && chrome.storage && chrome.storage.local) {
+          await chrome.storage.local.set({ [ICRA_OTOFILL_KEY]: { sablon, alanlar, kaynak: 'dava-pencere', zaman: Date.now() } });
+          return true;
+        }
+      }
+      return false;
+    } catch (e) { return false; }
+  };
   try {
     if (chrome && chrome.storage && chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener((degisen, alan) => {
-        if (alan === 'local' && degisen['lexudf.otofill-istek']?.newValue) {
-          checkIcraOtofill();
-        }
+        const istek = alan === 'local' && degisen['lexudf.otofill-istek']?.newValue;
+        if (!istek) return;
+        if (istek.sablon === 'icra_itiraz') checkIcraOtofill();
+        else checkDavaOtofill(istek.sablon);
       });
     }
   } catch (e) { /* dinleyici kurulamazsa düğme zaman aşımına düşer */ }

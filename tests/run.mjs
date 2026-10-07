@@ -542,9 +542,58 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
   ok('panelde istek düğmesi var ve istek anahtarını yazıyor', () => {
     const html = fs.readFileSync(new URL('../popup.html', import.meta.url), 'utf8');
     const main = fs.readFileSync(new URL('../js/main.js', import.meta.url), 'utf8');
-    assert.ok(html.includes('id="icraOtofillBtn"'), 'icra grubunda düğme yok');
+    assert.ok(html.includes('data-sablon="icra_itiraz"'), 'icra grubunda düğme yok');
     assert.ok(main.includes('OTOFILL_ISTEK_KEY'), 'main.js istek anahtarını kullanmıyor');
-    assert.ok(main.includes('icraOtofillBtn'), 'main.js düğmeyi bağlamıyor');
+    assert.ok(main.includes('btn-otofill'), 'main.js düğmeleri bağlamıyor');
+  });
+}
+
+console.log('\n14) Dava/soruşturma otomatik doldurma (yetki belgesi hariç)');
+{
+  const { mapDavaOtofill, rolSupheliMi, rolDavaciMi, sehirCikar } =
+    await import('../js/core/otofill.js');
+  const header = { mahkeme: 'YALOVA 2. ASLİYE HUKUK', dosyaNo: '2026/123' };
+  const taraflar = [
+    { rol: 'Davacı', adi: 'MUVEKKIL A', vekil: '[MUSTAFA YILDIRAN]' },
+    { rol: 'Davalı', adi: 'KARSI B', vekil: '[av. baskasi]' }
+  ];
+  ok('rol çeviriciler', () => {
+    assert.equal(rolSupheliMi(['SANIK']), 'supheli');
+    assert.equal(rolSupheliMi(['Müşteki']), 'musteki');
+    assert.equal(rolDavaciMi(['Davacı']), 'davaci');
+    assert.equal(rolDavaciMi(['Davalı']), 'davali');
+    assert.equal(rolDavaciMi(['Müdahil']), '');
+    assert.equal(sehirCikar('YALOVA 2. ASLİYE HUKUK'), 'YALOVA');
+  });
+  ok('inceleme + cmk: başsavcılık, no, isim, rol dolar; avukat profile kalır', () => {
+    assert.deepEqual(mapDavaOtofill('inceleme', header, taraflar, 'Mustafa Yıldıran'),
+      { bassavcilik: 'YALOVA', sorusturma: '2026/123', rol: 'musteki', isim: 'MUVEKKIL A' });
+    assert.deepEqual(mapDavaOtofill('cmk_kayit', header, taraflar, 'Mustafa Yıldıran'),
+      { cmkBassavcilik: 'YALOVA', cmkSorusturmaNo: '2026/123', cmkRol: 'musteki', cmkTarafIsim: 'MUVEKKIL A' });
+  });
+  ok('gerekçeli + kesinleşme: mahkeme, esas, müvekkil dolar; karar no elle kalır', () => {
+    const gk = mapDavaOtofill('gerekceli_karar', header, taraflar, 'Mustafa Yıldıran');
+    assert.equal(gk.gkMahkemeAdi, 'YALOVA 2. ASLİYE HUKUK');
+    assert.equal(gk.gkEsasNo, '2026/123');
+    assert.equal(gk.gkTarafAdi, 'MUVEKKIL A');
+    assert.equal(gk.gkTarafRolu, 'davaci');
+    assert.ok(!('gkKararNo' in gk) && !('gkAvukatAdi' in gk), 'karar no ve avukat doldurulmamalı');
+    const kes = mapDavaOtofill('kesinlesme_talebi', header, taraflar, 'Mustafa Yıldıran');
+    assert.equal(kes.kesMahkemeAdi, 'YALOVA 2. ASLİYE HUKUK');
+    assert.equal(kes.kesTarafRolu, 'davaci');
+    assert.ok(!('kesKararNo' in kes), 'karar no doldurulmamalı');
+  });
+  ok('eşleşen müvekkil yoksa isim boş kalır (yanlış ad yazılmaz)', () => {
+    const out = mapDavaOtofill('inceleme', header,
+      [{ rol: 'Davacı', adi: 'X', vekil: '[av. baskasi]' }], 'Mustafa Yıldıran');
+    assert.equal(out.isim, '');
+  });
+  ok('5 formda düğme var, yetki belgesinde yok', () => {
+    const html = fs.readFileSync(new URL('../popup.html', import.meta.url), 'utf8');
+    for (const s of ['inceleme', 'cmk_kayit', 'icra_itiraz', 'gerekceli_karar', 'kesinlesme_talebi'])
+      assert.ok(html.includes(`data-sablon="${s}"`), `${s} düğmesi yok`);
+    const yetkiBolumu = html.slice(html.indexOf('id="groupYetkiBelgesi"'));
+    assert.ok(!yetkiBolumu.slice(0, yetkiBolumu.indexOf('id="groupCmk"')).includes('btn-otofill'), 'yetki belgesinde düğme olmamalı');
   });
 }
 
