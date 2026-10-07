@@ -1334,13 +1334,22 @@ try {
       return false;
     } catch (e) { return false; }
   };
+  // Tablo düğmeye basıldığı anda henüz çizilmemiş olabilir (sekmeye yeni
+  // geçildiyse): en fazla 3 deneme, 700ms arayla. Toplam ~2 sn < panel 8 sn.
+  const otofillDene = async (fn, deneme = 3) => {
+    for (let i = 0; i < deneme; i++) {
+      try { if (await fn()) return true; } catch (e) {}
+      await new Promise(r => setTimeout(r, 700));
+    }
+    return false;
+  };
   try {
     if (chrome && chrome.storage && chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener((degisen, alan) => {
         const istek = alan === 'local' && degisen['lexudf.otofill-istek']?.newValue;
         if (!istek) return;
-        if (istek.sablon === 'icra_itiraz') checkIcraOtofill();
-        else checkDavaOtofill(istek.sablon);
+        if (istek.sablon === 'icra_itiraz') otofillDene(checkIcraOtofill);
+        else otofillDene(() => checkDavaOtofill(istek.sablon));
       });
     }
   } catch (e) { /* dinleyici kurulamazsa düğme zaman aşımına düşer */ }

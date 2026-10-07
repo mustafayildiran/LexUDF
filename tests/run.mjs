@@ -538,6 +538,7 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
     const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
     assert.ok(!/setInterval\s*\(\s*checkIcraOtofill/.test(portal), 'içerik betiği periyodik yazmamalı (istek-yanıt olmalı)');
     assert.ok(portal.includes('lexudf.otofill-istek'), 'istek anahtarı dinlenmiyor');
+    assert.ok(portal.includes('otofillDene'), 'tablo geç renderına karşı tekrar deneme yok');
   });
   ok('panelde istek düğmesi var ve istek anahtarını yazıyor', () => {
     const html = fs.readFileSync(new URL('../popup.html', import.meta.url), 'utf8');
