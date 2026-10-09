@@ -3,6 +3,11 @@
 Paneldeki hazır şablonlar (`js/templates/` + `popup.html` formu).
 Yeni şablon ekleme işi bu taraftadır (prosedür: `docs/MIMARI.md`).
 
+## v1.2.1 (9 Ekim 2026)
+
+- Doldur düğmesi yalnızca ilgili sekme açıkken aktif (kapı bekçisi); yanlış
+  sekmede basıp takılma durumu kapandı.
+
 ## v1.2.0 (7 Ekim 2026)
 
 - 4 forma "Bilgileri otomatik doldur" düğmesi + ipucu (inceleme, icra itirazı,

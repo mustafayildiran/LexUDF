@@ -3,6 +3,11 @@
 UYAP Portal'dan otomatik taslak üreten içerik betiği (`portal/`).
 Çalıştığı sürece bu tarafa dokunulmaz (donduruldu).
 
+## v1.2.1 (9 Ekim 2026)
+
+- İçerik betiği hazır-listesi feneri (`lexudf.otofill-durum`): panel düğmeleri
+  ilgili sekme görünürken açılır.
+
 ## v1.2.0 (7 Ekim 2026)
 
 - İçerik betiği panel düğmesinden gelen tek seferlik okuma isteğini yanıtlar

@@ -4,6 +4,7 @@
 
 export const OTOFILL_KEY = 'lexudf.otofill';
 export const OTOFILL_ISTEK_KEY = 'lexudf.otofill-istek';
+export const OTOFILL_DURUM_KEY = 'lexudf.otofill-durum';
 
 function normalizeTr(text) {
   if (!text) return '';

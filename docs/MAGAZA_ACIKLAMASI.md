@@ -157,6 +157,7 @@ açıklamanın (bölüm 2) en başına ekleyip öyle yapıştırın.
 LexUDF 1.2.0
 
 • Matbu formlarda "Bilgileri otomatik doldur" düğmesi: açık UYAP dosyasından mahkeme, dosya/esas no ve taraf bilgileri forma aktarılır (yetki belgesi ve CMK kaydı hariç; eksikler elle tamamlanır).
+• Doldur düğmesi yalnızca ilgili UYAP sekmesi açıkken aktif olur; yanlış sekmede basılamaz.
 • Portal düğmesinin bazı dosya pencerelerinde görünmemesine yol açan başlık filtresi kaldırıldı.
 • Sıkıştırma kullanılamazsa UDF sıkıştırmasız yazılır; indirme yarıda kesilmez.
 • Taraf tablosu bulunamazsa düğme sessiz kalmak yerine uyarı gösterir.

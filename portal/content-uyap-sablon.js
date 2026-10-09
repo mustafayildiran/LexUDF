@@ -1353,6 +1353,63 @@ try {
       });
     }
   } catch (e) { /* dinleyici kurulamazsa düğme zaman aşımına düşer */ }
+  // Hazır-bilgi feneri: hangi şablonlar ŞU AN doldurulabilir?
+  // Paneldeki düğmeler yalnızca listedeki şablonlar için aktif olur; yanlış
+  // sekmede basıp hata alma ve ardından takılma durumu böylece kapanır.
+  // Salt-okunur yoklamadır (forma yazmaz, indirmez); değişince yazar.
+  const OTOFILL_DURUM_KEY = 'lexudf.otofill-durum';
+  let otofillDurumJson = '';
+  const icraSayfasiHazir = () => {
+    try {
+      const bodyMetni = document.body ? (document.body.innerText || '') : '';
+      if (!bodyMetni.includes('cra Dosyas')) return false;
+      let baslikOk = false;
+      for (const el of document.querySelectorAll('span')) {
+        const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
+        if (t.length > 10 && t.length < 200 && t.includes('cra Dosyas') && icraParseBaslik(t)) { baslikOk = true; break; }
+      }
+      if (!baslikOk) return false;
+      for (const row of document.querySelectorAll('tr.dx-data-row')) {
+        const c = row.querySelectorAll('td');
+        if (c.length !== 4) continue;
+        if (icraNormTr(c[0].innerText).includes('borclu') && c[2].innerText.trim()) return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  };
+  const davaPenceresiDurumu = () => {
+    let baslikVar = false, tabloVar = false;
+    try {
+      for (const titleContainer of document.querySelectorAll(CONFIG.POPUP_TITLE_CONTAINER)) {
+        let popupScope = null;
+        try { popupScope = findPopupContainer(titleContainer); } catch (e) { continue; }
+        if (!popupScope) continue;
+        const header = parseCaseHeader(titleContainer);
+        if (!header || header.dosya_no === 'Tespit Edilemedi') continue;
+        baslikVar = true;
+        if (isPartyTableRendered(popupScope)) { tabloVar = true; break; }
+      }
+    } catch (e) {}
+    return { baslikVar, tabloVar };
+  };
+  const otofillDurumYaz = async () => {
+    try {
+      if (!window.location.href.includes('uyap.gov.tr')) return;
+      if (!chrome || !chrome.storage || !chrome.storage.local) return;
+      const hazir = [];
+      if (icraSayfasiHazir()) hazir.push('icra_itiraz');
+      const dava = davaPenceresiDurumu();
+      if (dava.baslikVar) hazir.push('inceleme');
+      if (dava.tabloVar) hazir.push('gerekceli_karar', 'kesinlesme_talebi');
+      hazir.sort();
+      const json = JSON.stringify(hazir);
+      if (json === otofillDurumJson) return;
+      otofillDurumJson = json;
+      await chrome.storage.local.set({ [OTOFILL_DURUM_KEY]: { hazir, zaman: Date.now() } });
+    } catch (e) {}
+  };
+  setInterval(otofillDurumYaz, 2500);
+  setTimeout(otofillDurumYaz, 1500);
 } catch (e) { /* deneme bloğu ana akışı etkilemez */ }
 
 })();

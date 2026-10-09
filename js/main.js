@@ -7,7 +7,7 @@ import { findUnresolved, listPlaceholders } from './core/placeholders.js';
 import { createZipBlob } from './core/zip.js';
 import { shortPartForFilename } from './core/utils.js';
 import { initProfiles } from './core/profiles.js';
-import { OTOFILL_KEY, OTOFILL_ISTEK_KEY } from './core/icraOtofill.js';
+import { OTOFILL_KEY, OTOFILL_ISTEK_KEY, OTOFILL_DURUM_KEY } from './core/icraOtofill.js';
 
 const $ = id => document.getElementById(id);
 const dilekceTuruSel = $('dilekceTuru');
@@ -150,6 +150,28 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
 {
   const dugmeler = [...document.querySelectorAll('.btn-otofill[data-sablon]')];
   let bekleyen = '';
+  // Kapı bekçisi: düğme yalnızca UYAP'ta ilgili sekme ŞU AN görünürken aktiftir.
+  // İçerik betiği 2.5 sn'de bir hazır listesini yazar; 15 sn'den eski bilgi
+  // bayat sayılır. Böylece yanlış sekmede basıp takılma durumu kapanır.
+  const durumUygula = (durum) => {
+    const taze = durum && Array.isArray(durum.hazir) && durum.zaman && (Date.now() - durum.zaman) < 15000;
+    for (const btn of dugmeler) {
+      if (!btn.dataset.ipucu && btn.title) btn.dataset.ipucu = btn.title;
+      const ok = !!(taze && durum.hazir.includes(btn.dataset.sablon));
+      btn.disabled = !ok;
+      btn.title = ok ? (btn.dataset.ipucu || '') : 'Önce UYAP’ta ilgili dosya sekmesini açın (Taraf Bilgileri görünür olmalı)';
+    }
+  };
+  durumUygula(null);
+  (async () => {
+    try {
+      if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
+      // Bayat istek kalmasın: önceki oturumdan kalan istek yeni sayfayı tetiklemesin.
+      await chrome.storage.local.remove(OTOFILL_ISTEK_KEY).catch(() => {});
+      const res = await chrome.storage.local.get(OTOFILL_DURUM_KEY);
+      durumUygula(res?.[OTOFILL_DURUM_KEY]);
+    } catch (err) { console.error('Otofill durumu okunamadı:', err); }
+  })();
   const applyOtofill = (paket) => {
     if (!paket || !paket.sablon || !paket.alanlar) return false;
     const entries = Object.entries(paket.alanlar).filter(([, v]) => v);
@@ -176,7 +198,7 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
   for (const btn of dugmeler) {
     btn.addEventListener('click', async () => {
       const sablon = btn.dataset.sablon;
-      if (!sablon || bekleyen) return;
+      if (!sablon || bekleyen || btn.disabled) return;
       if (typeof chrome === 'undefined' || !chrome.storage?.local) {
         showMsg('Otomatik doldurma bu ortamda çalışmaz — alanları elle doldurun.', 'err');
         return;
@@ -237,6 +259,9 @@ initProfiles().catch(err => console.error('Profiller yüklenemedi:', err));
   try {
     if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
       chrome.storage.onChanged.addListener((degisen, alan) => {
+        if (alan === 'local' && degisen[OTOFILL_DURUM_KEY]?.newValue) {
+          durumUygula(degisen[OTOFILL_DURUM_KEY].newValue);
+        }
         if (alan === 'local' && degisen[OTOFILL_KEY]?.newValue && bekleyen) {
           const paket = degisen[OTOFILL_KEY].newValue;
           if (paket.sablon === bekleyen && applyOtofill(paket)) {

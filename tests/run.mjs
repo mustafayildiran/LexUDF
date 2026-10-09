@@ -547,6 +547,15 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
     assert.ok(main.includes('OTOFILL_ISTEK_KEY'), 'main.js istek anahtarını kullanmıyor');
     assert.ok(main.includes('btn-otofill'), 'main.js düğmeleri bağlamıyor');
   });
+  ok('kapı bekçisi: düğme yalnızca hazır sekmede aktif, bayat istek temizlenir', () => {
+    const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
+    const main = fs.readFileSync(new URL('../js/main.js', import.meta.url), 'utf8');
+    assert.ok(portal.includes('lexudf.otofill-durum'), 'durum feneri portalda yok');
+    assert.ok(portal.includes('otofillDurumYaz'), 'durum yazıcı portalda yok');
+    assert.ok(main.includes('OTOFILL_DURUM_KEY'), 'main.js durum anahtarını kullanmıyor');
+    assert.ok(main.includes('durumUygula'), 'main.js kapı bekçisi yok');
+    assert.ok(main.includes('remove(OTOFILL_ISTEK_KEY)'), 'bayat istek temizliği yok');
+  });
 }
 
 console.log('\n14) Dava/soruşturma otomatik doldurma (yetki belgesi hariç)');
