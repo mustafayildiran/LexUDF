@@ -65,6 +65,12 @@ function replaceBlock(text, block, file, start = START, end = END) {
   t = replaceBlock(t, asStoreList(), p);
   t = t.replace(/^DURUMLU_SABLON_SAYISI$/m, String(n));
   t = t.replace(/SÜRÜM_NUMARASI/g, surum);
+  // Yer tutucu ilk yazımda kalıcı sayıya dönüşür; sonraki sürümlerde de
+  // güncellensin diye sürüm kalıpları her çalışta manifestten tazelenir.
+  t = t.replace(/Sürüm: \*\*[\d.]+\*\*/, `Sürüm: **${surum}**`);
+  t = t.replace(/lexudf-[\d.]+-store\.zip/g, `lexudf-${surum}-store.zip`);
+  t = t.replace(/^LexUDF [\d.]+$/m, `LexUDF ${surum}`);
+  t = t.replace(/\*\*Sürüm [\d.]+\*\*/g, `**Sürüm ${surum}**`);
   t = replaceBlock(t, asShortDescription(), p, SHORT_START, SHORT_END);
   write(p, t);
   console.log('✓ docs/MAGAZA_ACIKLAMASI.md güncellendi');

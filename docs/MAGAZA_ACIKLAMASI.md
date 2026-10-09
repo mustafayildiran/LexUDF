@@ -2,7 +2,7 @@
 
 # Chrome Web Store — Gönderim Dosyası
 
-Sürüm: **1.2.0** · Yüklenecek dosya: **`lexudf-1.2.0-store.zip`**
+Sürüm: **1.2.1** · Yüklenecek dosya: **`lexudf-1.2.1-store.zip`**
 
 > Bu dosyadaki şablon listesi ve sayılar `scripts/sync-docs.mjs` tarafından
 > `js/templates/` altındaki kaynaktan üretilir. Şablon ekleyip çıkarınca
@@ -154,7 +154,7 @@ Dashboard'da ayrı bir sürüm notu alanı yoktur; aşağıdaki notları ana
 açıklamanın (bölüm 2) en başına ekleyip öyle yapıştırın.
 
 ```
-LexUDF 1.2.0
+LexUDF 1.2.1
 
 • Matbu formlarda "Bilgileri otomatik doldur" düğmesi: açık UYAP dosyasından mahkeme, dosya/esas no ve taraf bilgileri forma aktarılır (yetki belgesi ve CMK kaydı hariç; eksikler elle tamamlanır).
 • Doldur düğmesi yalnızca ilgili UYAP sekmesi açıkken aktif olur; yanlış sekmede basılamaz.
@@ -185,7 +185,7 @@ LexUDF 1.0.0
 ## 10. Gönderim öncesi kontrol listesi
 
 - [ ] `npm run release` çalıştırıldı: testlerin ve "Paket duman testi"nin geçtiği görüldü
-- [ ] `lexudf-1.2.0-store.zip` yüklendi (içinde `tests/`, `scripts/`, `*.md`, `package.json` yok)
+- [ ] `lexudf-1.2.1-store.zip` yüklendi (içinde `tests/`, `scripts/`, `*.md`, `package.json` yok)
 - [ ] Kısa açıklama yapıştırıldı (bölüm 1)
 - [ ] Ana açıklama yapıştırıldı (bölüm 2)
 - [ ] Kategori ve dil seçildi (bölüm 3)
