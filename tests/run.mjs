@@ -494,6 +494,9 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
   ok('başlık parse: esas + müdürlük ham', () => {
     assert.deepEqual(parseIcraBaslik('2026/123456 Konya 7. İcra Dairesi - İcra Dosyası'),
       { icraEsasNo: '2026/123456', mudurlukHam: 'Konya 7. İcra Dairesi' });
+    assert.deepEqual(parseIcraBaslik('Yalova İcra Dairesi 2026/12814'),
+      { icraEsasNo: '2026/12814', mudurlukHam: 'Yalova İcra Dairesi' });
+    assert.equal(parseIcraBaslik('YALOVA 2. ASLİYE HUKUK 2026/123'), null);
     assert.equal(parseIcraBaslik('alakasız metin'), null);
     assert.equal(parseIcraBaslik(''), null);
   });
@@ -519,6 +522,10 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
     assert.equal(out.icraEsasNo, '2026/123456');
     assert.equal(out.icraMudurlugu, 'Konya 7.');
     assert.equal(out.borcluAdi, 'MUVEKKIL C');
+    const popup = mapIcraOtofill('Yalova İcra Dairesi 2026/12814', satirlar, 'Mustafa Yıldıran');
+    assert.equal(popup.icraEsasNo, '2026/12814');
+    assert.equal(popup.icraMudurlugu, 'Yalova');
+    assert.equal(popup.borcluAdi, 'MUVEKKIL C');
   });
   ok('eşleşme yoksa tüm borçlular doldurulur (kullanıcı eler)', () => {
     const satirlar = [
@@ -531,7 +538,7 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
   ok('portal gömülü kopya çekirdekle aynı kuralları taşıyor', () => {
     const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
     assert.ok(portal.includes('lexudf.otofill'), 'otofill anahtarı portalda yok');
-    assert.ok(portal.includes('cra Dosyas'), 'icra başlık taraması portalda yok');
+    assert.ok(portal.includes('icra dosyasi') && portal.includes('icra dairesi'), 'icra başlık taraması portalda yok');
     assert.ok(portal.includes('icra_itiraz'), 'hedef şablon portalda yok');
   });
   ok('ayrışma: portal indir düğmesi kendi işini yapar, otomatik periyodik yazma yok', () => {

@@ -54,12 +54,23 @@ export function parseIcraBaslik(metin) {
   if (!metin) return null;
   const s = String(metin).replace(/\s+/g, ' ').trim();
   const fl = foldTr(s);
-  const m = fl.match(/^(\d+\/\d+)\s+(.+?)\s*-\s*icra dosyasi\s*$/);
-  if (!m) return null;
-  const sonek = ' - icra dosyasi';
-  const idx = fl.lastIndexOf(sonek);
-  if (idx < 0) return null;
-  return { icraEsasNo: s.slice(0, m[1].length).trim(), mudurlukHam: s.slice(m[1].length, idx).trim() };
+  // 1) "2026/123456 Konya 7. İcra Dairesi - İcra Dosyası" (kart başlığı)
+  let m = fl.match(/^(\d+\/\d+)\s+(.+?)\s*-\s*icra dosyasi\s*$/);
+  if (m) {
+    const sonek = ' - icra dosyasi';
+    const idx = fl.lastIndexOf(sonek);
+    if (idx < 0) return null;
+    return { icraEsasNo: s.slice(0, m[1].length).trim(), mudurlukHam: s.slice(m[1].length, idx).trim() };
+  }
+  // 2) "Yalova İcra Dairesi 2026/12814" (pencere başlığı, soneksiz).
+  // Dava başlıklarıyla karışmaması için "icra" ibaresi şart.
+  m = fl.match(/^(.+)\s+(\d+\/\d+)\s*$/);
+  if (m && /\bicra\s+(dairesi|mudurlugu)/.test(m[1])) {
+    const idx = s.lastIndexOf(m[2]);
+    if (idx < 0) return null;
+    return { icraEsasNo: m[2], mudurlukHam: s.slice(0, idx).trim() };
+  }
+  return null;
 }
 
 // "Konya 7. İcra Dairesi" -> "Konya 7." ; "İSTANBUL 1." -> aynen.
