@@ -1283,6 +1283,9 @@ try {
       if (!window.location.href.includes('uyap.gov.tr')) return false;
       const basliklar = document.querySelectorAll(CONFIG.POPUP_TITLE_CONTAINER);
       for (const titleContainer of basliklar) {
+        if (!elGorunur(titleContainer)) continue;
+        const ham = baslikMetniAl(titleContainer);
+        if (!ham || icraBasligiMi(ham)) continue;
         let popupScope = null;
         try { popupScope = findPopupContainer(titleContainer); } catch (e) { continue; }
         if (!popupScope) continue;
@@ -1294,6 +1297,7 @@ try {
         // (Yalnızca inceleme: CMK sayfasından hiçbir veri çekilemediği için düğmesi kaldırıldı.)
         const tabloVar = isPartyTableRendered(popupScope);
         if (sablon === 'inceleme' && !tabloVar) {
+          if (!sorusturmaBasligiMi(ham)) continue;
           const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
           const alanlar = sablon === 'inceleme'
             ? { bassavcilik: sehir, sorusturma: header.dosya_no }
@@ -1359,38 +1363,62 @@ try {
   // Salt-okunur yoklamadır (forma yazmaz, indirmez); değişince yazar.
   const OTOFILL_DURUM_KEY = 'lexudf.otofill-durum';
   let otofillDurumJson = '';
+  const elGorunur = (el) => {
+    try { return !!(el && (el.offsetWidth || el.offsetHeight || (el.getClientRects && el.getClientRects().length))); }
+    catch (e) { return false; }
+  };
+  const baslikMetniAl = (titleContainer) => {
+    try {
+      const textDiv = titleContainer.querySelector(CONFIG.POPUP_HEADER_TEXT_DIV);
+      if (!textDiv) return '';
+      return (textDiv.getAttribute('title') || textDiv.innerText || '').replace(/\s+/g, ' ').trim();
+    } catch (e) { return ''; }
+  };
+  const otofillFoldYerel = (s) => String(s || '').toLocaleLowerCase('tr')
+    .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  const icraBasligiMi = (t) => otofillFoldYerel(t).includes('icra');
+  const sorusturmaBasligiMi = (t) => {
+    const f = otofillFoldYerel(t);
+    return f.includes('sorusturma') || f.includes('cbs');
+  };
   const icraSayfasiHazir = () => {
     try {
-      const bodyMetni = document.body ? (document.body.innerText || '') : '';
-      if (!bodyMetni.includes('cra Dosyas')) return false;
+      const govde = document.documentElement ? (document.documentElement.textContent || '') : '';
+      if (!otofillFoldYerel(govde).includes('icra dosyasi')) return false;
       let baslikOk = false;
-      for (const el of document.querySelectorAll('span')) {
-        const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
-        if (t.length > 10 && t.length < 200 && t.includes('cra Dosyas') && icraParseBaslik(t)) { baslikOk = true; break; }
+      const spanlar = document.querySelectorAll('span');
+      const sinir = Math.min(spanlar.length, 4000);
+      for (let i = 0; i < sinir; i++) {
+        const t = (spanlar[i].textContent || '').replace(/\s+/g, ' ').trim();
+        if (t.length > 10 && t.length < 200 && icraParseBaslik(t)) { baslikOk = true; break; }
       }
       if (!baslikOk) return false;
       for (const row of document.querySelectorAll('tr.dx-data-row')) {
         const c = row.querySelectorAll('td');
         if (c.length !== 4) continue;
-        if (icraNormTr(c[0].innerText).includes('borclu') && c[2].innerText.trim()) return true;
+        if (icraNormTr(c[0].textContent).includes('borclu') && (c[2].textContent || '').trim()) return true;
       }
       return false;
     } catch (e) { return false; }
   };
   const davaPenceresiDurumu = () => {
-    let baslikVar = false, tabloVar = false;
+    let sorusturmaBaslikVar = false, tabloVar = false;
     try {
       for (const titleContainer of document.querySelectorAll(CONFIG.POPUP_TITLE_CONTAINER)) {
+        if (!elGorunur(titleContainer)) continue;
+        const ham = baslikMetniAl(titleContainer);
+        if (!ham || icraBasligiMi(ham)) continue;
         let popupScope = null;
         try { popupScope = findPopupContainer(titleContainer); } catch (e) { continue; }
         if (!popupScope) continue;
         const header = parseCaseHeader(titleContainer);
         if (!header || header.dosya_no === 'Tespit Edilemedi') continue;
-        baslikVar = true;
+        if (sorusturmaBasligiMi(ham)) sorusturmaBaslikVar = true;
         if (isPartyTableRendered(popupScope)) { tabloVar = true; break; }
       }
     } catch (e) {}
-    return { baslikVar, tabloVar };
+    return { sorusturmaBaslikVar, tabloVar };
   };
   const otofillDurumYaz = async () => {
     try {
@@ -1399,7 +1427,7 @@ try {
       const hazir = [];
       if (icraSayfasiHazir()) hazir.push('icra_itiraz');
       const dava = davaPenceresiDurumu();
-      if (dava.baslikVar) hazir.push('inceleme');
+      if (dava.sorusturmaBaslikVar) hazir.push('inceleme');
       if (dava.tabloVar) hazir.push('gerekceli_karar', 'kesinlesme_talebi');
       hazir.sort();
       const json = JSON.stringify(hazir);
