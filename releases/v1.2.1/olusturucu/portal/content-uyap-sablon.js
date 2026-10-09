@@ -1309,7 +1309,7 @@ try {
         const tabloVar = isPartyTableRendered(popupScope);
         if (sablon === 'inceleme' && !tabloVar) {
           if (!sorusturmaBasligiMi(ham)) continue;
-          const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
+          const sehir = otofillSehir(header.mahkeme);
           const alanlar = sablon === 'inceleme'
             ? { bassavcilik: sehir, sorusturma: header.dosya_no }
             : { cmkBassavcilik: sehir, cmkSorusturmaNo: header.dosya_no };
@@ -1324,7 +1324,7 @@ try {
         const mvk = (parties.muvekkiller && parties.muvekkiller.length) ? parties.muvekkiller : [];
         const ilk = mvk[0] || null;
         const roller = mvk.map(t => t.rol);
-        const sehir = String(header.mahkeme || '').replace(/\s+/g, ' ').trim().split(' ')[0] || '';
+        const sehir = otofillSehir(header.mahkeme);
         let alanlar = null;
         if (sablon === 'inceleme') {
           alanlar = { bassavcilik: sehir, sorusturma: header.dosya_no, rol: roller.length ? otofillSupheliMi(roller) : '', isim: ilk ? ilk.adi : '' };
@@ -1388,10 +1388,19 @@ try {
   const otofillFoldYerel = (s) => String(s || '').toLocaleLowerCase('tr')
     .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
     .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
-  const icraBasligiMi = (t) => otofillFoldYerel(t).includes('icra');
+  // Yalnız icra DAİRESİ/MÜDÜRLÜĞÜ dosyaları elenir; "İcra Hukuk Mahkemesi"
+  // bir mahkemedir, dava fenerini yakar.
+  const icraBasligiMi = (t) => /icra\s+(dairesi|mudurlugu)/.test(otofillFoldYerel(t));
   const sorusturmaBasligiMi = (t) => {
     const f = otofillFoldYerel(t);
-    return f.includes('sorusturma') || f.includes('cbs');
+    return f.includes('sorusturma') || f.includes('cbs') || f.includes('bassavcili');
+  };
+  const otofillSehir = (mahkeme) => {
+    const s = String(mahkeme || '').replace(/\s+/g, ' ').trim();
+    if (!s) return '';
+    const m = otofillFoldYerel(s).match(/^(.*)\s+cumhuriyet\s+bassavciligi\s*$/);
+    if (m) return s.slice(0, m[1].length).trim() || s.split(' ')[0];
+    return s.split(' ')[0];
   };
   const icraSayfasiHazir = () => {
     try {
