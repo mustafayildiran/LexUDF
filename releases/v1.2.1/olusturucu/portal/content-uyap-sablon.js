@@ -1195,11 +1195,19 @@ try {
     if (!metin) return null;
     const s = String(metin).replace(/\s+/g, ' ').trim();
     const fl = icraFold(s);
-    const m = fl.match(/^(\d+\/\d+)\s+(.+?)\s*-\s*icra dosyasi\s*$/);
-    if (!m) return null;
-    const idx = fl.lastIndexOf(' - icra dosyasi');
-    if (idx < 0) return null;
-    return { esas: s.slice(0, m[1].length).trim(), ham: s.slice(m[1].length, idx).trim() };
+    let m = fl.match(/^(\d+\/\d+)\s+(.+?)\s*-\s*icra dosyasi\s*$/);
+    if (m) {
+      const idx = fl.lastIndexOf(' - icra dosyasi');
+      if (idx < 0) return null;
+      return { esas: s.slice(0, m[1].length).trim(), ham: s.slice(m[1].length, idx).trim() };
+    }
+    m = fl.match(/^(.+)\s+(\d+\/\d+)\s*$/);
+    if (m && /\bicra\s+(dairesi|mudurlugu)/.test(m[1])) {
+      const idx = s.lastIndexOf(m[2]);
+      if (idx < 0) return null;
+      return { esas: m[2], ham: s.slice(0, idx).trim() };
+    }
+    return null;
   };
   const icraNormMud = (ham) => {
     if (!ham) return '';
@@ -1220,12 +1228,15 @@ try {
   const checkIcraOtofill = async () => {
     try {
       if (!window.location.href.includes('uyap.gov.tr')) return false;
-      const bodyMetni = document.body ? (document.body.innerText || '') : '';
-      if (!bodyMetni.includes('cra Dosyas')) return false;
+      const govde = document.documentElement ? (document.documentElement.textContent || '') : '';
+      const katlanmis = icraFold(govde);
+      if (!katlanmis.includes('icra dosyasi') && !katlanmis.includes('icra dairesi') && !katlanmis.includes('icra mudurlugu')) return false;
       let baslik = '';
-      for (const el of document.querySelectorAll('span')) {
-        const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
-        if (t.length > 10 && t.length < 200 && t.includes('cra Dosyas') && icraParseBaslik(t)) { baslik = t; break; }
+      const adaylar = document.querySelectorAll('span, h4');
+      const sinir = Math.min(adaylar.length, 4000);
+      for (let i = 0; i < sinir; i++) {
+        const t = (adaylar[i].textContent || '').replace(/\s+/g, ' ').trim();
+        if (t.length > 10 && t.length < 200 && icraParseBaslik(t)) { baslik = t; break; }
       }
       if (!baslik) return false;
       const parsed = icraParseBaslik(baslik);
@@ -1385,12 +1396,13 @@ try {
   const icraSayfasiHazir = () => {
     try {
       const govde = document.documentElement ? (document.documentElement.textContent || '') : '';
-      if (!otofillFoldYerel(govde).includes('icra dosyasi')) return false;
+      const katlanmis = otofillFoldYerel(govde);
+      if (!katlanmis.includes('icra dosyasi') && !katlanmis.includes('icra dairesi') && !katlanmis.includes('icra mudurlugu')) return false;
       let baslikOk = false;
-      const spanlar = document.querySelectorAll('span');
-      const sinir = Math.min(spanlar.length, 4000);
+      const adaylar = document.querySelectorAll('span, h4');
+      const sinir = Math.min(adaylar.length, 4000);
       for (let i = 0; i < sinir; i++) {
-        const t = (spanlar[i].textContent || '').replace(/\s+/g, ' ').trim();
+        const t = (adaylar[i].textContent || '').replace(/\s+/g, ' ').trim();
         if (t.length > 10 && t.length < 200 && icraParseBaslik(t)) { baslikOk = true; break; }
       }
       if (!baslikOk) return false;
