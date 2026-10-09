@@ -1052,6 +1052,21 @@ async function generateUdfDocument(data) {
 // hover'da tooltip gösterir. Konumu: "Taraf Bilgileri" sekmesinin İÇİNDE,
 // yazının hemen yanı (sekme yoksa başlık metninin yanı; sekme belirince taşınır).
 
+// Kapı: dosya penceresi olmayan (e-imza girişi, duyuru vb.) popuplara düğme konmaz.
+// Dosya penceresi = başlığında dosya no VEYA taraf tablosu VAR VEYA CBS soruşturma.
+function popupDosyaPenceresiMi(titleContainer, popupScope) {
+  try {
+    const textDiv = titleContainer.querySelector(CONFIG.POPUP_HEADER_TEXT_DIV);
+    if (!textDiv) return false;
+    const t = ((textDiv.getAttribute && textDiv.getAttribute('title')) || textDiv.innerText || '').trim();
+    if (!t) return false;
+    const d = t.toLocaleLowerCase('tr');
+    if (d.includes('cbs') && (d.includes('soruşturma') || d.includes('sorusturma'))) return true;
+    if (/(\d+\/\d+)/.test(t)) return true;
+    return isPartyTableRendered(popupScope);
+  } catch (e) { return false; }
+}
+
 function checkAndInjectPopup() {
   const popupTitles = document.querySelectorAll(CONFIG.POPUP_TITLE_CONTAINER);
   
@@ -1063,6 +1078,9 @@ function checkAndInjectPopup() {
     if (!closeBtn) return;
 
     const popupScope = findPopupContainer(titleContainer);
+
+    // Dosya penceresi değilse (e-imza girişi vb.) dokunma: düğme yok, izleyici yok.
+    if (!popupDosyaPenceresiMi(titleContainer, popupScope)) return;
 
     // Aynı popup'ta buton zaten varsa yeniden üretme (başlık sekme tıklayınca
     // re-render oluyor, guard yeni düğümde tutmuyor; eski buton sekmede yaşar).
