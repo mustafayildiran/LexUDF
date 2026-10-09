@@ -547,6 +547,12 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
     assert.ok(main.includes('OTOFILL_ISTEK_KEY'), 'main.js istek anahtarını kullanmıyor');
     assert.ok(main.includes('btn-otofill'), 'main.js düğmeleri bağlamıyor');
   });
+  ok('fener bağlam duyarlı: icra başlığı dava fenerini yakmaz, görünmez pencere sayılmaz', () => {
+    const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
+    assert.ok(portal.includes('icraBasligiMi'), 'icra başlık koruması yok');
+    assert.ok(portal.includes('sorusturmaBasligiMi'), 'soruşturma bağlamı aranmıyor');
+    assert.ok(portal.includes('elGorunur'), 'görünürlük kontrolü yok');
+  });
   ok('kapı bekçisi: düğme yalnızca hazır sekmede aktif, bayat istek temizlenir', () => {
     const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
     const main = fs.readFileSync(new URL('../js/main.js', import.meta.url), 'utf8');
