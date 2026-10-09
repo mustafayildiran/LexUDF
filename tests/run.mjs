@@ -557,7 +557,9 @@ console.log('\n13) İcra otomatik doldurma (deneme/icra-otofill — saf ayrışt
   ok('fener bağlam duyarlı: icra başlığı dava fenerini yakmaz, görünmez pencere sayılmaz', () => {
     const portal = fs.readFileSync(new URL('../portal/content-uyap-sablon.js', import.meta.url), 'utf8');
     assert.ok(portal.includes('icraBasligiMi'), 'icra başlık koruması yok');
+    assert.ok(/icra\\s\+\(dairesi\|mudurlugu\)/.test(portal), 'icra koruması mahkemeyi de eliyor olmalı (daraltılmalı)');
     assert.ok(portal.includes('sorusturmaBasligiMi'), 'soruşturma bağlamı aranmıyor');
+    assert.ok(portal.includes('bassavcili'), 'başsavcılık bağlamı eksik');
     assert.ok(portal.includes('elGorunur'), 'görünürlük kontrolü yok');
   });
   ok('kapı bekçisi: düğme yalnızca hazır sekmede aktif, bayat istek temizlenir', () => {
@@ -587,6 +589,8 @@ console.log('\n14) Dava/soruşturma otomatik doldurma (yetki belgesi hariç)');
     assert.equal(rolDavaciMi(['Davalı']), 'davali');
     assert.equal(rolDavaciMi(['Müdahil']), '');
     assert.equal(sehirCikar('YALOVA 2. ASLİYE HUKUK'), 'YALOVA');
+    assert.equal(sehirCikar('Yalova Cumhuriyet Başsavcılığı'), 'Yalova');
+    assert.equal(sehirCikar('İstanbul Anadolu Cumhuriyet Başsavcılığı'), 'İstanbul Anadolu');
   });
   ok('inceleme + cmk: başsavcılık, no, isim, rol dolar; avukat profile kalır', () => {
     assert.deepEqual(mapDavaOtofill('inceleme', header, taraflar, 'Mustafa Yıldıran'),

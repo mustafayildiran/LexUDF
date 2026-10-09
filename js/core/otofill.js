@@ -31,10 +31,15 @@ export function rolDavaciMi(roller) {
   return '';
 }
 
-// Başsavcılık alanı il/ilçe adı bekler ("YALOVA"); mahkeme metninden ilk kelime alınır.
+// Başsavcılık alanı il/ilçe adı bekler ("Yalova", "İstanbul Anadolu").
+// "Yalova Cumhuriyet Başsavcılığı" -> "Yalova" (sonek atılır, kalan aynen).
 export function sehirCikar(mahkeme) {
   const s = String(mahkeme || '').replace(/\s+/g, ' ').trim();
-  return s ? s.split(' ')[0] : '';
+  if (!s) return '';
+  const fl = foldTr(s);
+  const m = fl.match(/^(.*)\s+cumhuriyet\s+bassavciligi\s*$/);
+  if (m) return s.slice(0, m[1].length).trim() || s.split(' ')[0];
+  return s.split(' ')[0];
 }
 
 // Mahkeme adı şablonlarda "MAHKEMESİNE" ekini otomatik alır
